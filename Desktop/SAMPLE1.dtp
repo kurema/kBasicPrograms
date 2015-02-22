@@ -1,105 +1,39 @@
-clearinput()
 lock()
 posx=FNKPOSX
 posy=FNKPOSY
 objx=FNKOBJX
 objy=FNKOBJY
-soft1("-")
-soft2("Exit")
+wsize=min(objx,objy)/2
 origin(posx,posy)
 drawarea(0,0,objx,objy)
-
-label 1
-gc()
-lock()
-color(0,127,255)
-frect(0,0,104,100)
-'color(0,0,0)
-'frect(8,4,88,96)
-clear(8,4,88,96)
-color(0,255,255)
-for i=0 to 4
-  for j=0 to 3
-    B[i][j]=abs(rand)%6
-    if B[i][j]>0 then
-      frect(20+i*13,12+j*9,8,4)
-      n=n+1
-    endif
-  next
-next
-unlock(1)
-x=40
-XV=abs(rand)%4+1
-X=42
-Y=84
-YV=XV-5
-C=0
-label 0
-lock()
-clear(x,88,12,5)
-clear(X,Y,4,4)
-A=scan 
-if A=8192 and x>8 then
-  x=x-4
-elseif A=16384 and x<84 then
-  x=x+4
-elseif A=2 or A=keysoft2 then
-  origin(width,height)
-  end
-endif
-X=X+XV
-Y=Y+YV
-if X<9 then
-  X=8
-  XV=-XV
-elseif X>91 then
-  X=92
-  XV=-XV
-endif
-if Y<5 then
-  Y=4
-  YV=-YV
-endif
-if abs(Y-86)<3 and abs(X-x-4)<9 then
-  XV=(X-x-4)/2
-  while XV=0
-    XV=rand%2
-  wend
-  YV=abs(XV)-5
-elseif Y>95 then
-  Y=84
-  YV=-3
-  X=x+4
-endif
-if abs(Y-24)<17 then
-  if abs(X-48)<33 then
-    Q=(X-16)/13
-    R=(Y-8)/9
-    if B[Q][R]>0 then
-      B[Q][R]=0
-      clear(Q*13+20,R*9+12,8,4)
-      if X<Q*13+17 or X>Q*13+27 then
-        XV=-XV
-      endif
-      if Y<R*9+10 or Y>R*9+14 then
-        YV=-YV
-      endif
-      n=n-1
-      if n=0 then
-        C=1
-      endif
-    endif
-  endif
-endif
-color(255,0,0)
-frect(x,88,12,5)
-farc(X,Y,4,4)
-unlock(1)
+while 1
+gosub"cls"
+color(0,128,128)
+a=hour*30+minute/2 b=60
+gosub"mkl"
+a=minute*6 b=90
+gosub"mkl"
+color(0,0,0)
+a=second*6 b=100
+gosub"mkl"
+mes=year+"/"+month+"/"+dayofmonth
+text(mes,(objx-strwidth(mes))/2,objy/4)
+gosub"renew"
+while second=osec
 yield()
-if C then
-  color(255,0,0)
-  text("CLEAR",20,44)
-  sleep(999)
-  goto 1
-endif
-goto 0
+wend
+osec=second
+wend
+
+label mkl
+line((objx/2),(objy/2),(objx/2)+sin(a)*wsize*b/10000,(objy/2)-cos(a)*wsize*b/10000)
+return
+
+label renew
+unlock(1)lock()
+return
+
+label cls
+color(192,192,192)
+frect(0,0,objx,objy)
+return
