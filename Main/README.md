@@ -1,12 +1,12 @@
 #取扱説明書
 
 ##内容物の確認
-0.src
-...(files)...
-21.src
-demo.src
-License.txt
-readme.txt
+0.src  
+...  
+21.src  
+demo.src  
+License.txt  
+readme.txt  
 
 ##備考
 本プログラムは携帯BASIC V用に作られたプロブラム集です。
