@@ -1,0 +1,98 @@
+gc()
+gosub"init"
+
+label main
+gosub"calc"
+gosub"cls"
+gosub"drF"
+gosub"drE"
+gosub"drB"
+gosub"keyMan"
+gosub"refresh"
+goto"main"
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,width,height)
+return
+
+label drF
+color(frr,frg,frb)
+frect(width-spc,frY,wdt,lenF)
+return
+
+label drE
+color(enr,eng,enb)
+frect(spc-wdt,enY,wdt,lenE)
+return
+
+label drB
+color(blr,blg,blb)
+farc(blX/100-1,blY/100-1,3,3)
+return
+
+label init
+soft1("") soft2("end")
+speed=1
+blr=255 blg=255 blb=255
+enr=255 eng=255 enb=255
+frr=255 frg=255 frb=255
+bgr=0 bgg=0 bgb=0
+blX=width/2 blY=height/2
+blX=blX*100 blY=blY*100
+enY=0 lenE=30 wdt=5
+frY=0 lenF=30 spc=20
+mvs=4*speed degB=-60
+eof=1 spd=5*speed
+funnyBall=1
+return
+
+label keyMan
+ipt=scan
+if ipt and keyup then frY=max(frY-mvs,0) endif
+if ipt and keydown then frY=min(frY+mvs,height-lenF) endif
+if ipt and keysoft2 then end endif
+if ipt and key1 then funnyBall=(funnyBall+3)%9 text(funnyBall,0,0) endif
+return
+
+label refresh
+unlock(1)lock()
+return
+
+label calc
+blX=blX+cos(degB)*eof*spd
+blY=blY+sin(degB)*spd
+if blY/100>height or blY<0 then degB=-degB endif
+enY=min(max(enY+(enY<blY/100-lenE/2)*mvs-(enY>blY/100-lenE/2)*mvs,0),height-lenE)
+if (spc*100-blX)*(width-spc-blX/100)>0 then gosub"chkRef" endif
+if blX/100<10 or blX/100>width-10 then goto"die"endif
+degB=min(max(degB+rand%funnyBall,-90),90)
+return
+
+label chkRef
+if (spc*100>blX and blY>enY*100 and blY/100<enY+lenE)then eof=1 degB=min(max(degB+3*(blY/100-enY-lenE/2),-75),75)
+elseif (width-spc<blX/100 and blY>frY*100 and blY/100<frY+lenF)then eof=-1 degB=min(max(degB+3*(blY/100-frY-lenF/2),-75),75)
+else 'goto"die"
+endif
+return
+
+label die
+color(255,0,0)
+if blX/100<10 then
+letter="YOU WON" textLine=-1 gosub"textCentre" frW=frW+1
+else
+letter="YOU LOST" textLine=-1 gosub"textCentre" enW=enW+1
+endif
+letter="GAMEOVER" textLine=0 gosub"textCentre"
+letter="ENEMY "+enW+" - "+frW+" YOU" textLine=1 gosub"textCentre"
+
+gosub"refresh"
+sleep(200)
+clearinput()
+input()
+gosub"init"
+goto"main"
+
+label textCentre
+text(letter,(width-strwidth(letter))/2,(height-strheight)/2+strheight*textLine)
+return

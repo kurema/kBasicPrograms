@@ -1,0 +1,695 @@
+label main
+gosub"initPrec"
+gosub"showUI"
+gosub"debugCode"
+end
+
+label debugCode
+arg1="123456,12345,*,12345,d,876000,543,a,a,999,s,"
+gosub"execCalcCode"
+text(ret,0,0)
+arg1="1.11111:1.123456"
+arg2="3.12345:2.1234567"
+gosub"mathFloatSingleMul"
+text(ret,0,20)
+tmpDC=ret
+arg1=tmpDC arg2=0 arg3=30 arg4=1
+gosub"showFloatNumType1"
+arg1=tmpDC
+arg2=3
+gosub"mathFloatSingleSDSet"
+arg1=ret
+gosub"getFloatNumType3"
+text(ret,0,60)
+arg1="2.123456789:2.0"
+arg2="2.98654321:2.3"
+gosub"mathFloatSingleAdd"
+arg1=ret
+gosub"getFloatNumType2"
+text(ret,0,80)
+arg1="2.123456789:2.2"
+gosub"getFloatNumType4"
+text(ret,0,100)
+'"002,003,005,007,011,013,017,019,023,029,031,037,041,043,047,053,059,061,067,071,073,079,083,089,097"
+input()
+return
+
+label showUI
+tmp=(strheight+5)
+for i=0 to 4
+line(0,height-tmp*i,width,height-tmp*i)
+line(0,height-tmp*i-2,width,height-tmp*i-2)
+next
+for i=0 to 3
+line(width*i/3,height-tmp*4,width*i/3,height)
+next
+tmp1="1 +,2 -,3 *,4 /,5 pow,6 log,7,8,9,*,0,#,"
+i=0
+while not(tmp1="")
+tmp2=stridx(tmp1,",")
+text(substr(tmp1,0,tmp2),i%3*(width/3)+5,height-tmp*4+i/3*tmp+2)
+tmp1=substr(tmp1,tmp2+1,strlen(tmp1)-tmp2-1)
+i=i+1
+wend
+return
+
+label execCalcCode
+numList="0123456789"
+tmpECC0=arg1
+tmpECCReg[0]=0
+tmpECCReg=0
+
+while not(strlen(tmpECC0)=0)
+tmpECC1=strat(tmpECC0,0)
+if not(stridx(numList,tmpECC1)=-1)then
+tmpECCReg[tmpECCReg]=substr(tmpECC0,0,stridx(tmpECC0,","))
+tmpECCReg=tmpECCReg+1
+tmpECC0=substr(tmpECC0,stridx(tmpECC0,",")+1,strlen(tmpECC0)-stridx(tmpECC0,",")-1)
+else
+arg2=tmpECCReg[tmpECCReg-1]
+arg1=tmpECCReg[tmpECCReg-2]
+tmpECCReg=tmpECCReg-2
+ if tmpECC1="a"or tmpECC1="+" then
+ gosub"mathBasicAdd"
+ elseif tmpECC1="s"or tmpECC1="-" then
+ gosub"mathBasicSub"
+ ret=ret1
+ elseif tmpECC1="m"or tmpECC1="*" then
+ gosub"mathBasicMul"
+ elseif tmpECC1="d"or tmpECC1="/" then
+ gosub"mathBasicDivInt"
+ ret=ret1
+ elseif tmpECC1="r"or tmpECC1="%" then
+ gosub"mathBasicDivInt"
+ ret=ret2
+ elseif tmpECC1="p"or tmpECC1="^" then
+ gosub"mathBasicPow"
+ elseif tmpECC1="l" then
+ gosub"mathBasicLog10"
+ elseif tmpECC1="c" then
+ tmpECCReg[tmpECCReg-2]=tmpECCReg[tmpECCReg-1]
+ tmpECCReg=tmpECCReg-1
+ endif
+tmpECCReg[tmpECCReg]=ret
+tmpECCReg=tmpECCReg+1
+tmpECC0=substr(tmpECC0,2,strlen(tmpECC0)-2)
+endif
+wend
+return
+
+label initPrec
+precMax=9
+precMul=4
+precAdd=8
+precSub=9
+precDiv=8
+return
+
+label mathBasicMul
+tmp=arg1
+i=0
+while strlen(tmp)>precMul
+arg1[i]=substr(tmp,strlen(tmp)-precMul,precMul)
+tmp=substr(tmp,0,strlen(tmp)-precMul)
+i=i+1
+wend
+arg1[i]=tmp
+arg1Len=i
+
+tmp=arg2
+i=0
+while strlen(tmp)>precMul
+arg2[i]=substr(tmp,strlen(tmp)-precMul,precMul)
+tmp=substr(tmp,0,strlen(tmp)-precMul)
+i=i+1
+wend
+arg2[i]=tmp
+arg2Len=i
+
+tmp0=";"
+tmp1=0
+for i=0 to arg1Len+arg2Len-1
+ for j=max(0,i-arg2Len) to min(i,arg1Len)
+  tmp1=tmp1+arg1[j]*arg2[i-j]
+  next
+ tmp0=substr(tmp1%pow(10,precMul)+pow(10,precMul),1,precMul)+tmp0
+ tmp1=tmp1/pow(10,precMul)
+next
+tmp0=(arg1[arg1Len]*arg2[arg2Len]+tmp1)+tmp0
+ret=substr(tmp0,0,strlen(tmp0)-1)
+return
+
+label mathBasicAdd
+tmp0=";"
+tmp1=arg1
+tmp2=arg2
+tmp=0
+while min(strlen(tmp1),strlen(tmp2))>precAdd
+tmp=substr(tmp1,strlen(tmp1)-precAdd,precAdd)+substr(tmp2,strlen(tmp2)-precAdd,precAdd)+tmp
+tmp1=substr(tmp1,0,strlen(tmp1)-precAdd)
+tmp2=substr(tmp2,0,strlen(tmp2)-precAdd)
+tmp0=substr(tmp%pow(10,precAdd)+pow(10,precAdd),1,precAdd)+tmp0
+tmp=tmp/pow(10,precAdd)
+wend
+if strlen(tmp1)<strlen(tmp2) then
+ tmp3=tmp1
+ tmp1=tmp2
+ tmp2=tmp3
+endif
+tmp=tmp+tmp2
+
+while strlen(tmp1)>precAdd
+tmp=substr(tmp1,strlen(tmp1)-precAdd,precAdd)+tmp
+tmp1=substr(tmp1,0,strlen(tmp1)-precAdd)
+tmp0=substr(tmp%pow(10,precAdd)+pow(10,precAdd),1,precAdd)+tmp0
+tmp=tmp/pow(10,precAdd)
+wend
+if tmp+tmp1>0 then tmp0=(0+tmp+tmp1)+tmp0 endif
+ret=substr(tmp0,0,strlen(tmp0)-1)
+return
+
+label mathBasicPow
+tmpMBP1=arg1
+tmpMBP2=arg2
+tmpMBP3=1
+tmpMBP4=1
+while tmpMBP4<=tmpMBP2
+if tmpMBP4 and tmpMBP2 then
+ arg1=tmpMBP3
+ arg2=tmpMBP1
+ gosub"mathBasicMul"
+ tmpMBP3=ret
+endif
+tmpMBP4=tmpMBP4*2
+ arg1=tmpMBP1
+ arg2=tmpMBP1
+ gosub"mathBasicMul"
+ tmpMBP1=ret
+wend
+ret=tmpMBP3
+endif
+
+label mathBasicLog10
+tmpMBLT1=arg1
+tmpMBLT2=min(max(arg2,1),9)
+tmpMBLT3=tmpMBLT1
+tmpMBLT4=0
+precLog10=max(5,arg2+strlen(arg1)-1)
+for iMBLT=1 to tmpMBLT2
+arg1=tmpMBLT3
+arg2=10
+gosub"mathBasicPow"
+ if strlen(ret)>precLog10 then
+ tmpMBLT3=substr(ret,0,precLog10)
+ tmpMBLT4=tmpMBLT4*10+strlen(ret)-precLog10
+ else
+ tmpMBLT3=ret
+ tmpMBLT4=tmpMBLT4*10
+ endif
+next
+ret=min(precLog10,strlen(ret))-1+tmpMBLT4
+return
+
+label mathBasicSub
+tmp0A=";"
+tmp0B=";"
+tmp1=arg1
+tmp2=arg2
+tmpA=1
+tmpB=1
+while min(strlen(tmp1),strlen(tmp2))>precSub
+tmpA=pow(10,precSub)+substr(tmp1,strlen(tmp1)-precSub,precSub)-substr(tmp2,strlen(tmp2)-precSub,precSub)+(tmpA-1)
+tmp0A=substr(tmpA%pow(10,precSub)+pow(10,precSub),1,precSub)+tmp0A
+tmpA=tmpA/pow(10,precSub)
+
+tmpB=pow(10,precSub)+substr(tmp2,strlen(tmp2)-precSub,precSub)-substr(tmp1,strlen(tmp1)-precSub,precSub)+(tmpB-1)
+tmp0B=substr(tmpB%pow(10,precSub)+pow(10,precSub),1,precSub)+tmp0B
+tmpB=tmpB/pow(10,precSub)
+
+tmp1=substr(tmp1,0,strlen(tmp1)-precSub)
+tmp2=substr(tmp2,0,strlen(tmp2)-precSub)
+wend
+
+ret2=2
+if max(strlen(tmp1),strlen(tmp2))<=precSub then
+ if tmp1<tmp2 then
+ tmp3=tmp1
+ tmp1=tmp2
+ tmp2=tmp3
+ tmp0T=tmp0A
+ tmp0A=tmp0B
+ tmpA=tmpB
+ ret2=1
+ endif
+tmp0A=(tmp1-tmp2+tmpA-1)+tmp0A
+else
+ if strlen(tmp2)>precSub
+ tmp3=tmp1
+ tmp1=tmp2
+ tmp2=tmp3
+ tmp0T=tmp0A
+ tmp0A=tmp0B
+ tmpA=tmpB
+ ret2=1
+ endif
+tmpA=tmpA-tmp2
+while strlen(tmp1)>precSub
+tmpA=pow(10,precSub)+substr(tmp1,strlen(tmp1)-precSub,precSub)+tmpA-1
+tmp1=substr(tmp1,0,strlen(tmp1)-precSub)
+tmp0A=substr(tmpA%pow(10,precSub)+pow(10,precSub),1,precSub)+tmp0A
+tmpA=tmpA/pow(10,precSub)
+wend
+tmp0A=(tmp1+tmpA-1)+tmp0A
+endif
+ret1=substr(tmp0A,0,strlen(tmp0A)-1)
+return
+
+label mathBasicDivInt
+tmp1=arg1
+tmp2=arg2
+precDivTmp=precDiv-strlen(tmp2)
+tmp3=";"+(substr(tmp1,0,min(precDivTmp,strlen(tmp1)))/tmp2)
+tmp4=substr(tmp1,0,min(precDivTmp,strlen(tmp1)))%tmp2
+while strlen(tmp1)>precDivTmp*2
+tmp1=substr(tmp1,precDivTmp,strlen(tmp1)-precDivTmp)
+tmp5=tmp4*pow(10,precDivTmp)+substr(tmp1,0,precDivTmp)
+tmp3=tmp3+substr(pow(10,precDivTmp)+(tmp5/tmp2),1,precDivTmp)
+tmp4=tmp5%tmp2
+wend
+tmp1=substr(tmp1,precDivTmp,strlen(tmp1)-precDivTmp)
+tmp6=strlen(tmp1)
+tmp5=tmp4*pow(10,tmp6)+substr(tmp1,0,tmp6)
+tmp3=tmp3+substr(pow(10,tmp6)+(tmp5/tmp2),1,tmp6)
+while strat(tmp3,1)=0
+tmp3=(";"+(substr(tmp3,1,precDiv)*1))+substr(tmp3,1+precDiv,strlen(tmp3)-(1+precDiv))
+wend
+ret1=substr(tmp3,1,strlen(tmp3)-1)
+ret2=tmp5%tmp2
+return
+
+label decodeFloatSArg
+tmp1=arg1
+tmp10=stridx(tmp1,":")
+tmp11=strat(tmp1,0)
+tmp12=substr(tmp1,2,tmp10-2)
+tmp13=strat(tmp1,tmp10+1)
+tmp14=substr(tmp1,tmp10+3,strlen(tmp1)-(tmp10+3))
+return
+
+label decodeFloatDArg
+gosub"decodeFloatSArg"
+tmp2=arg2
+tmp20=stridx(tmp2,":")
+tmp21=strat(tmp2,0)
+tmp22=substr(tmp2,2,tmp20-2)
+tmp23=strat(tmp2,tmp20+1)
+tmp24=substr(tmp2,tmp20+3,strlen(tmp2)-(tmp20+3))
+return
+
+label mathFloatSingleMul
+gosub"decodeFloatDArg"
+arg1=tmp12
+arg11=tmp11
+arg2=tmp22
+arg21=tmp21
+gosub"mathSignedSingleMul"
+tmp31=ret1
+tmp32=ret2
+arg1=tmp14
+arg11=tmp13
+arg2=tmp24
+arg21=tmp23
+gosub"mathSignedSingleAdd"
+tmp33=ret1
+tmp34=ret2
+ret=tmp32+"."+tmp31+":"+tmp34+"."+tmp33
+return
+
+label mathFloatSingleAdd
+mathFloatASType=max(1,min(2,mathFloatASType))
+tmp="mathFloatSingleAddType"+mathFloatASType
+gosub tmp
+return
+
+label mathFloatSingleSub
+mathFloatASType=max(1,min(2,mathFloatASType))
+tmp="mathFloatSingleSubType"+mathFloatASType
+gosub tmp
+return
+
+
+label mathFloatSingleAddType1
+gosub"decodeFloatDArg"
+arg1=tmp14
+arg11=tmp13
+arg2=tmp24
+arg21=tmp23
+gosub"mathSignedSingleSub"
+if ret3=1 and ret2=2then
+ arg1=ret1
+ arg2=tmp12
+ gosub"mathFunctionGetZeroRepeated"
+ arg1=ret
+ arg11=tmp11
+ arg2=tmp22
+ arg21=tmp21
+ gosub"mathSignedSingleAdd"
+ ret=ret2+"."+ret1+":"+tmp13+"."+tmp14
+ ret1=tmp24
+ ret2=tmp23
+elseif ret3=1 then
+ arg1=ret1
+ arg2=tmp22
+ gosub"mathFunctionGetZeroRepeated"
+ arg1=ret
+ arg11=tmp21
+ arg2=tmp12
+ arg21=tmp11
+ gosub"mathSignedSingleAdd"
+ ret=ret2+"."+ret1+":"+tmp23+"."+tmp24
+ ret1=tmp14
+ ret2=tmp13
+endif
+return
+
+label mathFloatSingleSubType1
+gosub"decodeFloatDArg"
+arg1=tmp14
+arg11=tmp13
+arg2=tmp24
+arg21=tmp23
+gosub"mathSignedSingleSub"
+if ret3=1 and ret2=1then
+ arg1=ret1
+ arg2=tmp12
+ gosub"mathFunctionGetZeroRepeated"
+ arg1=ret
+ arg11=tmp11
+ arg2=tmp22
+ arg21=tmp21
+ gosub"mathSignedSingleSub"
+ ret=ret2+"."+ret1+":"+tmp13+"."+tmp14
+ ret1=tmp24
+ ret2=tmp23
+elseif ret3=1 then
+ arg1=ret1
+ arg2=tmp22
+ gosub"mathFunctionGetZeroRepeated"
+ arg2=ret
+ arg21=tmp21
+ arg1=tmp12
+ arg11=tmp11
+ gosub"mathSignedSingleSub"
+ ret=ret2+"."+ret1+":"+tmp23+"."+tmp24
+ ret1=tmp14
+ ret2=tmp13
+endif
+return
+
+label mathFloatSingleAddType2
+gosub"mathFloatSingleAdd"
+arg1=ret
+arg2=ret2
+arg3=ret3
+gosub"mathFloatSinglePointSet"
+return
+
+label mathFloatSingleSubType2
+gosub"mathFloatSingleSub"
+arg1=ret
+arg2=ret2
+arg3=ret3
+gosub"mathFloatSinglePointSet"
+return
+
+label mathFloatSingleLog10
+gosub"decodeFloatSArg"
+tmpMFS=arg2
+arg1=tmp12
+arg2=tmpMFS
+gosub"mathBasicLog10"
+arg1=ret
+arg11=2
+arg2=tmpMFS*pow(10,tmpMFS)
+arg21=tmp13
+gosub"mathSignedSingleAdd"
+ret=ret2+"."+ret1+":1."+tmpMFS
+return
+
+label mathFloatSinglePow
+gosub"decodeFloatSArg"
+tmpMFS=arg2
+tmpMFS2="1,2121.2,2222.3,2314.4,2413"
+arg1=tmp12
+arg2=tmpMFS
+gosub"mathBasicPow"
+tmpMFS1=ret
+arg1=tmp14
+arg2=tmpMFS1
+gosub"mathBasicMul"
+ret=strat(tmpMFS2,stridx(tmpMFS2,tmp11+",")+2+tmpMFS%4)+"."+tmpMFS1+":"+tmp13+"."+ret
+return
+
+label mathFloatSinglePointSet
+gosub"decodeFloatSArg"
+tmpMFS11=tmp11
+tmpMFS12=tmp12
+tmpMFS2=arg2
+tmpMFS3=arg3
+ret5=0
+ret="1.0:1.0"
+if tmp13<=2 then
+arg2=tmp14
+arg21=tmp13
+arg1=tmpMFS2
+arg11=tmpMFS3
+gosub"mathSignedSingleSub"
+if ret2=2 and ret1<strlen(tmpMFS12) then
+ret5=1
+ret2=substr(tmpMFS12,0,strlen(tmpMFS12)-ret1)
+ret1=tmpMFS11
+ret3=tmpMFS3
+ret4=tmpMFS2
+ret=ret1+"."+ret2+":"+ret3+"."+ret4
+elseif ret1<strlen(tmpMFS12) then
+arg1=ret1
+arg2=tmpMFS12
+gosub"mathFunctionGetZeroRepeated"
+ret1=tmpMFS11
+ret2=ret
+ret3=tmpMFS3
+ret4=tmpMFS2
+ret=ret1+"."+ret2+":"+ret3+"."+ret4
+endif
+endif
+return
+
+label mathFloatSingleSDSet
+gosub"decodeFloatSArg"
+tmpMFS=strlen(tmp12)
+tmpMFS11=tmp11
+tmpMFS12=tmp12
+tmpMFS2=arg2
+if tmp13<=2 and tmpMFS>tmpMFS2 then
+arg1=tmp14
+arg11=tmp13
+arg2=tmpMFS-tmpMFS2
+arg21=2
+gosub"mathSignedSingleAdd"
+ret=tmpMFS11+"."+substr(tmpMFS12,0,tmpMFS2)+":"+ret2+"."+ret1
+else
+ret="1.0:1.0"
+endif
+return
+
+label mathSignedSingleMul
+tmpMSSM1=arg1
+tmpMSSM11=arg11
+tmpMSSM2=arg2
+tmpMSSM21=arg21
+tmpMSSM3="11,2.12,1.13,4.14,3.21,1.22,2.23,3.24,4.31,4.32,3.33,1.34,2.41,3.42,4.43,2.44,1."
+gosub"mathBasicMul"
+ret1=ret
+ret2=strat(tmpMSSM3,stridx(tmpMSSM3,10*tmpMSSM11+tmpMSSM21+",")+3)
+return
+
+label mathSignedSingleDiv
+tmpMSSM1=arg1
+tmpMSSM11=arg11
+tmpMSSM2=arg2
+tmpMSSM21=arg21
+tmpMSSM3="11,2.12,1.13,3.14,4.21,1.22,2.23,4.24,3.31,4.32,3.33,2.34,1.41,3.42,4.43,1.44,2."
+gosub"mathBasicDivInt"
+ret1=ret
+ret2=strat(tmpMSSM3,stridx(tmpMSSM3,10*tmpMSSM11+tmpMSSM21+",")+3)
+return
+
+label mathSignedSingleAdd
+tmpMSSA1=arg1
+tmpMSSA11=arg11
+tmpMSSA2=arg2
+tmpMSSA21=arg21
+ret3=1
+if tmpMSSA11=tmpMSSA21 then
+gosub"mathBasicAdd"
+ret1=ret
+ret2=tmpMSSA11
+elseif abs(tmpMSSA11-tmpMSSA21)=1 and not(tmpMSSA11*tmpMSSA21=12) then
+gosub"mathBasicSub"
+ret1=ret1
+if ret2=2 then
+ret2=tmpMSSA11
+else
+ret2=tmpMSSA21
+endif
+else
+ret3=0
+endif
+return
+
+label mathSignedSingleSub
+tmpMSSA1=arg1
+tmpMSSA11=arg11
+tmpMSSA2=arg2
+tmpMSSA21=arg21
+ret3=1
+if tmpMSSA11=tmpMSSA21 then
+gosub"mathBasicSub"
+ret1=ret1
+if ret2=2 then
+ret2=tmpMSSA11
+else
+ret2=((tmpMSSA11-1)/2)*2+(1+(tmpMSSA11%2))
+endif
+elseif abs(tmpMSSA11-tmpMSSA21)=1 and not(tmpMSSA11*tmpMSSA21=12) then
+gosub"mathBasicAdd"
+ret1=ret
+ret2=tmpMSSA11
+else
+ret3=0
+endif
+return
+
+label mathSignedSinglePow
+tmpMSS=arg2
+arg1=arg1
+arg2=arg3
+gosub"mathBasicPow"
+ret1=ret
+tmpMFS1="1,2121.2,2222.3,2314.4,2413"
+ret2=strat(tmpMSS1,stridx(tmpMSS1,tmpMSS+",")+2+arg3%4)
+return
+
+label getFloatNumF1
+if tmp13<=2 then
+tmpGFN=tmpGFN+strat(tmp12,0)
+else
+tmpGFN=tmpGFN+tmp12
+endif
+if strlen(tmp12)>1 and tmp13<=2 then
+tmpGFN=tmpGFN+"."+substr(tmp12,1,strlen(tmp12)-1)
+arg1=tmp14
+arg11=tmp13
+arg2=strlen(tmp12)-1
+arg21=2
+gosub"mathSignedSingleAdd"
+tmp14=ret1
+tmp13=ret2
+endif
+return
+
+label getFloatNumType1
+gosub"decodeFloatSArg"
+tmpGFN=strat(" -+-+",tmp11)
+gosub"getFloatNumF1"
+if tmp11>=3 then tmpGFN=tmpGFN+"i"endif
+tmpGFN=tmpGFN+"*10^"+strat(" -+-+",tmp13)+tmp14
+if tmp13>=3 then tmpGFN=tmpGFN+"i"endif
+ret=tmpGFN
+return
+
+label getFloatNumType2
+gosub"decodeFloatSArg"
+tmpGFN=strat(" -+-+",tmp11)
+gosub"getFloatNumF1"
+if tmp11>=3 then tmpGFN=tmpGFN+"i"endif
+tmpGFN=tmpGFN+"e"+strat(" -+-+",tmp13)+tmp14
+if tmp13>=3 then tmpGFN=tmpGFN+"i"endif
+ret=tmpGFN
+return
+
+label getFloatNumType3
+gosub"decodeFloatSArg"
+tmpGFN=strat(" |{|{",tmp11)
+gosub"getFloatNumF1"
+if tmp11>=3 then tmpGFN=tmpGFN+"i"endif
+tmpGFN=tmpGFN+"~10O"+strat(" |{|{",tmp13)+tmp14
+if tmp13>=3 then tmpGFN=tmpGFN+"i"endif
+ret=tmpGFN
+return
+
+label getFloatNumType4
+arg1=arg1
+arg2=0
+arg3=2
+gosub"mathFloatSinglePointSet"
+tmpGFN=strat(" -+-+",ret1)+ret2
+if ret1>=3 then tmpGFN=tmpGFN+"i"endif
+ret=tmpGFN
+return
+
+label getFloatNumType5
+arg1=arg1
+arg2=0
+arg3=2
+gosub"mathFloatSinglePointSet"
+tmpGFN=strat(" |{|{",ret1)+ret2
+if ret1>=3 then tmpGFN=tmpGFN+"i"endif
+ret=tmpGFN
+return
+
+label showFloatNumType1
+tmpSFN2=arg2
+tmpSFN3=arg3
+tmpSFN4=arg4
+gosub"decodeFloatSArg"
+if tmp13<=2 then
+tmpSFN=strat(" |{|{",tmp11)+strat(tmp12,0)
+else
+tmpSFN=strat(" |{|{",tmp11)+tmp12
+endif
+if strlen(tmp12)>1 and tmp13<=2 then
+tmpSFN=tmpSFN+"."+substr(tmp12,1,strlen(tmp12)-1)
+arg1=tmp14
+arg11=tmp13
+arg2=strlen(tmp12)-1
+arg21=2
+gosub"mathSignedSingleAdd"
+tmp14=ret1
+tmp13=ret2
+endif
+if tmp11>=3 then tmpSFN=tmpSFN+"i"endif
+tmpSFN=tmpSFN+"~10"
+if tmpSFN4=1 then setfont("L")endif
+text(tmpSFN,tmpSFN2,tmpSFN3+5)
+tmpSFN1=strwidth(tmpSFN)
+tmpSFN=strat(" |{|{",tmp13)+tmp14
+if tmp13>=3 then tmpSFN=tmpSFN+"i"endif
+tmpSFN=tmpSFN
+setfont("T")
+text(tmpSFN,tmpSFN2+tmpSFN1,tmpSFN3)
+return
+
+label mathFunctionGetZeroRepeated
+tmpMFGS=";"+arg2
+tmpMFGS1="0"
+tmpMFGS2=1
+while tmpMFGS2<=arg1
+if tmpMFGS2 and arg1 then
+tmpMFGS=tmpMFGS+tmpMFGS1
+endif
+tmpMFGS2=tmpMFGS2*2
+tmpMFGS1=substr((";"+tmpMFGS1)+tmpMFGS1,1,tmpMFGS2)
+wend
+ret=substr(tmpMFGS,1,strlen(tmpMFGS)-1)
+return

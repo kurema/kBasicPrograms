@@ -1,0 +1,32 @@
+color(0,0,0)
+frect(0,0,width,height)
+
+label main
+color(abs(rand)%256,abs(rand)%256,abs(rand)%256)
+if abs(rand)%5=0 then gosub"map"
+else gosub"thirtyNine" endif
+if input(1)=0 then goto"main" else end endif
+
+label map
+origin(-width/2+abs(rand)%(width*3/2),-height/2+abs(rand)%(height*3/2))
+
+n=abs(rand)%8
+x=n
+y=0
+z=n-1
+w=2*n+1
+for i=0 to w*w-1
+text((i+1),x*(strwidth("ab2")+1),y*strheight)
+if x=z then
+x=x y=(y+1+w)%w z=(z-1+w)%w
+else
+x=(x+1)%w y=(y-1+w)%w
+endif
+next
+origin(0,0)
+return
+
+label thirtyNine
+i=abs(rand)%40
+text((i*i+i+41),abs(rand)%width,abs(rand)%height)
+return

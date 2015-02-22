@@ -1,0 +1,145 @@
+soft1("")soft2("end")
+passS=-1
+ctime=120000
+
+label start
+gosub"init"
+gosub"cls"
+gosub"makeMap"
+gosub"dBase"
+aY=map[0]*30
+mX=0 mB=abs(rand)%5+1
+passS=passS+1
+stime=tick
+
+label main
+gosub"keyMan"
+gosub"dAio"
+gosub"dEne"
+gosub"refresh"
+gosub"delAio"
+gosub"delEne"
+goto"main"
+
+label dAio
+origin(aX,height-12-aY)
+color(0,255,0)
+farc(0,3,9,9)
+'color(255,0,0)
+'farc(0,0,9,6)
+origin(0,0)
+return
+
+label dEne
+origin(width*mB/6+abs(mX),height-6-map[mB]*30)
+color(0,0,255)
+farc(0,0,9,6)
+origin(0,0)
+return
+
+label delEne
+origin(width*mB/6+abs(mX),height-6-map[mB]*30)
+color(bgr,bgg,bgb)
+farc(0,0,9,6)
+origin(0,0)
+return
+
+label delAio
+origin(aX,height-12-aY)
+color(bgr,bgg,bgb)
+farc(0,3,9,9)
+'farc(0,0,9,6)
+origin(0,0)
+return
+
+label makeMap
+for i=0 to 5
+map[i]=abs(rand)%4+1
+next
+return
+
+label dBase
+color(255,0,0)
+for i=0 to 6
+frect(width*i/6,height-30*map[i],width/6,height)
+next
+return
+
+label keyMan
+ipt=scan
+mX=(mX+1+width/6-9)%(width/3-18)-width/6+9
+aX=min(max(aX+((ipt and keyright)-(ipt and keyleft))*5,0),width-9)
+aX=aX+(((map[aX*6/width]*30>aY))-(map[(aX+9)*6/width]*30>aY))*6
+tmpa=map[aX*6/width]*30
+tmpb=map[(aX+9)*6/width]*30
+if ipt and keysoft2 then goto"over" endif
+aY=max(max(aY+vel,tmpa),tmpb)
+if width*mB/6+abs(mX)-9<aX and width*mB/6+abs(mX)+9>aX and aY-map[mB]*30<12 then gosub"chkEne"endif
+vel=(vel-2)*(tmpa<aY and tmpb<aY)
+if aY=tmpa and (ipt and keyselect) then vel=20endif
+'if aY=0 then goto"die"endif
+gosub"countdown"
+if tick-stime>ctime then goto"die"endif
+return
+
+label refresh
+unlock(1)lock()
+return
+
+label countdown
+color(bgr,bgg,bgb)
+frect(0,0,width,strheight)
+color(255,255,255)
+text((ctime-tick+stime)/1000,width-strheight*2,0)
+return
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,width,height)
+return
+
+label init
+aX=0 aY=0
+bgr=0 bgg=0 bgb=0
+return
+
+label die
+color(255,255,255)
+text("GAME OVER",0,0)
+gosub"deadEffect"
+gosub"showInfo"
+kM=0 passS=-1
+goto"start"
+
+label chkEne
+if vel<0 then tmp=abs(rand)%5 mB=tmp+(tmp>=mB) kM=kM+1 else goto"die" endif
+return
+
+label showInfo
+color(255,255,255)
+text("You removed "+kM+" monsters",0,strheight)
+'text(passS+" stages cleared",0,strheight*2)
+gosub"refresh"
+clearinput()
+input()
+return
+
+label over
+color(255,255,255)
+text("END",0,0)
+gosub"showInfo"
+end
+
+label deadEffect
+for i=0 to 3
+color(255,255,255)
+for j=0 to 8
+arc(aX+4-i*5*sin(j*45)/100,height-12-aY-i*5*cos(j*45)/100+7,5,5)
+next
+gosub"refresh"
+color(bgr,bgg,bgb)
+for j=0 to 8
+arc(aX+4-i*5*sin(j*45)/100,height-12-aY-i*5*cos(j*45)/100+7,5,5)
+next
+next
+return

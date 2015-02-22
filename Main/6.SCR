@@ -1,0 +1,27 @@
+'ランダム数字・色表示
+
+color(0,0,0) frect(0,0,width,height)
+soft1("EXIT")
+soft2("CLR")
+A=0
+B=0
+m=0
+label adg
+R[0]=abs(rand%255) R[1]=abs(rand%255) R[2]=abs(rand%255) 
+if m=0 then color(255,255,255) elseif
+m=1 then color(R[0],R[1],R[2]) elseif
+m=2 then color(0,R[1],R[2]) elseif
+m=3 then color(R[0],0,R[2]) elseif
+m=4 then color(R[0],R[1],0) elseif
+m=5 then color(R[0],0,0) elseif
+m=6 then color(0,R[1],0) elseif
+m=7 then color(0,0,R[2]) elseif
+m=8 then color(R[0],R[0],R[0]) endif
+text(abs(rand%10),A,B)
+A=A+6
+if A>width-10 then A=0 B=B+12 endif
+if B>height then A=0 B=0 color(0,0,0) frect(0,0,width,height) endif
+i=input(0)
+if i and keysoft1 then end endif
+if i and keysoft2 then m=(m+1)%9 endif
+goto "adg"

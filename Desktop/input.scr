@@ -1,0 +1,204 @@
+lock()
+posX=IPTX
+posY=IPTY
+dlen=IPTOBJX
+
+col[0][0]=255
+col[0][1]=255
+col[0][2]=255
+col[1][0]=0
+col[1][1]=0
+col[1][2]=0
+col[2][0]=0
+col[2][1]=0
+col[2][2]=0
+
+gosub"keyInputInit"
+gosub"keyInput"
+IPTOUT=outKey
+end
+
+label keyInputInit
+keyCode[0]=key0
+keyCode[1]=key1
+keyCode[2]=key2
+keyCode[3]=key3
+keyCode[4]=key4
+keyCode[5]=key5
+keyCode[6]=key6
+keyCode[7]=key7
+keyCode[8]=key8
+keyCode[9]=key9
+
+letterType="a±1‚ ƒAƒ¿„q•”ˆê"
+letterTypeMax=8
+gosub"setLetterType"
+return
+
+label keyInput
+gosub"showFrame"
+
+gosub"setKey"
+
+keyType=0
+showKey=""
+outKey=""
+prevKey=-1
+
+repa=1
+while repa
+gosub"showInput"
+gosub"getKey"
+if prevIpt=keyleft and ipt=keyleft then outKey=substr(outKey,0,max(strlen(outKey)-1,0)) keyNum=0 keyPos=max(keyPos-1,0)
+elseif ipt=keyleft then prevKey=-1 keyNum=0
+elseif ipt=keypound and dlen>strwidth(outKey+"ab") then gosub"setKeyMenu"
+elseif prevIpt=keyright and ipt=keyright and dlen>strwidth(outKey+"a"+letterType[keyType]) then
+outKey=outKey+" " keyPos=keyPos+1 keyNum=0
+elseif (prevKey<>newKey and newKey<>-1)or ipt=keyright and prevKey<>-1 and dlen>strwidth(outKey+"a"+letterType[keyType]) then keyPos=keyPos+1 outKey=""+outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1
+elseif prevKey=newKey and newKey<>-1 then keyNum=(keyNum+1)%keyListLength[prevKey]
+elseif ipt=keyselect then  keyPos=keyPos+1 outKey=""+outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1 repa=0
+endif
+if newKey<>-1 then
+showKey=outKey+keyList[newKey][keyNum]
+else showKey=outKey+"_" endif
+prevKey=newKey
+prevIpt=ipt
+wend
+return
+
+label setLetterType
+for i=0 to letterTypeMax
+letterType[i]=strat(letterType,i)
+next
+return
+
+label setKeyMenu
+keyType=(keyType+1)%(letterTypeMax+1)
+gosub"setKeyMenuShow"
+gosub"setKeyMenuKeyMan"
+gosub"setKey"
+return
+
+label setKeyMenuShow
+showKey="["+letterType[keyType]+"]"
+gosub"showInput"
+return
+
+label setKeyMenuKeyMan
+rep=1
+while rep
+ipt=input()
+if ipt=keypound then keyType=(keyType+1)%(letterTypeMax+1)
+elseif ipt=keyast then keyType=(keyType+letterTypeMax)%(letterTypeMax+1)
+else rep=0 endif
+gosub"setKeyMenuShow"
+wend
+return
+
+label setKey
+keyPos=keyPos+1 outKey=outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1
+tmp="setKey"+keyType
+gosub tmp
+return
+
+label showInput
+color(col[0][0],col[0][1],col[0][2])
+frect(posX,posY,dlen,strheight)
+color(col[1][0],col[1][1],col[1][2])
+text(showKey,posX,posY)
+unlock(1)lock()
+return
+
+label showFrame
+color(col[2][0],col[2][1],col[2][2])
+rect(posX-1,posY-1,dlen+1,strheight+1)
+return
+
+label getKey
+ipt=input()
+newKey=-1
+for i=0 to 9
+newKey=newKey+(i+1)*(ipt=keyCode[i])
+next
+return
+
+label setKey1
+alphabetList="Ü¦İ°¤¡Şß±²³´µ§¨©ª«¶·¸¹º»¼½¾¿ÀÁÂÃÄ¯ÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ¬­®×ØÙÚÛ"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKeyList
+k=0
+for i=0 to 9
+keyL=(strat(keyLength,i))+1
+for j=0 to keyL-1
+keyList[i][j]=strat(alphabetList,k)
+k=k+1
+next
+keyListLength[i]=keyL
+next
+return
+
+label setKey0
+alphabetList=",.@./_-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+keyLength="1422222323"
+
+k=0
+for i=0 to 9
+keyL=(strat(keyLength,i))+1
+for j=0 to keyL-1
+keyList[i][j+keyL]=strat(alphabetList,k)
+keyList[i][j]=(strat(tolower(alphabetList),k))
+k=k+1
+next
+keyList[i][keyL*2]=i
+keyListLength[i]=keyL*2+1
+next
+keyList[-1][0]=" "
+return
+
+label setKey2
+alphabetList="0123456789"
+keyLength="0000000000"
+gosub"setKeyList"
+return
+
+label setKey3
+alphabetList="‚í‚ğ‚ñ[ABJK‚ ‚¢‚¤‚¦‚¨‚Ÿ‚¡‚£‚¥‚§‚©‚«‚­‚¯‚±‚³‚µ‚·‚¹‚»‚½‚¿‚Â‚Ä‚Æ‚Á‚È‚É‚Ê‚Ë‚Ì‚Í‚Ğ‚Ó‚Ö‚Ù‚Ü‚İ‚Ş‚ß‚à‚â‚ä‚æ‚á‚ã‚å‚ç‚è‚é‚ê‚ë"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKey4
+alphabetList="ƒƒ’ƒ“[ABJKƒAƒCƒEƒGƒIƒ@ƒBƒDƒFƒHƒJƒLƒNƒPƒRƒTƒVƒXƒZƒ\ƒ^ƒ`ƒcƒeƒgƒbƒiƒjƒkƒlƒmƒnƒqƒtƒwƒzƒ}ƒ~ƒ€ƒƒ‚ƒ„ƒ†ƒˆƒƒƒ…ƒ‡ƒ‰ƒŠƒ‹ƒŒƒ"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKey7
+'•”•i‚É‚æ‚éŠ¿š“ü—Í
+alphabetList="Œ¾…ËŒ–ØœeR¶ŒûÔ‰¤’j—à«“Ñ‹àHŠp‹™¾ãŒ©Œá‰äŠQŒË“y\}˜°ƒCƒ^ƒgƒlƒmˆê“ñOlŒÜ˜¤˜¦‰³˜«’š˜³l™X™c™k™q™{™“—Í™¯™¶™·™Å™Ê™Ñ‰ºã–œ”V‹v–ç˜°™Y–}Ùçš˜‘åq›r›~¡¬›—›™›İH‹ĞŠ±›öœMœTœc”½­›šèŸƒ•séŠêaà¤é‹ŸT"
+keyLength="9999999999"
+gosub"setKeyList"
+return
+
+label setKey5
+alphabetList=",.@./_-ƒŸƒ ƒ¡ƒ¿ƒÀƒÁƒ¢ƒ£ƒ¤ƒÂƒÃƒÄƒ¥ƒ¦ƒ§ƒÅƒÆƒÇƒ¨ƒ©ƒªƒÈƒÉƒÊƒ«ƒ¬ƒ­ƒËƒÌƒÍƒ®ƒ¯ƒ°ƒÎƒÏƒĞƒ±ƒ²ƒ³ƒÑƒÒƒÓƒ´ƒµƒ¶ƒÔƒÕƒÖ"
+keyLength="1455555555"
+gosub"setKeyList"
+return
+
+label setKey6
+alphabetList=",.@./_-„@„A„B„C„p„q„r„s„D„E„F„G„t„u„v„w„H„I„J„K„x„y„z„{„L„M„N„O„|„}„~„€„P„Q„R„S„„‚„ƒ„„„T„U„V„W„…„†„‡„ˆ„X„Y„Z„[„\„Š„‹„Œ„„]„^„_„`„„„„‘"
+keyLength="1477777777"
+gosub"setKeyList"
+return
+
+label setKey8
+'ˆê”N¶‚ªK‚¤Š¿š“™
+alphabetList="ˆê“ñOlŒÜ˜Zµ”ª‹ã\•Sç“úŒ‰Î…–Ø‹à“y–¼ã‰º¶‰E‘å’†¬è‘«–Ú¨Œûlq’j—”N‰Ô‘’|Rì—ÑX“c‹ó‰J“V‹C—[Œ¢’ŠL‰©‰¤‹Ê—Í…Ô‰¹ŠwZæ¶š•¶–{‘º’¬Ô”’Â‰~³‘“üo—§‹xŒ©t‰ÄH“~Œõ•—°‰_á’©’‹–éŒß–¾¯–ìŒ´Šâ’JŠC"
+keyLength="9999999999"
+gosub"setKeyList"
+return
+

@@ -1,0 +1,278 @@
+'setfont("L")
+gosub"setstd"
+gosub"main"
+return
+
+label main
+wboxttl="sample"arg[0]="HELLO WORLD"
+gosub"dlg"
+
+wboxttl="TEST"
+mes[0]="1st LINE"mes[1]="2nd LINE"
+mesl=1
+gosub"ldlg"
+
+arg[0]="INPUT DIALOG"gosub"iptdlg"
+
+arg[2]=0 arg[3]=0 arg[4]=width-1 arg[5]=height-1 arg[1]="WINDOW" gosub"wbox" color(0,0,0)
+
+text(ipts,3,strheight*2+5)
+
+arg[1]="sample button"arg[2]=1 arg[3]=strheight*3+5 arg[4]=width-4 arg[5]=strheight+2
+gosub"button"
+
+stp=0
+while(not(scan=keysoft1))
+color(192,192,192)
+frect(3,strheight+5,strwidth(tshw),strheight)
+tshw="Time "+hourofday+":"+minute+":"+second
+color(0,0,0)
+text(tshw,3,strheight+5)
+unlock(1)lock()
+wend
+clearinput()
+
+arg[1]="sample button"arg[2]=1 arg[3]=strheight*3+5 arg[4]=width-4 arg[5]=strheight+2
+gosub"downbutton"
+unlock(1)lock()
+gosub"button"
+unlock(1)lock()
+
+ifdlg=1arg[0]="SAMPLE OVER"gosub"dlg"
+return
+
+label setstd
+ifdlg=2
+'gosub"cls"
+unlock(1)lock()
+nolimit=0
+htcps=1
+mmx=0mmy=0
+coltype=2
+gosub"setkey"
+gosub"setftype"
+return
+
+label setftype
+ftype[0]="T"ftype[1]="S"ftype[2]="M"ftype[3]="L"
+return
+
+label ltmine
+text(arg[2],arg[0],arg[1])
+unlock(1)lock()
+return
+
+label dlg
+if ifdlg=2 then 
+arg[2]=(width-max(strwidth(arg[0]),40)-40)/2 arg[3]=(height-strheight*5)/2 arg[4]=max(strwidth(arg[0]),40)+40 arg[5]=strheight*11/2+9 arg[1]=wboxttl gosub"wbox"
+color(0,0,0)
+else gosub"boxbw" endif
+gosub"prctr"
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=height/2+2*strheight arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(255,255,255)
+return
+
+label boxbw
+color(0,0,0)
+frect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+color(255,255,255)
+rect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+return
+
+label ldlg
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+if ifdlg=2 then 
+arg[2]=(width-longestw-40)/2 arg[3]=(height-strheight*(mesl+5))/2 arg[4]=longestw+40 arg[5]=strheight*(mesl+5)+15 arg[1]=wboxttl gosub"wbox" color(0,0,0)
+else 
+color(0,0,0)
+frect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3))
+color(255,255,255)
+rect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3)) endif
+for i=0 to mesl
+text(mes[i],width/2-(strwidth(mes[i])/2),(height-strheight*(mesl-i*2+1))/2)
+next
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=(height+strheight*(mesl+3))/2 arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(255,255,255)
+return
+
+label iptdlg
+color(0,0,0)
+frect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+color(255,255,255)
+rect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight*3)/2)
+posx=(width-strwidth(((nolimit+1073741819)%1073741820)))/2
+posy=(height+strheight*2)/2
+gosub"gets"
+color(255,255,255)
+return
+
+label prctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight)/2)
+return
+
+label mkmass
+unlock(1)
+for i=0 to arg[0]
+line((width-1)*i/arg[0],0,(width-1)*i/arg[0],(height-1-strheight*2))
+line(0,(height-1-strheight*2)*i/arg[0],width,(height-1-strheight*2)*i/arg[0])
+next
+lock()
+return
+
+label prbtmctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight))
+return
+
+label cls
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+arg[0]=0
+gosub"noshow"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+if keypound and ipt then stopper=0 endif
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if not(nolimit=0) then
+if keyup and ipt then ipts=(ipts+1)%nolimit endif
+if keydown and ipt then ipts=(ipts-1+nolimit)%nolimit endif
+elseif abs(ipts)<1073741820 then 
+if keyup and ipt then 
+if ipts=0 then ipts=1 mino=1
+elseif mino=1 then ipts=ipts+1 elseif
+mino=-1 then ipts=ipts-1 endif
+ endif
+if keydown and ipt then
+if ipts=0 then ipts=1 mino=-1
+elseif mino=1 then ipts=ipts-1 elseif
+mino=-1 then ipts=ipts+1 endif
+endif
+endif
+'endif
+if keyselect and ipt then stopper=0 endif
+if not(nolimit=0) then
+if abs(ipts)<nolimit/10 then gosub"getno" endif
+elseif abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"noshow" endif
+wend
+if keysoft1 and ipt then end endif
+if keypound and ipt then goto"choosegame"endif
+return
+
+label noshow
+color(0,0,0)
+frect(posx,posy,strwidth("1073741820"),strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label show
+color(0,0,0)
+frect(posx,posy,width,strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return
+
+label wbox
+color(192,192,192)
+frect(arg[2],arg[3],arg[4],arg[5])
+color(0,0,128)
+frect(arg[2],arg[3],arg[4],strheight+2)
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(255,255,255)
+text(arg[1],arg[2]+1,arg[3]+1)
+'unlock(1)lock()
+return
+
+label btchk
+gosub"button"
+unlock(1)lock()
+while(not(scan=keyselect))
+none()
+wend
+gosub"downbutton"
+unlock(1)lock()
+while((scan=keyselect))
+none()
+wend
+gosub"button"
+unlock(1)lock()clearinput()
+return
+
+label button
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+1,arg[5]+1)
+color(0,0,0)
+line(arg[2],arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3],arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(0,0,0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2,arg[3]+1)
+return
+
+label downbutton
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+2,arg[5]+2)
+color(222,222,222)
+line(arg[2]+1,arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+1)
+line(arg[2]+1,arg[3]+1,arg[2]+1,arg[3]+arg[5]+1)
+color(0,0,0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2+1,arg[3]+1+1)
+return

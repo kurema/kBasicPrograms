@@ -1,0 +1,459 @@
+clearinput()
+lock()
+posx=FNKPOSX
+posy=FNKPOSY
+objx=FNKOBJX
+objy=FNKOBJY
+origin(posx,posy)
+drawarea(0,0,objx,objy)
+
+if not(strcomp(pfx,"")=0)then ify=1 else ify="" endif
+lock()
+gosub"setSoft"
+XPRAPP=""
+XPRDTP=""
+openWindow=0
+fstplc=0
+cs=1
+cpt=0
+gosub"setplace"
+gosub"setcl"
+goto"function"
+
+label funcMenu
+winx=0 winy=strheight*1
+p=0
+mesl=9
+mes[0]="開く"
+mes[1]="形式指定実行"
+mes[2]="メディア切替"
+mes[3]="上層ファルダ"
+'mes[4]="壁紙設定"
+mes[4]="壁紙破棄"
+mes[5]="色変更"
+mes[6]="ゴミ集め"
+mes[7]="K-Desktop"
+mes[8]="アプリ終了"
+mes[9]="終了"
+gosub"menu"
+
+fileName=cd+fname[tgt]
+if p=-1 then goto"functionRenew"
+elseif p=0 then gosub"cfct"
+elseif p=1 then gosub"execMenu"
+elseif p=2 then fstplc=(fstplc+1)%2 gosub"setplace" goto"function"
+elseif p=3 then goto"upfd"
+'elseif p=4 then desktop=1 loadimg(dtpimg,fileName)
+elseif p=4 and desktop=1 then desktop=0 imgdispose(dtpimg) dtpimg=""
+elseif p=5 then goto"cngcpt"
+elseif p=6 then gc()
+elseif p=7 then goto"kdesktopMenu"
+elseif p=8 then exit
+elseif p=9 then goto"over"
+endif
+goto"functionRenew"
+return
+
+label execMenu
+winx=strwidth("##") winy=strheight*2
+p=0
+mesl=4
+mes[0]="開く"
+mes[1]="携帯Basic"
+mes[2]="携帯Desktop"
+mes[3]="画像"
+mes[4]="テキスト"
+gosub"menu"
+
+arg[0]=cd+fname[tgt]
+if p=-1 then goto"funcMenu"
+elseif p=0 then gosub"cfct"
+elseif p=1 then gosub"exec" goto"functionRenew"
+elseif p=2 then XPRAPP=arg[0] end
+elseif p=3 then goto"photo"
+elseif p=4 then goto"textview"
+endif
+goto"functionRenew"
+return
+
+label kdesktopMenu
+winx=strwidth("##") winy=strheight*8
+p=0
+mesl=2
+mes[0]="新規ウィンドウ起動"
+mes[1]="同ウィンドウ起動"
+mes[2]="壁紙廃棄"
+gosub"menu"
+
+if p=-1 then goto"funcMenu"
+elseif p=0 then openWindow=1
+elseif p=1 then openWindow=0
+elseif p=2 then XPRDTP=""
+endif
+goto"functionRenew"
+return
+
+label setSoft
+soft1("Menu")soft2("Exit")
+return
+
+label setcl
+if cpt=0 then
+bg[0]=0bg[1]=0bg[2]=0
+lt[0]=0lt[1]=255lt[2]=0
+sel[0]=0sel[1]=0sel[2]=0
+se[0]=0se[1]=255se[2]=0
+sp[0]=255sp[1]=0sp[2]=0
+tb[0]=63tb[1]=63tb[2]=63
+tl[0]=0tl[1]=255tl[2]=0
+elseif cpt=1 then
+bg[0]=255bg[1]=255bg[2]=255
+lt[0]=0lt[1]=0lt[2]=0
+sel[0]=255sel[1]=255sel[2]=255
+se[0]=0se[1]=127se[2]=127
+sp[0]=0sp[1]=127sp[2]=255
+tb[0]=0tb[1]=127tb[2]=255
+tl[0]=0tl[1]=0tl[2]=0
+endif
+return
+
+label cngcpt
+cpt=(cpt+1)%2
+gosub"setcl"
+goto"functionRenew"
+
+label setplace
+if fstplc=0 then cd=extroot
+else cd=introot
+endif
+ndir=0
+dirl[0]=cd
+tgt=0
+return
+
+label chkdir
+i=-1
+while not(strcomp(fname[i],"")=0)
+i=i+1
+fname[i]=dir(cd)
+'if isfolder(cd+fname[i]) then
+'folder[i]=1 else folder[i]=0 endif
+
+'folder[i]=(isFolder(cd+fname[i]))
+wend
+allnum=i
+if not(ndir=0) then fname[i]="../" allnum=i+1 endif
+return
+
+label writemenu
+ss=0
+color(tb[0],tb[1],tb[2])
+frect(0,0,objx,strheight)
+color(tl[0],tl[1],tl[2])
+text(cd,0,0)
+color(lt[0],lt[1],lt[2])
+for i=scr to min(allnum-1,scr+(objy/strheight)-2)
+if (strcomp(tolower(getext(cd+fname[i])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])else
+color(lt[0],lt[1],lt[2])endif
+text(fname[i],0,strheight*(i+1-scr))
+next
+return
+
+label writeselectmenu
+color(se[0],se[1],se[2])
+if (strcomp(tolower(getext(cd+fname[tgt])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])endif
+frect(0,strheight*(tgt+1-scr),objx,strheight)
+color(sel[0],sel[1],sel[2])
+text(fname[tgt],0,strheight*(tgt+1-scr))
+unlock(1)lock()
+color(bg[0],bg[1],bg[2])
+frect(0,strheight*(tgt+1-scr),objx,strheight)
+color(lt[0],lt[1],lt[2])
+if (strcomp(tolower(getext(cd+fname[tgt])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])endif
+text(fname[tgt],0,strheight*(tgt+1-scr))return
+
+label menukey
+rep=1
+while rep=1
+rep=0
+if desktop=1 then gosub"cls" gosub"writemenu"endif
+ipt=input()
+if ipt=keyup then tgt=(tgt-1+allnum)%allnum
+elseif ipt=keyleft then goto"upfd"
+elseif ipt=keydown then tgt=(tgt+1)%allnum
+elseif ipt=keyselect or ipt=keyright then gosub"cfct"
+elseif ipt=keysoft1 then gosub"funcMenu"
+elseif ipt=keysoft2 then goto"over"
+elseif ipt=key1 then goto"cngcpt"
+else rep=0 endif
+if tgt-scr>(objy/strheight-2) or tgt<scr then
+scr=tgt/(objy/strheight-1)*(objy/strheight-1) gosub"cls" gosub"writemenu" endif
+wend
+return
+
+label cls
+gc()
+color(bg[0],bg[1],bg[2])
+frect(0,0,width,height)
+if desktop=1 then drawimg(dtpimg,cs*(objx-imgwidth(dtpimg))/2,cs*(objy-imgheight(dtpimg))/2+strheight*(1-cs))endif
+color(lt[0],lt[1],lt[2])
+return
+
+label function
+gc()
+gosub"cls"
+gosub"chkdir"
+'tgt=0
+gosub"writemenu"
+if scr+tgt>(objy/strheight-2) then
+scr=tgt/(objy/strheight-1)*(objy/strheight-1) gosub"cls" gosub"writemenu" endif
+goto"furep"
+
+label functionRenew
+gc()
+gosub"cls"
+gosub"writemenu"
+if scr+tgt>(objy/strheight-2) then
+scr=tgt/(objy/strheight-1)*(objy/strheight-1) gosub"cls" gosub"writemenu" endif
+goto"furep"
+
+label furep
+gosub"writeselectmenu"
+gosub"menukey"
+goto"furep"
+
+label upfd
+ndir=max(ndir-1,0)
+cd=dirl[ndir]
+scr=0
+tgt=0
+goto"function"
+
+label cfct
+fileName=cd+fname[tgt]
+filePfx=tolower(getext(fileName))
+if strcomp(fname[tgt],"../")=0 then
+goto"upfd"
+elseif (strcomp(filePfx,pfx)=0)and(ify=1) then
+CMDLINE=cd+fname[tgt]
+if ify=1 then ARG[0]=""endif
+end
+elseif (strcomp(filePfx,"txt")=0) then
+arg[0]=cd+fname[tgt] gosub"textview"
+elseif (strcomp(filePfx,"jpg")=0) or (strcomp(filePfx,"jpeg")=0) or (strcomp(filePfx,"png")=0) then
+arg[0]=cd+fname[tgt] gosub"photo"
+elseif (strcomp(filePfx,"scr")=0) then
+arg[0]=cd+fname[tgt] goto"exec"
+elseif (strcomp(filePfx,"dtp")=0) then
+XPRAPP=fileName end
+elseif isfolder(fileName)'folder[tgt]=1' then
+cd=cd+fname[tgt]
+ndir=ndir+1
+scr=0
+dirl[ndir]=cd
+tgt=0
+goto"function"
+endif
+return
+
+label exec
+clear(0,0,width,height)
+soft1("")soft2("")
+if ify=1 then ARG[0]=""endif
+if openWindow=1 then XPRAPP=arg[0] end endif
+CMDLINE=arg[0]
+thread(arg[0],"tha")
+join("tha")
+gc()
+clearinput()
+gosub"setSoft"
+goto"functionRenew"
+
+label setbase
+px=0 py=0
+if cs=1 then
+px=(objx-imgwidth(tmpimg))/2
+py=(objy-imgheight(tmpimg))/2
+return
+
+label photoMenu
+tmp[0]=arg[0]
+winx=0 winy=strheight*0
+p=0
+mesl=9
+mes[0]="壁紙設定"
+mes[1]="デスクトップ壁紙設定"
+mes[2]="Slide"
+mes[3]="Slide(ランダム)"
+mes[4]="中央を表示"
+mes[5]="左上を表示"
+mes[6]="情報表示"
+mes[7]="アプリ終了"
+mes[8]="ブラウザ終了"
+mes[9]="画像終了"
+gosub"menu"
+
+arg[0]=tmp[0]
+if p=-1 then goto"sphot"
+elseif dtpimg=arg[0] and p=0 then desktop=0 imgdispose(dtpimg) gc()
+elseif p=0 then desktop=(1)%2 dtpimg=arg[0] loadimg(dtpimg,arg[0]) gc()
+elseif p=1 then XPRDTP=arg[0]
+elseif p=2 then ss=1
+elseif p=3 then ss=2
+elseif p=4 then cs=1 goto"photo"
+elseif p=5 then cs=0 goto"photo"
+elseif p=6 then is=(is+1)%2 goto"photo"
+elseif p=7 then exit
+elseif p=8 then goto"over"
+elseif p=9 then goto"escPhoto"
+
+endif
+goto"sphot"
+return
+
+label photo
+loadimg(tmpimg,arg[0])
+soft2("")soft1("Menu")
+gosub"setbase"
+endif
+
+label sphot
+color(bg[0],bg[1],bg[2])
+frect(0,0,objx,objy)
+drawimg(tmpimg,px,py)
+if is=1 then gosub"iphot"endif
+unlock(1)lock()
+if not(ss=0) then
+ipt=input(1000)
+else
+ipt=input()
+endif
+if not(ipt=0) and not(ipt=key1) then ss=0 endif
+'if dtpimg=arg[0] and ipt=keysoft1 then desktop=0 imgdispose(dtpimg) gc()
+'elseif ipt=keysoft1 then desktop=(1)%2 dtpimg=arg[0] loadimg(dtpimg,arg[0]) gc() endif
+if ipt=keysoft1 then goto"photoMenu"
+elseif ipt=keyup then py=min(py+10,objy) goto"sphot"
+elseif ipt=keydown then py=max(py-10,0-imgheight(tmpimg)) goto"sphot"
+elseif ipt=keyleft then px=min(px+10,objx) goto"sphot"
+elseif ipt=keyright then px=max(px-10,0-imgwidth(tmpimg)) goto"sphot"
+elseif ipt=key2 then py=min(py+(objy/2),objy) goto"sphot"
+elseif ipt=key8 then py=max(py-(objy/2),0-imgheight(tmpimg)) goto"sphot"
+elseif ipt=key4 then px=min(px+(objx/2),objx) goto"sphot"
+elseif ipt=key6 then px=max(px-(objx/2),0-imgwidth(tmpimg)) goto"sphot"
+elseif ipt=key5 then gosub"setbase" goto"sphot"
+elseif ipt=key1 then ss=(ss+1)%3
+elseif ipt=key7 then is=(is+1)%2 goto"photo"
+elseif ipt=key3 then cs=(cs+1)%2 goto"photo"
+endif
+if ss=0 and ipt=key1 then goto"sphot"endif
+label escPhoto
+imgdispose(tmpimg)
+gc()
+scr=0
+gosub"setSoft"
+'if tgt=allnum-2 then ss=0 endif
+if ipt=keyast then tgt=(tgt-1+allnum)%allnum goto"cfct"
+elseif ipt=keypound or ss=1 then tgt=(tgt+1)%(allnum-1) goto"cfct"
+elseif ss=2 then tgt=abs(rand)%(allnum-1) goto"cfct"
+endif
+goto"functionRenew"
+
+label iphot
+color(lt[0],lt[1],lt[2])
+text("画像情報",0,0)
+text("dir :"+cd,0,strheight)
+text("name:"+fname[tgt],0,strheight*2)
+text("imgX:"+imgwidth(tmpimg),0,strheight*4)
+text("imgY:"+imgheight(tmpimg),0,strheight*5)
+if ss=1 then
+text("スライドショー実行中",0,strheight*7)
+elseif ss=2 then
+text("スライドショー実行中 （ランダム）",0,strheight*7)
+else
+text("posX:"+(0-px),0,strheight*7)
+text("posY:"+(0-py),0,strheight*8)
+endif
+if desktop=1 then
+text("背景画像あり",0,strheight*10)
+text("filename:"+dtpimg,0,strheight*11)
+text("imgX:"+imgwidth(dtpimg),0,strheight*12)
+text("imgY:"+imgheight(dtpimg),0,strheight*13)
+endif
+return
+
+label over
+end
+
+label textview
+gosub"cls"
+soft1("")soft2("")
+tmptxt=loadtext(arg[0])
+text(arg[0],0,0)
+text(tmptxt,0,strheight)
+unlock(1)lock()
+input()
+soft1("切替")soft2("Exit")
+goto"functionRenew"
+
+label menu
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+arg[0]=""
+arg[1]=winx
+arg[2]=winy
+arg[3]=longestw+4
+arg[4]=(mesl+1)*strheight+4
+gosub"menubg"
+color(0,0,0)
+for i=0 to mesl
+text(mes[i],winx+2,winy+strheight*i+2)
+next
+pnt=0
+gosub"mcon"
+return
+
+label menubg
+color(192,192,192)
+frect(arg[1],arg[2],arg[3],arg[4])
+color(222,222,222)
+line(arg[1],arg[2],arg[1]+arg[3],arg[2])
+line(arg[1],arg[2],arg[1],arg[2]+arg[4])
+color(152,152,152)
+line(arg[1]+arg[3],arg[2],arg[1]+arg[3],arg[2]+arg[4])
+line(arg[1],arg[2]+arg[4],arg[1]+arg[3],arg[2]+arg[4])
+return
+
+label mcon
+escp=1
+while escp
+gosub"writem"
+ipt=input()
+gosub"mckey"
+wend
+return
+
+label writem
+color(0,0,128)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(255,255,255)
+text(mes[p],winx+2,winy+2+p*strheight)
+unlock(1)lock()
+color(192,192,192)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(0,0,0)
+text(mes[p],winx+2,winy+2+p*strheight)
+return
+
+label mckey
+if ipt=keyup then p=(p+mesl)%(mesl+1)
+elseif ipt=keydown then p=(p+1)%(mesl+1)
+elseif ipt=keyright then escp=0
+elseif ipt=keyleft then escp=0 p=-1
+elseif ipt=keyselect then escp=0
+endif
+return

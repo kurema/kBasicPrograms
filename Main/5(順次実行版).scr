@@ -1,0 +1,26 @@
+'ƒTƒ“ƒvƒ‹
+'‹ô”‚È‚ç€2 Šï”‚È‚ç~3{1
+
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+
+soft1("EXIT")
+soft2("NEXT")
+a=1
+b=0
+c=0
+d=2
+setfont(T)
+label aaa
+'clear(0,0,width,height)
+text(a,c,'abs(rand)%height-'b)
+if a%2=0 then color(255,255,255) a=a/2 else color(160,160,160) a=a*3+1 endif
+b=b+12
+label chk
+i=input(0)
+if i and keysoft1 then end endif
+if a=1 then a=d b=0 c=0 d=d+1 color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+if b>height-13 then b=0 c=c+'45'(strlen(a)+4)*6 endif
+if c>width-45 then b=0 c=0 color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+if i and keysoft2 then d=2 a=1 b=0 c=0  clear(0,0,width,height) endif
+'goto "chk" 
+goto "aaa"

@@ -1,0 +1,27 @@
+'thread(basedir+"9s.scr",dbg)
+color(0,0,0)
+frect(0,0,width,strheight*3)
+
+s=tick
+debug("autolook powered")
+while 1
+d[0]="memory: "+freememory+" / "+totalmemory
+d[1]="time  : "+hourofday+":"+minute+":"+second
+d[2]="past  : "+(tick-s)
+'clear(0,0,width,strheight*3)
+color(0,255,0)
+for i=0 to 2
+text(d[i],0,strheight*i)
+next
+unlock(1)lock()
+color(0,0,0)
+for i=0 to 2
+text(d[i],0,strheight*i)
+next
+debug("_______________")
+debug("Debug Report")
+for i=0 to 2
+debug(d[i])
+next
+yield()
+wend

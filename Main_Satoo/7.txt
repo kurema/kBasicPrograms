@@ -1,0 +1,22 @@
+'‚Æ‚±‚Æ‚ñ”z—ñ‚ð‚Â‚­‚é ‚»‚Ì‚¤‚¿‘Â‚¿‚Ü‚·
+
+a=0
+c="0"
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+for g=0 to 1024
+c=c+"0"
+next
+d=((hourofday*60)+minute)*60+second
+label me
+color(0,0,0)frect(0,12,width,height'height‚Í24‚É')color(255,255,255)
+e=((hourofday*60)+minute)*60+second-d
+a=a+1
+tes[a]=c
+text("memtest ver.1.04",0,12)
+text("now "+a,0,24)
+text("sec "+e,0,36)
+text("memory "+freememory+"/"+totalmemory,0,48)
+'line(a/20,49,a/20,72)
+b=input(1)
+if b=keysoft1 then exit endif
+if tes[1]=c then goto"me" else exit endif

@@ -1,0 +1,607 @@
+lock()
+ver="1.00"
+color(0,0,0)
+pposx=FNKPOSX
+pposy=FNKPOSY
+fulObjX=FNKOBJX
+fulObjY=FNKOBJY
+
+gosub"init"
+gosub"drawHtml"
+gosub"keyControl"
+end
+
+
+label keyControl
+while 1
+gosub"keyCheck"
+gosub"keyInterpret"
+wend
+return
+
+label keyCheck
+inKey=0
+while inKey=0
+inKey=scan
+wend
+return
+
+label keyInterpret
+if inKey=keydown then
+viewY=min(viewY+(objy-strheight),max(bottomLineY-objy,0))
+gosub"redraw"
+elseif inKey=keyup then
+viewY=max(viewY-(objy-strheight),0)
+gosub"redraw"
+elseif inKey=keysoft1 then
+gosub"mainMenu"
+gosub"drawHtml"
+elseif inKey=keysoft2 then
+goto"over"
+endif
+return
+
+label over
+end
+return
+
+label drawHtml
+origin(pposx,pposy)
+clear(0,0,fulObjX,fulObjY)
+origin(pposx,pposy-viewY)
+gosub"initBasic"
+gosub"initColor"
+gosub"initTextMode"
+gosub"initCoordinate"
+gosub"interpretHtml"
+return
+
+label redraw
+origin(pposx,pposy-viewY)
+'drawarea(-pposx,-pposy+viewY,objx,objy)
+gosub"drawHtml"
+gosub"initBase"
+return
+
+label init
+gosub"initSoft"
+gosub"initBase"
+gosub"initColor"
+gosub"initBasic"
+gosub"initOption"
+gosub"initObjSize"
+gosub"initBrowserText"
+gosub"initTagName"
+gosub"initCoordinate"
+gosub"initHistory"
+return
+
+label initCoordinate
+posX=0
+posY=0
+lengthY=strheight
+return
+
+label initObjSize
+objx=fulObjX-4*useScrollBar
+objy=fulObjY-4*useProgressBar
+return
+
+label initBasic
+tagName=""
+tagText=""
+tagProperty=""
+tagPropertyName=""
+tagPropertyValue=""
+return
+
+label initSoft
+soft1("MENU")
+soft2("END")
+return
+
+label initOption
+useProgressBar=1
+useScrollBar=1
+return
+
+label initHistory
+stack[0][0]=htmlText
+return
+
+label initColor
+color(textMode[4],textMode[5],textMode[6])
+return
+
+label initBase
+origin(pposx,pposy)
+drawarea(0,0,fulObjX,fulObjY)
+return
+
+label initBrowserText
+htmlText=BROWSERTEXT
+if htmlText="" then htmlText="<b><center>表示対象がありません</center></b><hr>表示する対象がありません。"endif
+return
+
+label initTagName
+tagListA=":body:b:br:center:s:u:del:a:hr:img:"
+tagListB=":body:b:br:center:s:u:del:a:"
+propertyListA=":color:align:"
+propertyListB=":"
+return
+
+label initTextMode
+for i=0 to 6
+textModeLength[i]=0
+textMode[i]=0
+next
+return
+
+label versionInfo
+viewY=0
+origin(pposx,pposy-viewY)
+htmlText="<html><body><center><b>KBD ブラウザ</b></center><hr>Name     :KBD ブラウザ<br>Version  :"+ver+"<br>Filename :"+appname+"<br>Directory:<br>"+basedir+"<br>Developer:AutoLook</body></html>"
+gosub"historyNew"
+'gosub"drawHtml"
+'gosub"keyControl"
+return
+
+label drawProgressBar
+origin(pposx,pposy)
+color(255,255,255)
+frect(0,fulObjY-4,fulObjX,4)
+color(0,0,255)
+frect(0,fulObjY-4,(fulObjX)*progressPercent/100,4)
+origin(pposx,pposy-viewY)
+color(textMode[4],textMode[5],textMode[6])
+return
+
+label drawScrollBar
+origin(pposx,pposy)
+color(255,255,255)
+frect(fulObjX-4,0,4,fulObjY)
+color(127,127,127)
+frect(fulObjX-4,fulObjY*viewY/max(bottomLineY,objy),4,fulObjY*objy/max(bottomLineY,objy))
+origin(pposx,pposy-viewY)
+color(textMode[4],textMode[5],textMode[6])
+return
+
+label interpretTagName
+tagName=tolower(tagName)
+if tagName="" then
+gosub"stdText"
+elseif strat(tagName,0)="/" then
+tagName=substr(tagName,1,strlen(tagName)-1)
+if not(stridx(tagListB,":"+tagName+":")=-1) then
+tmp="TAGREV"+tagName
+gosub tmp
+else
+gosub"stdText"
+endif
+else
+if not(stridx(tagListA,":"+tagName+":")=-1) then
+tmp="TAG"+tagName
+gosub tmp
+elseif not(tagText="") then
+gosub"stdText"
+endif
+endif
+return
+
+label interpretHtml
+tmpHtmlText=htmlText
+tmp[0]=0
+while not(tmp[0]=-1)' and posY<objy
+tmp[0]=stridx(tmpHtmlText,"<")
+if not(tmp[0]=-1) then
+tagText=substr(tmpHtmlText,0,tmp[0])
+gosub"interpretTagName"
+propertyListB=":"
+tmpHtmlText=substr(tmpHtmlText,tmp[0],strlen(tmpHtmlText)-tmp[0])
+tmp[1]=stridx(tmpHtmlText,">")
+tmp[2]=stridx(tmpHtmlText," ")
+if not(tmp[2]=-1) and tmp[2]<tmp[1] then
+tagName=substr(tmpHtmlText,1,tmp[2]-1)
+tagProperty=substr(tmpHtmlText,tmp[2]+1,tmp[1]-tmp[2]-1)
+else
+tagName=substr(tmpHtmlText,1,tmp[1]-1)
+tagProperty=""
+endif
+
+'text("["+tmpHtmlText+"]",0,0)
+
+tmpHtmlText=substr(tmpHtmlText,tmp[1]+1,strlen(tmpHtmlText)-tmp[1]-1)
+
+'text("["+tmpHtmlText+"]",0,strheight)
+'text("["+tagName+"]",0,strheight*2)
+'text("["+tagProperty+"]",0,strheight*3)
+'text("["+tagText+"]",0,strheight*4)
+'unlock(1)lock()
+'input()
+
+endif
+if useProgressBar=1 then
+progressPercent=100-(strlen(tmpHtmlText)*100/strlen(htmlText))
+gosub"drawProgressBar"
+unlock(1)lock()
+endif
+wend
+
+tagText=tmpHtmlText
+gosub"interpretTagName"
+bottomLineY=posY+lengthY
+
+if useProgressBar=1 then
+progressPercent=0
+gosub"drawProgressBar"
+endif
+
+if useScrollBar=1 then
+gosub"drawScrollBar"
+endif
+
+unlock(1)lock()
+return
+
+label stdText
+'clear(0,0,width,height)
+gosub"propertyList"
+gosub"propertyInterpret"
+
+if not(textMode[2]=0) then
+posX=(objx-strwidth(tagText))*textMode[2]/2 endif
+if textMode[0]=1 then
+line(posX,posY+lengthY,posX+strwidth(tagText),posY+lengthY)
+endif
+if textMode[1]=1 then
+line(posX,posY+lengthY/2,posX+strwidth(tagText),posY+lengthY/2)
+endif
+if textMode[3]=1 then
+text(tagText,posX+1,posY)
+endif
+text(tagText,posX,posY)
+posX=posX+strwidth(tagText)
+'posY=posY+lengthY
+return
+
+label propertyList
+i=0
+tmp=tagProperty
+while not(stridx(tmp," ")=-1)
+tagProperty[i]=substr(tmp,0,stridx(tmp," "))
+tmp=substr(tmp,stridx(tmp," ")+1,strlen(tmp)-(stridx(tmp," ")+1))
+i=i+1
+wend
+tagProperty[i]=tmp
+tagPropertyLength=i
+return
+
+label propertyInterpret
+for i=0 to tagPropertyLength
+tagPropertyName=""
+tagPropertyValue=""
+tmp=stridx(tagProperty[i],"=")
+if tmp=-1 then
+none()
+else
+tagPropertyName=substr(tagProperty[i],0,tmp)
+tagPropertyValue=substr(tagProperty[i],tmp+1,strlen(tagProperty[i])-tmp-1)
+if strat(tagPropertyValue,0)="'"then
+tagPropertyValue=substr(tagPropertyValue,1,strlen(tagPropertyValue)-2)
+endif
+if not(stridx(propertyListB,":"+tolower(tagPropertyName)+":")=-1)then
+tmpLabel="TAGPROPERTY"+tolower(tagPropertyName)+"ON"+tagName
+gosub tmpLabel
+elseif not(stridx(propertyListA,":"+tolower(tagPropertyName)+":")=-1)then
+tmpLabel="TAGPROPERTY"+tolower(tagPropertyName)
+gosub tmpLabel
+endif
+endif
+'text("["+tagPropertyName+"]",0,strheight)
+'text("["+tagPropertyValue+"]",0,strheight*2)
+'unlock(1)lock()
+'input()
+next
+return
+
+label menu
+clearinput()
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+arg[0]=""
+arg[1]=winx
+arg[2]=winy
+arg[3]=longestw+4
+arg[4]=(mesl+1)*strheight+4
+gosub"menubg"
+color(0,0,0)
+for i=0 to mesl
+text(mes[i],winx+2,winy+strheight*i+2)
+next
+pnt=0
+gosub"mcon"
+return
+
+label menubg
+color(192,192,192)
+frect(arg[1],arg[2],arg[3],arg[4])
+color(222,222,222)
+line(arg[1],arg[2],arg[1]+arg[3],arg[2])
+line(arg[1],arg[2],arg[1],arg[2]+arg[4])
+color(152,152,152)
+line(arg[1]+arg[3],arg[2],arg[1]+arg[3],arg[2]+arg[4])
+line(arg[1],arg[2]+arg[4],arg[1]+arg[3],arg[2]+arg[4])
+return
+
+label mcon
+escp=1
+while escp
+gosub"writem"
+ipt=input()
+gosub"mckey"
+wend
+return
+
+label writem
+color(0,0,128)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(255,255,255)
+text(mes[p],winx+2,winy+2+p*strheight)
+unlock(1)lock()
+color(192,192,192)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(0,0,0)
+text(mes[p],winx+2,winy+2+p*strheight)
+return
+
+label mckey
+if ipt=keyup then p=(p+mesl)%(mesl+1)
+elseif ipt=keydown then p=(p+1)%(mesl+1)
+elseif ipt=keyright then escp=0
+elseif ipt=keyleft then escp=0 p=-1
+elseif ipt=keyselect then escp=0
+endif
+return
+
+label colorName
+colorNameList="000000000,black.255000000,red.000255000,green.000000255,blue.255255255,white."
+hexCode="0123456789abcdef"
+if strat(colorName,0)="#"then
+for k=0 to 2
+colorCode[k]=stridx(hexCode,strat(colorName,k*2+1))*16+stridx(hexCode,strat(colorName,k*2+2))
+next
+elseif not(stridx(colorNameList,","+colorName+".")=-1)then
+colorTmp=stridx(colorNameList,","+colorName+".")
+for k=0 to 2
+colorCode[k]=substr(colorNameList,colorTmp-9+3*k,3)
+next
+else
+for k=0 to 2
+colorCode[k]=0
+next
+endif
+return
+
+label mainMenu
+winx=0 winy=0
+p=0
+mesl=5
+mes[0]="戻る"
+mes[1]="進む"
+mes[2]="スクロールバー表示"
+mes[3]="プログレスバー表示"
+mes[4]="バージョン情報"
+mes[5]="終了"
+origin(pposx,pposy)
+gosub"menu"
+origin(pposx,pposy-viewY)
+
+if p=-1 then none()
+elseif p=0 then gosub"historyBack"
+elseif p=1 then gosub"historyNext"
+elseif p=2 then useScrollBar=(useScrollBar+1)%2 gosub"initObjSize"
+elseif p=3 then useProgressBar=(useProgressBar+1)%2 gosub"initObjSize"
+elseif p=4 then gosub"versionInfo"
+elseif p=5 then goto"over"
+endif
+return
+
+label textControlOn
+textMode[arg[0]][textModeLength[arg[0]]]=textMode[arg[0]]
+textModeLength[arg[0]]=textModeLength[arg[0]]+1
+textMode[arg[0]]=arg[1]
+return
+
+label textControlOff
+textModeLength[arg[0]]=max(textModeLength[arg[0]]-1,0)
+textMode[arg[0]]=textMode[arg[0]][textModeLength[arg[0]]]
+return
+
+label stackPush
+'stack[arg[0]][stackLength[arg[0]]]=stack[arg[0]]
+stackLength[arg[0]]=stackLength[arg[0]]+1
+stack[arg[0]][stackLength[arg[0]]]=arg[1]
+return
+
+label stackPop
+stackLength[arg[0]]=max(stackLength[arg[0]]-1,0)
+stack[arg[0]]=stack[arg[0]][stackLength[arg[0]]]
+return
+
+label stackNext
+if not(stack[arg[0]][stackLength[arg[0]]+1]=0)then
+stackLength[arg[0]]=stackLength[arg[0]]+1
+endif
+stack[arg[0]]=stack[arg[0]][stackLength[arg[0]]]
+return
+
+label historyNew
+arg[0]=0 arg[1]=htmlText
+gosub"stackPush"
+return
+
+label historyBack
+arg[0]=0
+gosub"stackPop"
+viewY=0
+htmlText=stack[0]
+return
+
+label historyNext
+arg[0]=0
+gosub"stackNext"
+viewY=0
+htmlText=stack[0]
+return
+
+label enter
+posX=0
+posY=posY+lengthY
+return
+
+label TAGhr
+gosub"enter"
+line(posX,posY+lengthY/2,objx-posX,posY+lengthY/2)
+gosub"enter"
+gosub"stdText"
+return
+
+label TAGbr
+gosub"enter"
+gosub"stdText"
+return
+
+label TAGdel
+arg[0]=1 arg[1]=1
+gosub"textControlOn"
+gosub"stdText"
+return
+
+label TAGREVdel
+arg[0]=1
+gosub"textControlOff"
+gosub"stdText"
+return
+
+label TAGs
+gosub"TAGdel"
+return
+
+label TAGREVs
+gosub"TAGREVdel"
+return
+
+label TAGu
+arg[0]=0 arg[1]=1
+gosub"textControlOn"
+gosub"stdText"
+return
+
+label TAGREVu
+arg[0]=0
+gosub"textControlOff"
+gosub"stdText"
+return
+
+label TAGcenter
+arg[0]=2 arg[1]=1
+gosub"textControlOn"
+gosub"stdText"
+return
+
+label TAGREVcenter
+arg[0]=2
+gosub"textControlOff"
+gosub"stdText"
+return
+
+label TAGb
+arg[0]=3 arg[1]=1
+gosub"textControlOn"
+gosub"stdText"
+return
+
+label TAGREVb
+arg[0]=3
+gosub"textControlOff"
+gosub"stdText"
+return
+
+label TAGPROPERTYcolor
+colorName=tagPropertyValue
+gosub"colorName"
+textMode[4]=colorCode[0]
+textMode[5]=colorCode[1]
+textMode[6]=colorCode[2]
+color(textMode[4],textMode[5],textMode[6])
+return
+
+label TAGPROPERTYalign
+tagPropertyValue=tolower(tagPropertyValue)
+if tagPropertyValue="left"then
+textMode[2]=0
+elseif tagPropertyValue="center"then
+textMode[2]=1
+elseif tagPropertyValue="right"then
+textMode[2]=2
+endif
+return
+
+label TAGa
+arg[0]=0 arg[1]=1
+gosub"textControlOn"
+arg[0]=4 arg[1]=0
+gosub"textControlOn"
+arg[0]=5 arg[1]=0
+gosub"textControlOn"
+arg[0]=6 arg[1]=127
+gosub"textControlOn"
+color(textMode[4],textMode[5],textMode[6])
+gosub"stdText"
+return
+
+label TAGREVa
+arg[0]=0
+gosub"textControlOff"
+arg[0]=4
+gosub"textControlOff"
+arg[0]=5
+gosub"textControlOff"
+arg[0]=6
+gosub"textControlOff"
+color(textMode[4],textMode[5],textMode[6])
+gosub"stdText"
+return
+
+label TAGimg
+propertyListB=":src:"
+gosub"stdText"
+return
+
+label TAGPROPERTYsrcONimg
+gosub"enter"
+
+loadimg(img,path(basedir+tagPropertyValue))
+drawimg(img,0,posY+2)
+posY=posY+imgheight(img)+4
+imgdispose(img)
+return
+
+label TAGbody
+propertyListB=":bgcolor:"
+gosub"stdText"
+return
+
+label TAGPROPERTYbgcolorONbody
+colorName=tagPropertyValue
+gosub"colorName"
+color(colorCode[0],colorCode[1],colorCode[2])
+frect(0,viewY,objx,objy)
+color(textMode[4],textMode[5],textMode[6])
+return
+
+label TAGREVbody
+gosub"stdText"
+return

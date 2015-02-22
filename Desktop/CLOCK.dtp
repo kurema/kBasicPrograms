@@ -1,0 +1,39 @@
+lock()
+posx=FNKPOSX
+posy=FNKPOSY
+objx=FNKOBJX
+objy=FNKOBJY
+wsize=min(objx,objy)/2
+origin(posx,posy)
+drawarea(0,0,objx,objy)
+while 1
+gosub"cls"
+color(0,128,128)
+a=hour*30+minute/2 b=60
+gosub"mkl"
+a=minute*6 b=90
+gosub"mkl"
+color(0,0,0)
+a=second*6 b=100
+gosub"mkl"
+mes=year+"/"+month+"/"+dayofmonth
+text(mes,(objx-strwidth(mes))/2,objy/4)
+gosub"renew"
+while second=osec
+yield()
+wend
+osec=second
+wend
+
+label mkl
+line((objx/2),(objy/2),(objx/2)+sin(a)*wsize*b/10000,(objy/2)-cos(a)*wsize*b/10000)
+return
+
+label renew
+unlock(1)lock()
+return
+
+label cls
+color(192,192,192)
+frect(0,0,objx,objy)
+return

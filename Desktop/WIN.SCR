@@ -1,0 +1,552 @@
+'setfont("L")
+lock()
+gosub"setstd"
+goto"main"
+
+label main
+while 1
+while WINCOM=0
+yield()
+sleep(100)
+wend
+gosub"control"
+if WINREF=1 then unlock(1)lock() endif
+wend
+
+label control
+if(WINCOM=2)then
+wboxttl=WINNAME
+arg[0]=WINMES
+gosub"dlg"
+elseif(WINCOM=3)then
+for i=0 to WINLINE
+mes[i]=WINLMES[i]
+next
+wboxttl=WINNAME
+mesl=WINLINE
+gosub"ldlg"
+elseif(WINCOM=4)then
+arg[0]=WINMES
+gosub"iptdlg"
+WBOXRET=ipts
+elseif(WINCOM=5)then
+arg[0]=WINMES
+arg[1]=WINX
+arg[2]=WINY
+arg[3]=WINOBJX
+arg[4]=WINOBJY
+gosub"button"
+elseif(WINCOM=6)then
+arg[0]=WINMES
+arg[1]=WINX
+arg[2]=WINY
+arg[3]=WINOBJX
+arg[4]=WINOBJY
+gosub"downbutton"
+elseif(WINCOM=8)then
+posx=WINX
+posy=WINY
+gosub"gets"
+WBOXRET=ipts
+elseif(WINCOM=1)then
+arg[1]=WINNAME
+arg[2]=WINX
+arg[3]=WINY
+arg[4]=WINOBJX
+arg[5]=WINOBJY
+gosub"wbox"
+WINPOSX=WINX+2
+WINPOSY=WINY+strheight+3
+WINDSIZEX=WINOBJX-3
+WINDSIZEY=WINOBJY-strheight-4
+if WINEDGE=1 then gosub"mkedg" gosub"setedg"endif
+WINEDGE=0
+color(0,0,0)
+elseif(WINCOM=7)then
+winx=WINX
+winy=WINY
+for i=0 to WINLINE
+mes[i]=WINLMES[i]
+next
+mesl=WINLINE
+gosub"menu"
+WINMENU=p
+WINSIZEX=longestw+4
+p=0
+elseif(WINCOM=10)then
+posx=WINX
+posy=WINY
+dlen=WINOBJX
+gosub"input"
+WBOXRET=ipts
+elseif(WINCOM=9)then
+arg[0]=WINMES
+dlen=WINOBJX
+gosub"iptdlgchar"
+WBOXRET=ipts
+elseif(WINCOM=11)then
+gosub"initStartBar"
+elseif(WINCOM=12)then
+gosub"initStartBarDown"
+endif
+
+WINCOM=0
+return
+
+label iptdlgchar
+color(0,0,0)
+frect((width-max(dlen,strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(dlen,strwidth(arg[0]))+40,strheight*5)
+color(255,255,255)
+rect((width-max(dlen,strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(dlen,strwidth(arg[0]))+40,strheight*5)
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight*3)/2)
+posx=(width-dlen)/2
+posy=(height+strheight*2)/2
+gosub"input"
+color(255,255,255)
+return
+
+label input
+IPTX=posx
+IPTY=posy
+IPTOBJX=dlen
+thread(basedir+"input.scr","ipt")
+join("ipt")
+ipts=IPTOUT
+return
+
+label menu
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+arg[0]=""
+arg[1]=winx
+arg[2]=winy
+arg[3]=longestw+4
+arg[4]=(mesl+1)*strheight+4
+gosub"menubg"
+color(0,0,0)
+for i=0 to mesl
+text(mes[i],winx+2,winy+strheight*i+2)
+next
+pnt=0
+gosub"mcon"
+return
+
+label menubg
+color(192,192,192)
+frect(arg[1],arg[2],arg[3],arg[4])
+color(222,222,222)
+line(arg[1],arg[2],arg[1]+arg[3],arg[2])
+line(arg[1],arg[2],arg[1],arg[2]+arg[4])
+color(152,152,152)
+line(arg[1]+arg[3],arg[2],arg[1]+arg[3],arg[2]+arg[4])
+line(arg[1],arg[2]+arg[4],arg[1]+arg[3],arg[2]+arg[4])
+return
+
+label mcon
+escp=1
+while escp
+gosub"writem"
+ipt=input()
+gosub"mckey"
+wend
+return
+
+label writem
+color(0,0,128)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(255,255,255)
+text(mes[p],winx+2,winy+2+p*strheight)
+unlock(1)lock()
+color(192,192,192)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(0,0,0)
+text(mes[p],winx+2,winy+2+p*strheight)
+return
+
+label mckey
+if ipt=keyup then p=(p+mesl)%(mesl+1)
+elseif ipt=keydown then p=(p+1)%(mesl+1)
+elseif ipt=keyright then escp=0
+elseif ipt=keyleft then escp=0 p=-1
+elseif ipt=keyselect then escp=0
+endif
+return
+
+label setstd
+ifdlg=2
+'gosub"cls"
+'unlock(1)lock()
+nolimit=0
+htcps=1
+mmx=0mmy=0
+coltype=2
+gosub"setkey"
+gosub"setftype"
+return
+
+label setedg
+WINPOSX=WINX+3
+WINPOSY=WINY+strheight+4
+WINDSIZEX=WINOBJX-5
+WINDSIZEY=WINOBJY-strheight-6
+return
+
+label setftype
+ftype[0]="T"ftype[1]="S"ftype[2]="M"ftype[3]="L"
+return
+
+label ltmine
+text(arg[2],arg[0],arg[1])
+unlock(1)lock()
+return
+
+label dlg
+if ifdlg=2 then 
+arg[2]=(width-max(strwidth(arg[0]),40)-40)/2 arg[3]=(height-strheight*5)/2 arg[4]=max(strwidth(arg[0]),40)+40 arg[5]=strheight*11/2+9 arg[1]=wboxttl gosub"wbox"
+color(0,0,0)
+else gosub"boxbw" endif
+gosub"prctr"
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=height/2+2*strheight arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(255,255,255)
+return
+
+label boxbw
+color(0,0,0)
+frect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+color(255,255,255)
+rect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+return
+
+label ldlg
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+if ifdlg=2 then 
+arg[2]=(width-longestw-40)/2 arg[3]=(height-strheight*(mesl+5))/2 arg[4]=longestw+40 arg[5]=strheight*(mesl+5)+15 arg[1]=wboxttl gosub"wbox" color(0,0,0)
+else 
+color(0,0,0)
+frect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3))
+color(255,255,255)
+rect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3)) endif
+for i=0 to mesl
+text(mes[i],width/2-(strwidth(mes[i])/2),(height-strheight*(mesl-i*2+1))/2)
+next
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=(height+strheight*(mesl+3))/2 arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(255,255,255)
+return
+
+label iptdlg
+color(0,0,0)
+frect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+color(255,255,255)
+rect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight*3)/2)
+posx=(width-strwidth(((nolimit+1073741819)%1073741820)))/2
+posy=(height+strheight*2)/2
+gosub"gets"
+color(255,255,255)
+return
+
+label prctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight)/2)
+return
+
+label mkmass
+unlock(1)
+for i=0 to arg[0]
+line((width-1)*i/arg[0],0,(width-1)*i/arg[0],(height-1-strheight*2))
+line(0,(height-1-strheight*2)*i/arg[0],width,(height-1-strheight*2)*i/arg[0])
+next
+lock()
+return
+
+label prbtmctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight))
+return
+
+label cls
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+arg[0]=0
+gosub"noshow"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+if keypound and ipt then stopper=0 endif
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if not(nolimit=0) then
+if keyup and ipt then ipts=(ipts+1)%nolimit endif
+if keydown and ipt then ipts=(ipts-1+nolimit)%nolimit endif
+elseif abs(ipts)<1073741820 then 
+if keyup and ipt then 
+if ipts=0 then ipts=1 mino=1
+elseif mino=1 then ipts=ipts+1 elseif
+mino=-1 then ipts=ipts-1 endif
+ endif
+if keydown and ipt then
+if ipts=0 then ipts=1 mino=-1
+elseif mino=1 then ipts=ipts-1 elseif
+mino=-1 then ipts=ipts+1 endif
+endif
+endif
+'endif
+if keyselect and ipt then stopper=0 endif
+if not(nolimit=0) then
+if abs(ipts)<nolimit/10 then gosub"getno" endif
+elseif abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"noshow" endif
+wend
+'if keysoft1 and ipt then exit endif
+'if keypound and ipt then goto"choosegame"endif
+return
+
+label noshow
+color(0,0,0)
+frect(posx,posy,strwidth("1073741820"),strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label show
+color(0,0,0)
+frect(posx,posy,width,strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return
+
+label wbox
+color(192,192,192)
+frect(arg[2],arg[3],arg[4],arg[5])
+color(0,0,128)
+frect(arg[2],arg[3],arg[4],strheight+2+1)
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(255,255,255)
+text(arg[1],arg[2]+1,arg[3]+1)
+windowButtonX=arg[2]+arg[4]-42
+windowButtonY=arg[3]+1
+gosub"windowButton"
+'unlock(1)lock()
+return
+
+label mkedg
+color(152,152,152)
+line(arg[2]+1,arg[3]+strheight+3,arg[2]+arg[4]-1,arg[3]+strheight+3)
+line(arg[2]+1,arg[3]+strheight+3,arg[2]+1,arg[3]+arg[5]-1)
+color(222,222,222)
+line(arg[2]+1,arg[3]+arg[5]-1,arg[2]+arg[4]-1,arg[3]+arg[5]-1)
+line(arg[2]+arg[4]-1,arg[3]+strheight+3,arg[2]+arg[4]-1,arg[3]+arg[5]-1)
+return
+
+label btchk
+gosub"button"
+unlock(1)lock()
+while(not(scan=keyselect))
+none()
+wend
+gosub"downbutton"
+unlock(1)lock()
+while((scan=keyselect))
+none()
+wend
+gosub"button"
+unlock(1)lock()clearinput()
+return
+
+label button
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+1,arg[5]+1)
+color(0,0,0)
+line(arg[2],arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3],arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(0,0,0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2,arg[3]+1)
+return
+
+label downbutton
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+2,arg[5]+2)
+color(222,222,222)
+line(arg[2]+1,arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+1)
+line(arg[2]+1,arg[3]+1,arg[2]+1,arg[3]+arg[5]+1)
+color(0,0,0)
+'line(arg[2]+2,arg[3]+2,arg[2]+arg[4]+0,arg[3]+2)
+'line(arg[2]+2,arg[3]+2,arg[2]+2,arg[3]+arg[5]+0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2+1,arg[3]+1+1)
+return
+
+label windowButton
+for k=0 to 2
+origin(windowButtonX+k*14,windowButtonY)
+gosub"windowButtonBox"
+tmp="windowButton"+k
+gosub tmp
+next
+origin(0,0)
+return
+
+label windowButtonBox
+color(212,208,200)
+frect(1,1,11,11)
+color(255,255,255)
+line(0,0,0,12)
+line(0,0,12,0)
+color(128,128,128)
+line(1,12,12,12)
+line(12,1,12,12)
+color(64,64,64)
+line(0,13,13,13)
+line(13,0,13,13)
+return
+
+label windowButton0
+color(0,0,0)
+line(4,9,9,9)
+line(4,10,9,10)
+return
+
+label windowButton1
+color(0,0,0)
+frect(5,2,5,5)
+color(212,208,200)
+frect(6,4,3,2)
+
+color(0,0,0)
+frect(3,5,5,5)
+color(212,208,200)
+frect(4,7,3,2)
+return
+
+label windowButton2
+color(0,0,0)
+line(3,3,9,9)
+line(4,3,10,9)
+
+line(3,9,9,3)
+line(4,9,10,3)
+return
+
+label initStartBar
+gosub"drawStartBar"
+gosub"drawStartBarButton"
+gosub"drawStartBarClock"
+return
+
+label initStartBarDown
+gosub"drawStartBar"
+gosub"drawStartBarButtonDown"
+gosub"drawStartBarClock"
+return
+
+label drawStartBar
+color(212,208,210)
+frect(0,height-strheight-7,width,strheight+7)
+color(255,255,255)
+line(0,height-strheight-7,width,height-strheight-7)
+return
+
+label drawStartBarButton
+message="ûÚ½À°Ä"
+color(212,208,210)
+frect(1,height-strheight-5,strwidth(message)+3,strheight+4)
+color(255,255,255)
+line(1,height-strheight-5,1,height-3)
+line(1,height-strheight-5,1+strwidth(message)+2,height-strheight-5)
+color(128,128,128)
+line(2,height-3,1+strwidth(message)+2,height-3)
+line(1+strwidth(message)+2,height-strheight-4,1+strwidth(message)+2,height-3)
+color(64,64,64)
+line(1,height-2,2+strwidth(message)+2,height-2)
+line(2+strwidth(message)+2,height-strheight-5,2+strwidth(message)+2,height-2)
+color(0,0,0)
+text(message,2,height-strheight-5)
+return
+
+label drawStartBarClock
+mn[0]="JAN"mn[1]="FEB"mn[2]="MAR"mn[3]="APR"mn[4]="MAY"mn[5]="JUN"mn[6]="JUL"mn[7]="AUG"mn[8]="SEP"mn[9]="OCT"mn[10]="NOV"mn[11]="DEC"
+message=year+" "+dayofmonth+" "+mn[month]
+
+color(212,208,210)
+frect(width-strwidth(message)-5,height-strheight-5,strwidth(message)+3,strheight+4)
+color(128,128,128)
+line(width-strwidth(message)-5,height-strheight-5,width-strwidth(message)-5,height-2)
+line(width-strwidth(message)-5,height-strheight-5,width-2,height-strheight-5)color(255,255,255)
+line(width-strwidth(message)-5,height-2,width-2,height-2)
+line(width-2,height-strheight-5,width-2,height-2)
+color(0,0,0)
+text(message,width-strwidth(message)-4,height-strheight-5)
+return
+
+label drawStartBarButtonDown
+message="ûÚ½À°Ä"
+color(212,208,210)
+frect(1,height-strheight-5,strwidth(message)+3,strheight+4)
+color(64,64,64)
+line(1,height-strheight-5,1,height-2)
+line(1,height-strheight-5,1+strwidth(message)+3,height-strheight-5)
+color(128,128,128)
+line(2,height-strheight-4,2,height-2)
+line(2,height-strheight-4,1+strwidth(message)+2,height-strheight-4)
+color(255,255,255)
+line(2,height-2,2+strwidth(message)+2,height-2)
+line(2+strwidth(message)+2,height-strheight-4,2+strwidth(message)+2,height-2)
+color(0,0,0)
+text(message,3,height-strheight-4)
+return
+

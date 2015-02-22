@@ -1,0 +1,91 @@
+lock()
+posx=FNKPOSX
+posy=FNKPOSY
+objx=FNKOBJX
+objy=FNKOBJY
+wsize=min(objx,objy)/2
+origin(posx,posy)
+drawarea(0,0,objx,objy)
+
+a[0]="Auto Look"
+a[1]="The claimer"
+a[2]="autolook.hp.infoseek.co.jp"
+a[3]="climer.hp.infoseek.co.jp"
+
+while 1
+gosub"letter"
+gosub"liner"
+gosub"circl"
+wend
+
+label setct
+ct=abs(rand)%7
+ct=ct+(ct+128)/130
+return
+
+label letter
+gosub"cls"
+while not(scan and keyselect)
+gosub"setct"
+gosub"setc"
+text(a[abs(rand)%4],abs(rand)%objx,abs(rand)%objy)
+if abs(rand)%64=3 then gosub"cls"endif
+gosub"renew"
+wend
+gosub"kup"
+return
+
+label setc
+'color(abs(rand)%256,abs(rand)%256,abs(rand)%256)
+color((((ct+1)/2+1)%2)*abs(rand)%256,(ct%2)*abs(rand)%256,(((ct+8)%9%8+(ct/5)+1)%2)*abs(rand)%256)
+return
+
+label liner
+gosub"cls"
+gosub"setct"
+gosub"setc"
+while not(scan and keyselect)
+x=abs(rand)%objx y=abs(rand)%objy
+line(x,y,ox,oy)
+ox=x oy=y
+if abs(rand)%64=3 then gosub"cls" gosub"setc" ox=objx/2 oy=objy/2 endif
+gosub"renew"
+wend
+gosub"kup"
+return
+
+label circl
+gosub"cls"
+dg=abs(rand)%360
+pm=1
+ox=objx/2 oy=objy/2
+gosub"setct"
+while not(scan and keyselect)
+gosub"setc"
+dg=(dg+7)%360
+pm=pm*(-1)
+x=objx/2+cos(dg)*pm*objx/100/2 y=objy/2+sin(dg)*pm*objy/100/2
+line(x,y,ox,oy)
+ox=x oy=y
+if abs(rand)%64=3 then gosub"cls" gosub"setc" ox=objx/2 oy=objy/2 gosub"setct"
+ endif
+gosub"renew"
+wend
+gosub"kup"
+return
+
+label renew
+unlock(1)lock()
+return
+
+label kup
+while not(scan = 0)
+yield()
+wend
+return
+
+label cls
+color(0,0,0)
+frect(0,0,objx,objy)
+return
+

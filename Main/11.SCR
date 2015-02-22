@@ -1,0 +1,178 @@
+gosub"setkey"
+gosub"settype"
+gosub"help"
+setfont("M")
+label main
+tmp[0]=0tmp[1]=0tmp[2]=0
+mino=1
+gosub"cls"
+color(32,32,32)
+arg[0]="AUTO LOOK"
+gosub"prbtmr"
+color(255,255,255)
+posx=0posy=0
+if strlen(ans)>9 then ans=0 endif
+if ans<0 then ans=abs(ans) mino=-1 endif
+ipts=ans
+arg[0]=ans*mino
+gosub"gets"
+tmp[0]=ipts*mino
+ipts=0ipt=0mino=1
+posx=0posy=strheight
+arg[0]="?"
+gosub"show"
+arg[0]=""
+while(iptc=-1)
+ipt=input(1)
+gosub"getno"
+gosub"otherkey"
+wend
+tmp[1]=iptc
+posx=0posy=strheight
+arg[0]=type[tmp[1]]
+gosub"show"
+arg[0]=0
+if tmp[1]=1 or tmp[1]=2 or tmp[1]=3 or tmp[1]=5 or tmp[1]=0 or tmp[1]=14 or tmp[1]=15 or tmp[1]=16 or tmp[1]=0 then none()
+else
+ipts=0ipt=0mino=1
+posx=0posy=strheight*2
+gosub"gets"
+tmp[2]=ipts*mino
+endif
+ipts=0ipt=0mino=1
+ans=0
+gosub"calc"
+posx=0posy=strheight*4
+arg[0]=ans
+gosub"show"
+input()
+arg[0]=0
+goto"main"
+
+label cls
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+return
+
+label prbtmr
+text(arg[0],width-strwidth(arg[0]),(height-strheight))
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label settype
+type[0]="rand"type[1]="sin"type[2]="cos"type[3]="tan"type[4]="pow"type[5]="fact"type[6]="mod"type[7]="and"type[8]="or"type[9]="xor"type[14]="addtax"type[10]="+"type[11]="-"type[12]="*"type[13]="/"type[16]="deg"type[15]="rad"
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+'ipts=0
+gosub"show"
+stopper=1
+'mino=1
+while(stopper)
+ipt=input(1)
+if keyast and ipt then ppx=posy setfont("T") gosub"help" gosub"cls" posy=ppx gosub"show" setfont("M") endif
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if keyup and ipt then ipts=ipts+1 endif
+if keydown and ipt then ipts=ipts-1 endif
+
+if keyselect and ipt then stopper=0 endif
+if abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"show" endif
+wend
+if keysoft1 and ipt then end endif
+return
+
+label show
+color(0,0,0)
+frect(posx,posy,width,strheight)
+color(255,255,255)
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then iptc=10 endif
+if ipt and keydown then iptc=11 endif
+if ipt and keyleft then iptc=12 endif
+if ipt and keyright then iptc=13 endif
+if ipt and keyselect then iptc=14 endif
+if ipt and keyast then iptc=15 endif
+if ipt and keypound then iptc=16 endif
+return
+
+label calc
+if tmp[1] = 1 then ans=sin(tmp[0]) endif
+if tmp[1] = 2 then ans=cos(tmp[0]) endif
+if (tmp[1] = 3)and((tmp[0]-90)%180=0)  then tmp[0]=0 endif
+if tmp[1] = 3 then ans=tan(tmp[0]) endif
+if tmp[1] = 4 then ans=pow(tmp[0],tmp[2]) endif
+if tmp[1] = 5 then ans=fact(tmp[0]) endif
+if tmp[1] = 6 and tmp[2] = 0 then tmp[2]=1 endif
+if tmp[1] = 6 then ans=(tmp[0]%tmp[2]) endif
+if tmp[1] = 7 then ans=(tmp[0] and tmp[2]) endif
+if tmp[1] = 8 then ans=(tmp[0] or tmp[2]) endif
+if tmp[1] = 9 then ans=(tmp[0] xor tmp[2]) endif
+
+
+if tmp[1] = 10 then ans=(tmp[0]+tmp[2]) endif
+if tmp[1] = 11 then ans=(tmp[0]-tmp[2]) endif
+if tmp[1] = 12 then ans=(tmp[0]*tmp[2]) endif
+if tmp[1] = 13 then ans=(tmp[0]/tmp[2]) endif
+if tmp[1] = 14 then ans=tmp[0]*105/100 endif
+if tmp[1] = 15 then ans=tmp[0]*314/180 endif
+if tmp[1] = 16 then ans=tmp[0]*180/314 endif
+if tmp[1] = 0 then ans=abs(rand)%(abs(tmp[0])+1) endif
+return
+
+
+label help
+gosub"cls"
+posx=0posy=0
+arg[0]="HELP"
+gosub"show"
+for i=0 to 9
+posy=posy+strheight
+arg[0]="KEY "+i+" "+type[i]
+gosub"show"
+next
+posy=posy+strheight
+posy=posy+strheight
+arg[0]="KEYUP     "+type[10]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEYDOWN   "+type[11]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEYRIGHT  "+type[12]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEYLEFT   "+type[13]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEYSELECT "+type[14]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEY *     "+type[15]
+gosub"show"
+posy=posy+strheight
+arg[0]="KEY #     "+type[16]
+gosub"show"
+posy=posy+strheight
+posy=posy+strheight
+arg[0]="PRESS ANY KEY"
+gosub"show"
+arg[0]=0
+input()
+return

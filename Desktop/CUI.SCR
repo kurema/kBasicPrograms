@@ -1,0 +1,1466 @@
+label intStart
+ver="1.01"
+gosub"intInit"
+gosub"intAutoExec"
+gosub"intCuiInterface"
+return
+
+label intCuiInterface
+while 1
+gosub"intCommand"
+wend
+return
+
+label intShow
+gosub"intPrint"
+gosub"intShowTextStandard"
+return
+
+label intSample
+gosub"intInit"
+for k=0 to 100
+outPut="HELLO WORLD "+k gosub"intPrint"
+gosub"intShowTextStandard"
+next
+return
+
+label intCls
+color(bg[0],bg[1],bg[2])
+frect(0,0,objX,objY)
+return
+
+label intPrintAdd
+message[currentLine]=addText
+currentLine=currentLine+1
+return
+
+label intPrintTint
+tintR[currentLine]=r
+tintG[currentLine]=g
+tintB[currentLine]=b
+r=ch[0]
+g=ch[1]
+b=ch[2]
+return
+
+label intMoveTop
+currentLine=0
+return
+
+label intMoveUp
+currentLine=currentLine-1
+return
+
+label intMoveDown
+message[currentLine]=""
+currentLine=currentLine+1
+return
+
+label intPrint
+tmp=outPut
+while strlen(tmp)>textAreaX
+message[currentLine]=substr(tmp,0,textAreaX)
+gosub"intPrintTint"
+currentLine=currentLine+1
+tmp=substr(tmp,textAreaX,strlen(tmp)-textAreaX)
+wend
+message[currentLine]=tmp
+gosub"intPrintTint"
+currentLine=currentLine+1
+outPut=""
+return
+
+label intShowTextStandard
+gosub"intCls"
+topLine=max(currentLine-textAreaY,0)
+gosub"intShowText"
+return
+
+label intShowText
+for i=topLine to min(topLine+textAreaY-1,currentLine-1)
+color(tintR[i],tintG[i],tintB[i])
+text(message[i],baseX,baseY+(i-topLine)*letterHeight)
+next
+gosub"intTextPoint"
+gosub"intRefresh"
+return
+
+label intTextPoint
+textPointX=baseX+strwidth(message[min(topLine+textAreaY-1,currentLine-1)])
+textPointY=baseY+(min(topLine+textAreaY-1,currentLine-1)-topLine)*letterHeight
+return
+
+
+label intRefresh
+unlock(1)
+lock()
+return
+
+
+label intInit
+gosub"intInit1"
+gosub"intInit2"
+gosub"intInit3"
+gosub"keyInputInit"
+return
+
+label intInit1
+objX=width
+objY=height
+baseX=0
+baseY=0
+letterHeight=strheight+2
+textAreaX=(objX-baseX)/strwidth("A")
+textAreaY=((objY-baseY)/letterHeight)
+textAreaXNum=textAreaX*strwidth("A")
+textAreaYNum=textAreaY*letterHeight
+currentLine=0
+iptPrompt="> "
+lastAnswer=0
+calcMemory=0
+calcMemoryLength=0
+currentDirectory=basedir
+targetDir=""
+return
+
+label intInit2
+bg[0]=0
+bg[1]=0
+bg[2]=0
+
+sl[0]=255
+sl[1]=0
+sl[2]=0
+
+ch[0]=255
+ch[1]=255
+ch[2]=255
+
+r=ch[0]
+g=ch[1]
+b=ch[2]
+return
+
+label intInit3
+commandList=":echo:print:exec:rem:prompt:color:chcolor:bgcolor:init:margin:light:vib:vibrator:error:sw:stopwatch:number:parallel:add:sub:mul:div:max:min:pow:fact:strlen:sin:cos:tan:mod:rand:average:memory:m:mov:dir:ls:chdir:cd:goto:gosub:call:jump:eq:comp:bat:input:fileman:ic:usercmd:userbat:"
+'引き数を取るコマンドの一覧です
+'最後は必ず":"に、":"で区切ってください
+
+commandListB=":end:exit:time:date:pause:rem:ver:init:margin:cls:pc98:windos:prompt:status:gc:sw:stopwatch:scroll:help:menusample:rand:memory:m:mov:memorylist:calc:dir:ls:chdir:cd:bat:input:return:calendar:fileman:"
+'引き数を取らないコマンドの一覧です
+'追加するときは"ｺﾏﾝﾄﾞﾒｲ:"を最後に追加します。例えばgameなら"game:"を追加
+return
+
+label intAutoExec
+batText=""
+gosub"intBatDecodeExec"
+return
+
+
+label intCommand
+outPut=iptPrompt
+gosub"intPrompt"
+cmdText=outKey
+gosub"intCommandInterpret"
+return
+
+label intCommandInterpret
+if not(stridx(cmdText," ")=-1)
+then
+cmd=tolower(substr(cmdText,0,stridx(cmdText," ")))
+arg=substr(cmdText,strlen(cmd)+1,strlen(cmdText)-strlen(cmd)-1)
+'outPut=""+cmd+""+arg gosub"intShow"
+if not(stridx(commandList,":"+cmd+":")=-1)
+then
+gosub"intCommandExecute"
+else
+gosub"intCommandFailure"
+endif
+elseif not(stridx(commandListB,":"+tolower(cmdText)+":")=-1)
+then
+arg=""
+cmd=cmdText
+gosub"intCommandExecute"
+elseif not(stridx(cmdText,".scr")=-1)
+then
+address=cmdText gosub"intExec"
+elseif not(stridx(cmdText,".dtp")=-1)
+then
+address=cmdText gosub"intExecDtp"
+else
+gosub"intCommandFailure"
+endif
+return
+
+label intCommandExecute
+tmpCmd="CMD"+tolower(cmd)
+gosub tmpCmd
+return
+
+label intCommandFailure
+outPut="Syntax Error :'"+cmdText+"'" gosub"intShow"
+return
+
+label intPrompt
+gc()
+tmpMessage=outPut
+gosub"intShow"
+gosub"intMoveUp"
+
+posX=textPointX
+posY=textPointY
+dlen=objX-textPointX
+
+col[0][0]=bg[0]
+col[0][1]=bg[1]
+col[0][2]=bg[2]
+col[1][0]=r
+col[1][1]=g
+col[1][2]=b
+col[2][0]=bg[0]
+col[2][1]=bg[1]
+col[2][2]=bg[2]
+
+gosub"keyInput"
+outPut=tmpMessage+outKey
+gosub"intShow"
+return
+
+label keyInputInit
+keyCode[0]=key0
+keyCode[1]=key1
+keyCode[2]=key2
+keyCode[3]=key3
+keyCode[4]=key4
+keyCode[5]=key5
+keyCode[6]=key6
+keyCode[7]=key7
+keyCode[8]=key8
+keyCode[9]=key9
+
+letterType="aｱ1あアαб部一"
+letterTypeMax=8
+gosub"setLetterType"
+return
+
+label keyInput
+'gosub"showFrame"
+
+gosub"setKey"
+
+keyType=0
+showKey=" "
+outKey=" "
+prevKey=-1
+
+repa=1
+while repa
+gosub"showInput"
+gosub"getKey"
+if prevIpt=keyleft and ipt=keyleft then outKey=substr(outKey,0,max(strlen(outKey)-1,1)) keyNum=0 keyPos=max(keyPos-1,0)
+elseif ipt=keyleft then prevKey=-1 keyNum=0
+elseif ipt=keypound and dlen>strwidth(outKey+"ab") then gosub"setKeyMenu"
+elseif prevIpt=keyright and ipt=keyright and dlen>strwidth(outKey+"a"+letterType[keyType]) then
+outKey=outKey+" " keyPos=keyPos+1 keyNum=0
+elseif (prevKey<>newKey and newKey<>-1)or ipt=keyright and prevKey<>-1 and dlen>strwidth(outKey+"a"+letterType[keyType]) then keyPos=keyPos+1 outKey=""+outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1
+elseif prevKey=newKey and newKey<>-1 then keyNum=(keyNum+1)%keyListLength[prevKey]
+elseif ipt=keyselect then  keyPos=keyPos+1 outKey=""+outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1 repa=0
+endif
+if newKey<>-1 then
+showKey=outKey+keyList[newKey][keyNum]
+else showKey=outKey+"_" endif
+prevKey=newKey
+prevIpt=ipt
+wend
+outKey=substr(outKey,1,strlen(outKey)-1)
+return
+
+label setLetterType
+for i=0 to letterTypeMax
+letterType[i]=strat(letterType,i)
+next
+return
+
+label setKeyMenu
+keyType=(keyType+1)%(letterTypeMax+1)
+gosub"setKeyMenuShow"
+gosub"setKeyMenuKeyMan"
+gosub"setKey"
+return
+
+label setKeyMenuShow
+showKey=" ["+letterType[keyType]+"]"
+gosub"showInput"
+return
+
+label setKeyMenuKeyMan
+rep=1
+while rep
+ipt=input()
+if ipt=keypound then keyType=(keyType+1)%(letterTypeMax+1)
+elseif ipt=keyast then keyType=(keyType+letterTypeMax)%(letterTypeMax+1)
+else rep=0 endif
+gosub"setKeyMenuShow"
+wend
+return
+
+label setKey
+keyPos=keyPos+1 outKey=outKey+keyList[prevKey][keyNum] keyNum=0 prevKey=-1
+tmp="setKey"+keyType
+gosub tmp
+return
+
+label showInput
+showKey=substr(showKey,1,strlen(showKey)-1)
+color(col[0][0],col[0][1],col[0][2])
+frect(posX,posY,dlen,strheight)
+color(col[1][0],col[1][1],col[1][2])
+text(showKey,posX,posY)
+unlock(1)lock()
+return
+
+label showFrame
+color(col[2][0],col[2][1],col[2][2])
+rect(posX-1,posY-1,dlen+1,strheight+1)
+return
+
+label getKey
+ipt=input()
+newKey=-1
+for i=0 to 9
+newKey=newKey+(i+1)*(ipt=keyCode[i])
+next
+return
+
+label setKey1
+alphabetList="ﾜｦﾝｰ､｡ﾞﾟｱｲｳｴｵｧｨｩｪｫｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄｯﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖｬｭｮﾗﾘﾙﾚﾛ"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKeyList
+k=0
+for i=0 to 9
+keyL=(strat(keyLength,i))+1
+for j=0 to keyL-1
+keyList[i][j]=strat(alphabetList,k)
+k=k+1
+next
+keyListLength[i]=keyL
+next
+return
+
+label setKey0
+alphabetList=",.@./_-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+keyLength="1422222323"
+
+k=0
+for i=0 to 9
+keyL=(strat(keyLength,i))+1
+for j=0 to keyL-1
+keyList[i][j+keyL]=strat(alphabetList,k)
+keyList[i][j]=(strat(tolower(alphabetList),k))
+k=k+1
+next
+keyList[i][keyL*2]=i
+keyListLength[i]=keyL*2+1
+next
+keyList[-1][0]=" "
+return
+
+label setKey2
+alphabetList="0123456789"
+keyLength="0000000000"
+gosub"setKeyList"
+return
+
+label setKey3
+alphabetList="わをんー、。゛゜あいうえおぁぃぅぇぉかきくけこさしすせそたちつてとっなにぬねのはひふへほまみむめもやゆよゃゅょらりるれろ"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKey4
+alphabetList="ワヲンー、。゛゜アイウエオァィゥェォカキクケコサシスセソタチツテトッナニヌネノハヒフヘホマミムメモヤユヨャュョラリルレロ"
+keyLength="7944544454"
+gosub"setKeyList"
+return
+
+label setKey7
+'部品による漢字入力
+alphabetList="言糸才月木彳山生口車王男女爿酉金食角牛卆舌見吾我害戸土十図于イタトネノ一二三四五丶丿乙亅丁亠人儿冂冖冫几凵刀力勹匕匚卩厂厶下上万之久也于兀凡勺千囗大子孑宀寸小尢尸巛工巾干广廴弋彡反少尹手气不驫鸞爨驪鬱"
+keyLength="9999999999"
+gosub"setKeyList"
+return
+
+label setKey5
+alphabetList=",.@./_-ΑΒΓαβγΔΕΖδεζΗΘΙηθιΚΛΜκλμΝΞΟνξοΠΡΣπρσΤΥΦτυφΧΨΩχψω"
+keyLength="1455555555"
+gosub"setKeyList"
+return
+
+label setKey6
+alphabetList=",.@./_-АБВГабвгДЕЁЖдеёжЗИЙКзийкЛМНОлмноПРСТпрстУФХЦуфхцЧШЩЪЫшщъыЬЭЮЯьэюя"
+keyLength="1477777777"
+gosub"setKeyList"
+return
+
+label setKey8
+'年生が習う漢字等
+alphabetList="一二三四五六七八九十百千日月火水木金土名上下左右大中小手足目耳口人子男女年花草竹山川林森田空雨天気夕犬虫貝黄王玉力糸車音学校先生字文本村町赤白青円正早入出立休見春夏秋冬光風晴雲雪朝昼夜午明星野原岩谷海"
+keyLength="9999999999"
+gosub"setKeyList"
+return
+
+
+label intExecDtp
+FNKPOSX=0
+FNKPOSY=0
+FNKOBJX=objX
+FNKOBJY=objY
+gosub"intExec"
+return
+
+label intExec
+clear(0,0,objX,objY)
+soft1("")soft2("")
+thread(path(currentDirectory+address),"th")
+join("th")
+gc()
+clearinput()
+gosub"intSetSoft"
+return
+
+label intExecGlobal
+FNKPOSX=0
+FNKPOSY=0
+FNKOBJX=objX
+FNKOBJY=objY
+clear(0,0,objX,objY)
+soft1("")soft2("")
+thread(path(address),"th")
+join("th")
+gc()
+clearinput()
+gosub"intSetSoft"
+return
+
+label intSetSoft
+soft1("")soft2("")
+return
+
+label intEnd
+end
+return
+
+label intExit
+exit
+return
+
+label intArgList
+i=0
+tmp=arg
+while not(stridx(tmp," ")=-1)
+arg[i]=substr(tmp,0,stridx(tmp," "))
+tmp=substr(tmp,stridx(tmp," ")+1,strlen(tmp)-(stridx(tmp," ")+1))
+i=i+1
+wend
+arg[i]=tmp
+argLength=i
+return
+
+label intKeyScan
+ipt=0
+while ipt=0
+ipt=scan
+wend
+clearinput()
+return
+
+label intMenuShow
+tintR[tmpCurrentLine+menuNumOld]=ch[0]
+tintG[tmpCurrentLine+menuNumOld]=ch[1]
+tintB[tmpCurrentLine+menuNumOld]=ch[2]
+tintR[tmpCurrentLine+menuNum]=sl[0]
+tintG[tmpCurrentLine+menuNum]=sl[1]
+tintB[tmpCurrentLine+menuNum]=sl[2]
+gosub"intCls"
+topLine=min(max(currentLine-textAreaY,0),tmpCurrentLine+menuNum)
+gosub"intShowText"
+return
+
+label intMenu
+'gosub"intMoveTop"
+tmpCurrentLine=currentLine
+menuNum=0
+menuNumOld=menuNum
+for i=0 to menuArray
+outPut=menuArray[i] gosub"intPrint"
+next
+ipt=0
+while not(ipt=keyselect)
+gosub"intMenuShow"
+menuNumOld=menuNum
+gosub"intKeyScan"
+if ipt and keyup then
+menuNum=(menuNum+menuArray+1-1)%(menuArray+1)
+elseif ipt and keydown then
+menuNum=(menuNum+1)%(menuArray+1)
+endif
+wend
+return
+
+label intGetDir
+i=0
+if not(oldPointDir=pointDir)then
+tmp=dir(pointDir)
+while not(tmp="")
+fileList[i]=tmp
+i=i+1
+tmp=dir(pointDir)
+wend
+fileListLength=i-1
+oldPointDir=pointDir
+endif
+return
+
+label intBatDecodeExec
+gosub"intBatDecode"
+gosub"intBatExec"
+return
+
+label intBatExec
+soft1("終了")
+soft2("")
+batLine=0
+callLineLength=0
+while not(tolower(batLine[batLine])="escape") and batLine<=batLineLength and not(scan=keysoft1)
+cmdText=batLine[batLine]
+gosub"intCommandInterpret"
+batLine=batLine+1
+wend
+gosub"intSetSoft"
+return
+
+label intBatDecode
+i=0
+tmp=batText
+while not(stridx(tmp,",")=-1)
+batLine[i]=substr(tmp,0,stridx(tmp,","))
+tmp=substr(tmp,stridx(tmp,",")+1,strlen(tmp)-(stridx(tmp,",")+1))
+i=i+1
+wend
+batLine[i]=tmp
+batLineLength=i
+if batText="" then batLineLength=-1 endif
+return
+
+label intSplit
+i=0
+tmp=splitText
+while not(stridx(tmp,splitLetter)=-1)
+splitLine[i]=substr(tmp,0,stridx(tmp,splitLetter))
+tmp=substr(tmp,stridx(tmp,splitLetter)+1,strlen(tmp)-(stridx(tmp,splitLetter)+1))
+i=i+1
+wend
+splitLine[i]=tmp
+splitLineLength=i
+return
+
+
+label CMDexec
+address=arg
+gosub"intExecDtp"
+return
+
+label CMDecho
+gosub"intCMDCalcReplaceA"
+outPut=arg
+gosub"intShow"
+return
+
+label CMDend
+goto"intEnd"
+return
+
+label CMDexit
+goto"intExit"
+return
+
+label CMDtime
+ap[0]="午前"ap[1]="午後"
+outPut="現在 "+ap[ampm]+" "+hour+"時 "+minute+"分 "+second+"秒です。"
+gosub"intShow"
+return
+
+label CMDdate
+calendar=" 日月火水木金土"
+outPut="今日は "+(month+1)+"月 "+dayofmonth+"日 （"+strat(calendar,dayofweek)+"曜日）です。"
+gosub"intShow"
+outPut="今年は "+year+"年、 または平成"+(year-1988)+"年です。"
+gosub"intShow"
+return
+
+label CMDpause
+outPut="準備が出来たらどれかキーを押してください。"
+gosub"intShow"
+gosub"intMoveUp"
+clearinput()
+input()
+return
+
+label CMDprint
+gosub"CMDecho"
+return
+
+label CMDrem
+'コメントはコメントです
+return
+
+label CMDprompt
+iptPrompt=arg
+if arg="" or arg=" " then iptPrompt="> "endif
+return
+
+label CMDver
+outPut="携帯ﾍﾞｰｼｯｸ ﾃﾞｽｸﾄｯﾌﾟ"
+gosub"intShow"
+outPut="CUI ﾊﾞｰｼﾞｮﾝ "+ver
+gosub"intShow"
+return
+
+label CMDchcolor
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+ch[0]=arg[0]
+ch[1]=arg[1]
+ch[2]=arg[2]
+r=ch[0]
+g=ch[1]
+b=ch[2]
+return
+
+label CMDbgcolor
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+bg[0]=arg[0]
+bg[1]=arg[1]
+bg[2]=arg[2]
+return
+
+label CMDcolor
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+r=arg[0]
+g=arg[1]
+b=arg[2]
+outPut="■■■■ "+r+","+g+","+b
+gosub"intShow"
+return
+
+label CMDinit
+if arg=1 or arg="basic"
+then gosub"intInit1"
+outPut="基本設定を初期化しました。"
+gosub"intShow"
+elseif arg=2 or arg="color"
+then gosub"intInit2"
+outPut="色設定を初期化しました。"
+gosub"intShow"
+elseif arg=3 or arg="command"
+then gosub"intInit3"
+outPut="コマンド設定を初期化しました。"
+gosub"intShow"
+elseif arg="key"
+then gosub"keyInputInit"
+outPut="キー設定を初期化しました。"
+gosub"intShow"
+else gosub"intInit"
+outPut="設定を初期化しました。"
+gosub"intShow"
+endif
+return
+
+label CMDcls
+gosub"intMoveTop"
+return
+
+label CMDpc98
+gosub"intMoveTop"
+outPut="NEC PC-9800 Series Personal Computer"
+gosub"intShow"
+gosub"intMoveDown"
+outPut="ﾏｲｸﾛｿﾌﾄ MS-DOS ﾊﾞｰｼﾞｮﾝ 3.30"
+gosub"intShow"
+outPut="Copyright 1981,88 Microsoft Corp. / NEC Corporation"
+gosub"intShow"
+gosub"intMoveDown"
+outPut="  かな入力が使用可能です"
+gosub"intShow"
+outPut="  辞書は、"+appname+"です"
+gosub"intShow"
+gosub"intMoveDown"
+outPut="Command ﾊﾞｰｼﾞｮﾝ "+ver
+gosub"intShow"
+gosub"intMoveDown"
+iptPrompt="A>"
+'早分かりMS-DOS Ver.3.3 107ﾍﾟｰｼﾞから一部引用
+return
+
+label CMDwindos
+gosub"intMoveTop"
+outPut="Microsoft Windows XP [Version 5.1.2600]"
+gosub"intShow"
+outPut="(C) Copyright 1985-2001 Microsoft Corp."
+gosub"intShow"
+gosub"intMoveDown"
+'windows XPのcmd.exeからの引用です。
+return
+
+label CMDgc
+gc()
+return
+
+label CMDstatus
+gc()
+outPut="メモリ使用量 :"+freememory+" / "+totalmemory
+gosub"intShow"
+outPut="画面サイズ横 :"+width
+gosub"intShow"
+outPut="画面サイズ縦 :"+height
+gosub"intShow"
+outPut="経過ミリ秒   :"+tick
+gosub"intShow"
+tmp=tick
+for i=0 to 999
+a=a+1
+next
+tmp=tick-tmp
+tmp=3000000/tmp
+outPut="クロック数   :"+tmp+" IPS"
+gosub"intShow"
+return
+
+label CMDlight
+gosub"intCMDCalcReplaceA"
+if arg=1 or tolower(arg)="on" then
+onlight()
+elseif arg=0 or tolower(arg)="off" then
+offlight()
+endif
+return
+
+label CMDvib
+gosub"intCMDCalcReplaceA"
+if arg=1 or tolower(arg)="on" then
+onvib()
+elseif arg=0 or tolower(arg)="off" then
+offvib()
+endif
+return
+
+label CMDvibrator
+gosub"CMDvibe"
+return
+
+label CMDerror
+gosub"intMoveTop"
+if arg=1 then outPut="Bdos Err On A: $R/0" gosub"intShow"
+elseif arg=2 then outPut="Int trap halt" gosub"intShow"
+endif
+clearinput()
+input()
+gosub"intMoveTop"
+return
+
+label CMDstopwatch
+outPut="STOPWATCH" gosub"intPrint"
+if arg=1 or arg="start" or arg="s" or stopWatchStart=0
+then gosub"intCMDStopwatchStart"
+elseif arg=2 or arg="lap" or arg="l"
+then gosub"intCMDStopwatchPrintStart"
+gosub"intCMDStopwatchLap"
+elseif arg=3 or arg="show" or arg="i"
+then gosub"intCMDStopwatchShow"
+elseif arg=4 or arg="mode" or arg="m" or arg=""
+then gosub"intCMDStopwatchmode"
+endif
+return
+
+label CMDsw
+gosub"CMDstopwatch"
+return
+
+label intCMDStopwatchShow
+outPut=stopWatchStartTime gosub"intPrint"
+k=0
+while k<stopWatchLapCount
+for i=k to min(textAreaY-4+k,stopWatchLapCount-1)
+outPut=stopWatchLap[i] gosub"intPrint"
+next
+gosub"intShowTextStandard"
+k=textAreaY-4+k+1
+gosub"CMDpause"
+wend
+return
+
+label intCMDStopwatchLap
+tmp=tick
+stopWatchLap[stopWatchLapCount]=hourofday+" : "+minute+" : "+second+"  LAP "+stopWatchLapCount+" "+((tmp-stopWatchStart)/1000)+"sec "+((tmp-stopWatchStart)%1000)+"msec"
+outPut=stopWatchLap[stopWatchLapCount] gosub"intShow"
+stopWatchLapCount=stopWatchLapCount+1
+return
+
+label intCMDStopwatchPrintStart
+outPut=stopWatchStartTime gosub"intPrint"
+return
+
+label intCMDStopwatchStart
+stopWatchStart=tick
+stopWatchStartTime=hourofday+" : "+minute+" : "+second+"  Start"
+outPut=stopWatchStartTime gosub"intShow"
+stopWatchLapCount=0
+return
+
+label intCMDStopwatchmode
+outPut="Stopwatch Mode" gosub"intPrint"
+outPut="Fｷｰ : ｽﾀｰﾄ ｽﾄｯﾌﾟ" gosub"intPrint"
+outPut="下ｷｰ: ﾗｯﾌﾟ" gosub"intPrint"
+outPut="上ｷｰ: 一覧表示" gosub"intPrint"
+outPut="左ｷｰ: 終了" gosub"intShow"
+while not(ipt=keyleft)
+clearinput()
+ipt=input()
+if ipt=keyselect then gosub"intCMDStopwatchStart"
+elseif ipt=keydown then gosub"intCMDStopwatchLap"
+elseif ipt=keyup then
+outPut="Stopwatch List" gosub"intPrint"
+gosub"intCMDStopwatchShow"
+endif
+wend
+return
+
+label CMDnumber
+gosub"intCMDCalcReplaceA"
+num=arg
+num=abs(num)
+tmp[0]="偶" tmp[1]="奇"
+outPut=num+" は"+tmp[num%2]+"数です。" gosub"intShow"
+j=2
+measureList[0]=""
+measureList[1]=""
+measureNum=0
+while (num>pow(j,2))
+if(num%j=0)then
+measureList[0]=measureList[0]+j+","
+measureList[1]=","+(num/j)+measureList[1]
+measureNum=measureNum+2
+endif
+j=j+1
+wend
+if pow(j,2)=num then
+measureList[0]=measureList[0]+j+","
+measureNum=measureNum+1
+endif
+if measureNum=0 then
+outPut=num+" は素数です。"
+else
+outPut=num+" は以下の "+measureNum+" 個の約数を持ちます。" gosub"intPrint"
+outPut=substr(measureList[0],0,strlen(measureList[0])-1)+measureList[1]
+endif
+gosub"intShow"
+outPut=num+" の平方根は約 "+j+" です。" gosub"intShow"
+return
+
+label CMDscroll
+outPut="Display Scroller" gosub"intPrint"
+outPut="下ｷｰ: 下スクロール" gosub"intPrint"
+outPut="上ｷｰ: 上スクロール" gosub"intPrint"
+outPut="右ｷｰ: 一画面下スクロール" gosub"intPrint"
+outPut="左ｷｰ: 一画面上スクロール" gosub"intPrint"
+outPut="Fｷｰ : 終了" gosub"intShow"
+
+tmpTopLine=max(currentLine-textAreaY,0)
+topLine=tmpTopLine
+ipt=0
+while not(ipt=keyselect)
+gosub"intCls"
+gosub"intShowText"
+gosub"intKeyScan"
+if ipt and keyup then
+topLine=max(0,tmpTopLine-1)
+elseif ipt and keydown then
+topLine=min(max(currentLine-textAreaY,0),tmpTopLine+1)
+elseif ipt and keyleft then
+topLine=max(0,tmpTopLine-textAreaY)
+elseif ipt and keyright then
+topLine=min(max(currentLine-textAreaY,0),tmpTopLine+textAreaY)
+else
+topLine=tmpTopLine
+endif
+tmpTopLine=topLine
+wend
+return
+
+label CMDhelp
+outPut="ヘルプ" gosub"intPrint"
+outPut=" 命令一覧" gosub"intPrint"
+outPut="  引数対応" gosub"intPrint"
+outPut="   "+substr(commandList,1,strlen(commandList)-2) gosub"intPrint"
+outPut="  引数非対応" gosub"intPrint"
+outPut="   "+substr(commandListB,1,strlen(commandListB)-2) gosub"intPrint"
+outPut=" 文字入力" gosub"intPrint"
+outPut="  通常の文字入力と同等" gosub"intPrint"
+outPut="  #キーで文字種切り替え" gosub"intShow"
+return
+
+label CMDparallel
+outPut="Parallel Command" gosub"intPrint"
+outPut="同一コマンドを引数を変え順次実行出来ます" gosub"intPrint"
+outPut="'stop'で終了" gosub"intShow"
+if not(stridx(commandList,":"+tolower(arg)+":")=-1)then
+parallelCmd=tolower(arg)
+outPut=iptPrompt+parallelCmd+"> "
+gosub"intPrompt"
+while not(tolower(outKey)="stop")
+cmd=parallelCmd
+arg=outKey
+gosub"intCommandExecute"
+outPut=iptPrompt+parallelCmd+"> "
+gosub"intPrompt"
+wend
+else
+outPut="Command Not Found :'"+arg+"'" gosub"intShow"
+endif
+return
+
+label intCMDCalcReplaceA
+if tolower(arg)="a" then
+arg=lastAnswer
+elseif tolower(arg[i])="m" then
+arg[i]=calcMemory
+elseif tolower(strat(arg,0))="m" then
+arg=calcMemory[substr(arg,1,strlen(arg)-1)]
+endif
+return
+
+label intCMDCalcReplace
+for i=0 to argLength
+if tolower(arg[i])="a" then
+arg[i]=lastAnswer
+elseif tolower(arg[i])="m" then
+arg[i]=calcMemory
+elseif tolower(strat(arg[i],0))="m" then
+arg[i]=calcMemory[substr(arg[i],1,strlen(arg[i])-1)]
+endif
+next
+return
+
+label CMDadd
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+tmp=0
+for i=0 to argLength
+tmp=tmp+arg[i]
+next
+lastAnswer=tmp
+outPut=tmp gosub"intShow"
+return
+
+label CMDaverage
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+tmp=0
+for i=0 to argLength
+tmp=tmp+arg[i]
+next
+lastAnswer=tmp/(argLength+1)
+outPut=tmp/(argLength+1) gosub"intShow"
+return
+
+label CMDsub
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+outPut=arg[0]-arg[1] gosub"intShow"
+lastAnswer=arg[0]-arg[1]
+return
+
+label CMDmul
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+tmp=1
+for i=0 to argLength
+tmp=tmp*arg[i]
+next
+lastAnswer=tmp
+outPut=tmp gosub"intShow"
+return
+
+label CMDdiv
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+outPut=arg[0]/arg[1]+" 余り "+arg[0]%arg[1] gosub"intShow"
+lastAnswer=arg[0]/arg[1]
+return
+
+label CMDmax
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+tmp=0
+for i=0 to argLength
+tmp=max(tmp,arg[i])
+next
+lastAnswer=tmp
+outPut=tmp gosub"intShow"
+return
+
+label CMDmin
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+tmp=arg[0]
+for i=0 to argLength
+tmp=min(tmp,arg[i])
+next
+lastAnswer=tmp
+outPut=tmp gosub"intShow"
+return
+
+label CMDpow
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+outPut=pow(arg[0],arg[1]) gosub"intShow"
+lastAnswer=pow(arg[0],arg[1])
+return
+
+label CMDfact
+gosub"intCMDCalcReplaceA"
+outPut=fact(arg) gosub"intShow"
+lastAnswer=fact(arg)
+return
+
+label CMDstrlen
+gosub"intCMDCalcReplaceA"
+outPut=strlen(arg) gosub"intShow"
+lastAnswer=strlen(arg)
+return
+
+label CMDsin
+gosub"intCMDCalcReplaceA"
+outPut=sin(arg) gosub"intShow"
+lastAnswer=sin(arg)
+return
+
+label CMDcos
+gosub"intCMDCalcReplaceA"
+outPut=cos(arg) gosub"intShow"
+lastAnswer=cos(arg)
+return
+
+label CMDtan
+gosub"intCMDCalcReplaceA"
+if (arg)%180=90 then
+outPut="undefined" gosub"intShow"
+else
+lastAnswer=tan(arg)
+outPut=tan(arg) gosub"intShow"
+endif
+return
+
+label CMDmod
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+outPut=arg[0]%arg[1] gosub"intShow"
+lastAnswer=arg[0]%arg[1]
+return
+
+label CMDrand
+if arg="" then lastAnswer=abs(rand)%100
+else gosub"intCMDCalcReplaceA" lastAnswer=abs(rand)%arg endif
+outPut=lastAnswer gosub"intShow"
+return
+
+label CMDmemory
+if arg="" then
+calcMemory=lastAnswer
+else
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+if argLength=0 then
+calcMemory[arg[0]]=lastAnswer
+calcMemoryLength=max(calcMemoryLength,arg[0])
+elseif argLength=1 then
+calcMemory[arg[0]]=arg[1]
+calcMemoryLength=max(calcMemoryLength,arg[0])
+endif
+endif
+return
+
+label CMDm
+gosub"CMDmemory"
+return
+
+label CMDmov
+gosub"CMDmemory"
+return
+
+label CMDmemorylist
+outPut="m :"+calcMemory gosub"intShow"
+for j=0 to calcMemoryLength
+outPut="m"+j+":"+calcMemory[j] gosub"intShow"
+next
+return
+
+label CMDcalc
+outPut=iptPrompt+"calc> A> "
+gosub"intPrompt"
+calcA=outKey
+
+way[1]="memory"
+way[2]="add"
+way[3]="sub"
+way[4]="mul"
+way[5]="div"
+way[6]="pow"
+way[7]="pow"
+way[8]="fact"
+way[9]="sin"
+way[10]="cos"
+way[11]="tan"
+way[12]="memorylist"
+
+while not(menuNum=13)
+gosub"intMoveTop"
+outPut="A: "+calcA gosub"intShow"
+gosub"intMoveDown"
+
+menuArray=13
+menuArray[0]="新規入力"
+menuArray[1]="メモリ追加"
+menuArray[2]="＋"
+menuArray[3]="―"
+menuArray[4]="×"
+menuArray[5]="÷"
+menuArray[6]="A^B"
+menuArray[7]="B^A"
+menuArray[8]="fact"
+menuArray[9]="SIN"
+menuArray[10]="COS"
+menuArray[11]="TAN"
+menuArray[12]="メモリ一覧"
+menuArray[13]="電卓の終了"
+gosub"intMenu"
+gosub"intMoveDown"
+
+clearinput()
+if menuNum=0 then
+outPut=iptPrompt+"calc> A> "
+gosub"intPrompt"
+calcA=outKey
+elseif menuNum=12 then
+arg=""
+cmd=way[menuNum]
+gosub"intCommandExecute"
+clearinput()
+input()
+elseif menuNum=13 then
+none()
+else
+if menuNum=1 or menuNum=7 then
+outPut=iptPrompt+"calc> B> "
+gosub"intPrompt"
+calcB=outKey
+arg=calcB+" "+calcA
+elseif menuNum=8 or menuNum=9 or menuNum=10 or menuNum=11 then
+arg=calcA
+else
+outPut=iptPrompt+"calc> B> "
+gosub"intPrompt"
+calcB=outKey
+arg=calcA+" "+calcB
+endif
+cmd=way[menuNum]
+gosub"intCommandExecute"
+calcA=lastAnswer
+endif
+wend
+return
+
+label CMDcd
+if arg="" then pointDir=currentDirectory
+outPut=currentDirectory
+gosub"intShow"
+else pointDir=path(currentDirectory+arg)
+if not(strat(pointDir,strlen(pointDir)-1)="/")then
+pointDir=pointDir+"/"
+endif
+gosub"intGetDir"
+if fileListLength=-1 then
+outPut="ファイルがありません。" gosub"intPrint"
+outPut="カレントディレクトリに指定できません。" gosub"intShow"
+else
+currentDirectory=pointDir
+outPut="以下をカレントディレクトリに指定しました。" gosub"intPrint"
+outPut=currentDirectory gosub"intShow"
+endif
+endif
+return
+
+label CMDdir
+if arg="" then pointDir=currentDirectory
+else pointDir=path(currentDirectory+arg)
+if not(strat(pointDir,strlen(pointDir)-1)="/")then
+pointDir=pointDir+"/"
+endif
+endif
+outPut="  "+pointDir
+gosub"intPrint"
+gosub"intMoveDown"
+gosub"intGetDir"
+if fileListLength=-1 then
+outPut="ファイルがありません。" gosub"intShow"
+else
+fileCount[0]=0
+fileCount[1]=0
+for i=0 to fileListLength
+if isfolder(pointDir+fileList[i]) then
+outPut="<DIR> "+fileList[i]
+fileCount[1]=fileCount[1]+1
+else
+outPut="      "+fileList[i]
+fileCount[0]=fileCount[0]+1
+endif
+gosub"intPrint"
+next
+outPut=fileCount[0]+" 個のファイルがあります。"
+gosub"intPrint"
+outPut=fileCount[1]+" 個のディレクトリがあります。"
+gosub"intShow"
+endif
+return
+
+label CMDchdir
+gosub"cd"
+return
+
+label CMDbat
+if not(arg="") then
+batText=arg
+gosub"intBatDecodeExec"
+else
+outPut="バッチ処理を入力してください。" gosub"intPrint"
+outPut="stopで入力終了。" gosub"intShow"
+p=0
+while not(tmp="stop")
+outPut=p+": "
+gosub"intPrompt"
+tmp=outKey
+batLine[p]=tmp
+p=p+1
+wend
+batLineLength=p-2
+gosub"intBatExec"
+endif
+return
+
+label CMDgoto
+gosub"intCMDCalcReplaceA"
+batLine=arg-1
+return
+
+label CMDjump
+gosub"CMDgoto"
+return
+
+label CMDeq
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+if arg[1]=arg[2]then batLine=arg[0]-1endif
+return
+
+label CMDcomp
+gosub"intArgList"
+gosub"intCMDCalcReplace"
+if arg[1]<arg[2]then batLine=arg[0]-1endif
+return
+
+label CMDmargin
+if arg=""then outPut=letterHeight-strheight gosub"intShow"
+else
+gosub"intCMDCalcReplaceA"
+letterHeight=strheight+arg
+textAreaY=((objY-baseY)/letterHeight)
+textAreaYNum=textAreaY*letterHeight
+endif
+return
+
+label CMDinput
+if arg=""then outPut="> "
+else outPut=arg+"> " endif
+gosub"intPrompt"
+lastAnswer=outKey
+return
+
+label CMDuserbat
+batListLength=3
+batList[0]="pc98,calendar,date,time"
+batList[1]="rand 256,m 0,rand 256,m 1,rand 256,m 2,gosub 8,goto 0,color m0 m1 m2,bgcolor m0 m1 m2,return"
+batList[2]="bgcolor 255 255 255,chcolor 0 0 0"
+batList[3]="mov 0 2,mov 1 3,number m0,mul m0 m1,mov 0,add m1 2,mov 1,comp 2 m1 15"
+
+batText=batList[min(arg,batListLength)]
+gosub"intBatDecodeExec"
+return
+
+label CMDcalendar
+calendarYear=year
+calendarMonth=month+1
+calendarWeek=dayofweek
+tmp="303232332323"
+calendarMaxDay=28+strat(tmp,calendarMonth-1)
+mn[0]="January"mn[1]="February"mn[2]="March"mn[3]="April"mn[4]="May"mn[5]="June"mn[6]="July"mn[7]="August"mn[8]="September"mn[9]="October"mn[10]="November"mn[11]="December"
+outPut=calendarYear+" "+mn[calendarMonth-1]
+gosub"intPrint"
+outPut="Su Mo Tu We Th Fr Sa"
+gosub"intPrint"
+calendarDay=(dayofmonth-calendarWeek+1+14-2)%7+2-7
+while calendarDay<=calendarMaxDay
+tmp=""
+for i=0 to 6
+if calendarDay<1 or calendarMaxDay<calendarDay then
+tmp=tmp+"   "
+elseif calendarDay<10 then
+tmp=tmp+" "+calendarDay+" "
+else
+tmp=tmp+calendarDay+" "
+endif
+calendarDay=calendarDay+1
+next
+outPut=tmp gosub"intPrint"
+wend
+gosub"intShowTextStandard"
+return
+
+label CMDic
+'internal commandの略
+tmp="int"+arg
+gosub tmp
+return
+
+label CMDgosub
+gosub"intCMDCalcReplaceA"
+callLine[callLineLength]=batLine
+callLineLength=callLineLength+1
+batLine=arg-1
+return
+
+label CMDcall
+gosub"CMDgosub"
+return
+
+label CMDreturn
+callLineLength=max(callLineLength-1,-1)
+batLine=callLine[callLineLength]
+return
+
+label CMDls
+gosub"CMDdir"
+return
+
+label CMDfileman
+gosub"intMoveTop"
+if not(targetDir="")then
+pointDir=targetDir
+elseif arg="" then pointDir=currentDirectory
+else pointDir=path(currentDirectory+arg)
+if not(strat(pointDir,strlen(pointDir)-1)="/")then
+pointDir=pointDir+"/"
+arg=arg+"/"
+elseif arg=".."then arg=arg+"/"
+endif
+endif
+outPut=pointDir
+gosub"intPrint"
+gosub"intGetDir"
+menuArray=fileListLength+2
+for i=0 to fileListLength
+if isfolder(pointDir+fileList[i]) then
+menuArray[i]="<DIR> "+fileList[i]
+else
+menuArray[i]="      "+fileList[i]
+endif
+next
+menuArray[fileListLength+1]="<DIR> ../"
+fileList[fileListLength+1]="../"
+menuArray[fileListLength+2]="      filemanの終了"
+fileList[fileListLength+2]="exit"
+if pointDir="file:///"then gosub"intCMDfilemanTop"endif
+gosub"intMenu"
+if fileList[menuNum]="exit" then none()
+elseif isfolder(path(pointDir+fileList[menuNum])) then targetDir=path(pointDir+fileList[menuNum]) gosub"CMDfileman"
+elseif not(stridx(tolower(fileList[menuNum]),".scr")=-1) or not(stridx(tolower(fileList[menuNum]),".dtp")=-1) then address=pointDir+fileList[menuNum] gosub"intExecGlobal" endif
+targetDir=""
+return
+
+label intCMDfilemanTop
+menuArray=2
+menuArray[0]="<DIR> 内部ストレージ"
+menuArray[1]="<DIR> 外部ストレージ"
+menuArray[2]="      filemanの終了"
+fileList[0]="ms/"
+fileList[1]="mc/"
+fileList[2]="exit"
+fileListLength=1
+return
+
+
+
+label CMDusercmd
+'あなたが作る携帯ベーシック デスクトップ CUI 用 コマンドです
+'tmpやi等の変数は予約済みです。基本的に使わないでください
+'label名は"CMD"ｺﾓｼﾞｺﾏﾝﾄﾞﾒｲです。例えば、gameならCMDgameになります
+'引き数はargです
+
+gosub"intArgList"
+'これにより引き数が複数あるときスペースで分割されarg[0],arg[1]...になります
+'引き数の個数はargLengthです
+
+gosub"intCMDCalcReplace"
+'arg[0],arg[1]...のaをlastAnswer(計算系コマンドの最後の実行級ﾊ)に、m,m0,m1,m2...をメモリ機能の値に置き換えます
+
+gosub"intCMDCalcReplaceA"
+'上記機能をargに適用します
+
+outPut="文字出力サンプルです" gosub"intPrint"
+'この時、文字はバッファに貯められ画面の更新は行われません
+
+outPut="文字表示サンプルです" gosub"intShow"
+'この時、文字が出力され画面が更新されます
+
+'メニューはCMDmenusampleを参照
+return
+'最後に必ずreturnを書いてください
+'最後にinit3のcommandList（引き数を取る場合）またはcommandListB（取らない場合）に"ｺﾓｼﾞｺﾏﾝﾄﾞﾒｲ:"を入力すればコマンドとして動作するようになります
+
+
+label CMDmenusample
+'簡易メニュー表示のサンプルです
+
+menuArray=5
+'menuArrayでメニューの最終番号を指定してください(個数ではありません)
+
+menuArray[0]="進む"
+menuArray[1]="戻る"
+menuArray[2]="開く"
+menuArray[3]="使う"
+menuArray[4]="切る"
+menuArray[5]="やめる"
+'menuArray[0],menuArray[1]...でメニュー表示内容を指定します
+
+gosub"intMenu"
+'メニュー実行
+
+outPut="選択 :"+menuNum
+'メニューの選択番号はmenuNumに代入されます
+
+gosub"intShow"
+return

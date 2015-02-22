@@ -1,0 +1,252 @@
+soft1("")soft2("終了")
+n=0
+if scan and key2 then n=5endif
+
+mapZoom=1000
+mapType=2
+
+label start
+yDeg=-90
+dest="missionExp"+(n+1)
+gosub dest
+
+startTime=tick
+hi=1000
+deg=45
+x=0 y=0
+eX=rand%mapScaleX eY=rand%mapScaleY
+
+label main
+yDeg=yDeg+rand%2
+gosub"cls"
+lY=height*sin(deg-45)/cos(deg-45)/2+hi/100+height/2
+hi=hi+sin(deg-45)*100/cos(deg-45)+rand%2
+gosub"putHorizon"
+gosub"putEnemy"
+color(0,255,0)
+dest="map"+mapType
+gosub dest
+gosub"refresh"
+ipt=scan
+if ipt and keyup then deg=min(deg+goUp,89) endif
+if ipt and keydown then deg=max(deg-goDown,1) endif
+if ipt and keyleft then yDeg=yDeg-moveP endif
+if ipt and key1 then mapType=(mapType+1)%4 endif
+if ipt and keyright then yDeg=yDeg+moveM endif
+if ipt and keysoft2 then end endif
+if hi<0 then goto"dead" endif
+x=x+cos(yDeg)
+y=y+sin(yDeg)
+goto"main"
+
+label map0
+frect(width/2-2,height/2-2,4,4)
+line(width/2,height/2,width/2+cos(yDeg)/3,height/2+sin(yDeg)/3)
+frect((eX-x)/mapZoom+width/2,(eY-y)/mapZoom+height/2,2,2)
+return
+
+label map1
+frect(width/2+x/mapZoom-2,height/2+y/mapZoom-2,4,4)
+line(width/2+x/mapZoom,height/2+y/mapZoom,width/2+x/mapZoom+cos(yDeg)/3,height/2+y/mapZoom+sin(yDeg)/3)
+frect(eX/mapZoom+width/2,eY/mapZoom+height/2,2,2)
+return
+
+label map2
+frect(width/2-2,height/2-2,4,4)
+frect(width/2-(sin(yDeg)*(eX-x)-cos(yDeg)*(eY-y))/mapZoom/100-1,height/2+(-cos(yDeg)*(eX-x)-sin(yDeg)*(eY-y))/mapZoom/100-1,2,2)
+'line(width/2,0,width/2,height/2)
+return
+
+label map3
+tmp=max(20/(hi/100+1),2)
+frect(width/2-(sin(yDeg)*(eX-x)-cos(yDeg)*(eY-y))/mapZoom/100-tmp/2,max(height/2+(-cos(yDeg)*(eX-x)-sin(yDeg)*(eY-y))/mapZoom*(height-hi/1000)/height/100+lY-hi/1000-tmp/2,lY),tmp,tmp)
+return
+
+label dead
+color(255,0,0)
+for i=0 to 30
+bombSize=30
+farc(abs(rand)%(width+bombSize)-bombSize,abs(rand)%(width+bombSize)-bombSize,abs(rand)%bombSize,abs(rand)%bombSize)
+gosub"refresh"
+sleep(abs(rand)%100)
+next
+text("経過時間は"+((tick-startTime)/1000)+"秒です",0,height-strheight*3)
+text("機は墜落した。乗客乗員の全員が死亡した。",0,height-strheight*2)
+gosub"refresh"
+clearinput()
+input()
+goto"start"
+
+label goal
+color(255,0,0)
+text("副｢お見事です。機長。一杯おごります｣",0,height-strheight*2)
+text("クリアタイムは"+((tick-startTime)/1000)+"秒です",0,height-strheight*3)
+gosub"refresh"
+clearinput()
+n=(n+1)%6
+input()
+goto"start"
+
+label refresh
+unlock(1)lock()
+return
+
+label putHorizon
+color(255,255,255)
+line(0,lY,width,lY)
+text("hgt.   "+hi,0,0)
+text("degree "+(deg-45),0,strheight)
+'text("Y      "+lY,0,strheight*2)
+'text("degree "+yDeg,0,strheight*3)
+'text((cos(yDeg)*(x-eX)+sin(yDeg)*(y-eY))/(-sin(yDeg)*(x-eX)+cos(yDeg)*(y-eY)),0,strheight*4)
+text("x "+x+" to "+eX,0,strheight*2)
+text("y "+y+" to "+eY,0,strheight*3)
+text("TIME "+((tick-startTime)/1000)+" "+hourofday+":"+minute,0,strheight*4)
+text(message[(hi<500)+second/6],0,height-strheight)
+return
+
+label cls
+color(0,0,0)
+frect(0,0,width,height)
+return
+
+label putEnemy
+color(255,0,0)
+tmp=max(40-((abs(x-eX)+abs(y-eY))/2000),2)
+frect((-sin(yDeg)*(x-eX)+cos(yDeg)*(y-eY))*50/(cos(yDeg)*(x-eX)+sin(yDeg)*(y-eY))+width/2-tmp/2,lY-4,tmp,4)
+if (x-eX)/1000=0 then 
+if (y-eY)/1000=0 and hi<500then
+goto"goal"endif endif
+return
+
+label missionExp1
+gosub"cls"
+color(255,255,255)
+text("MISSION ZERO",0,0)
+text("試験に合格しろ",0,strheight)
+text("今日は操縦士試験の当日だ。教官の指示に従",0,strheight*3)
+text("い目的地に近付け。着陸の必要は無い。計器",0,strheight*4)
+text("をよく見て正確を旨とせよ。",0,strheight*5)
+text("マップと方向図はオーバーラップ表示される",0,strheight*7)
+text("(マップ切替は1キー)",0,strheight*8)
+gosub"refresh"
+message[10]="｢おっ、高さはだいたいこんなもんだ。｣"message[1]="教官｢この機は初めてか？ 計器の見方はだい"message[2]="たいわかるな。まぁ適当にな。んなもんだ｣"message[3]="｢俺が若いときは七八十の旧独軍の縦士だっ"message[4]="ていう男が大して教えずに古い一次大戦の複"message[5]="葉機に乗っけて､ビビって何とか着陸したら"message[6]="お前は今日からパイロットだ、もてるぞなん"message[7]="てな､ごまかして日本で入社したときにゃい"message[8]="きなり当時新型のボ社の7何に乗せられてお"message[9]="前はどこで覚えたんだなんﾃ、昔の話だが。｣"message[0]="｢あぁ、独立前のアフリカで、おっと高い。｣"
+goUp=3
+goDown=3
+moveP=5
+moveM=5
+mapScaleX=10000
+mapScaleY=50000
+clearinput()
+input()
+return
+
+label missionExp2
+gosub"cls"
+color(255,255,255)
+text("MISSION I",0,0)
+text("初飛行に成功せよ",0,strheight)
+text("今日は赴任初に全任を任された。何があって",0,strheight*3)
+text("もミスは許されない。今までとは違い、国内",0,strheight*4)
+text("ながら長距離を正確に飛行せよ。",0,strheight*5)
+gosub"refresh"
+message[10]="副操縦士｢高度適切。このまま。｣"message[1]="機長｢ようこそ、AutoLookSkylineへ。｣"message[2]="｢着席しシートベルトをおしめください。｣"message[3]="副操縦士｢子供の頃、夢はなんでした？｣"message[4]="｢私は宇宙飛行士になりたかったんです。｣"message[5]="無線｢…M3CBZ。59です。お返しします。…｣"message[6]="｢・・・・ ・ ・―・・ ・―・・ ――...｣"message[7]="副操縦士｢計器の見方はわかりますよね。｣"message[8]="｢頼りにならないから厄介なんだよな。｣"message[9]="FA｢マイク入ってますよ。苦情ありました｣"message[0]="無線｢高すぎです。500以下でキープ。｣"
+goUp=1
+goDown=1
+moveP=3
+moveM=3
+mapScaleX=100000
+mapScaleY=100000
+clearinput()
+input()
+return
+
+label missionExp3
+gosub"cls"
+color(255,255,255)
+text("MISSION II",0,0)
+text("飛行機を不時着させろ",0,strheight)
+text("緊急事態発生。全エンジン停止。不時着させ",0,strheight*3)
+text("ないと大事故が予想される。直ちに近くの空",0,strheight*4)
+text("軍基地へ不時着しろ。",0,strheight*5)
+gosub"refresh"
+clearinput()
+message[0]="副操縦士｢このままでは高度が高すぎます。｣"message[1]="副｢一度降下姿勢になると戻せないようだ。｣"message[2]="｢機長、あなただけが頼りです。気をつけて｣"message[3]="FA｢乗客は不安げです。安心できるように…｣"message[4]="機長｢私は機長。酸素マスクを着用し衝撃に"message[5]="そなえて安全姿勢をとってください。｣"message[6]="無線｢こちらの準備は万端だ。救急車両も準"message[7]="備済みだ。全機待機させてある。心配ない｣"message[8]="副｢死ぬのは怖いよ。絶対完璧にして。｣"message[9]="2007年5月3日 ロサンジェルス上空"message[10]="無線｢低い。車輪を降ろして不時着の姿勢を｣"
+goUp=0
+goDown=1
+moveP=3
+moveM=3
+mapScaleX=100000
+mapScaleY=100000
+input()
+return
+
+label missionExp4
+gosub"cls"
+color(255,255,255)
+text("MISSION III",0,0)
+text("油圧装置の異常を克復せよ",0,strheight)
+text("油圧異常発生。サブシステムは動作しない。",0,strheight*3)
+text("機を適切に制御し、空港に着陸せよ。事故は",0,strheight*4)
+text("許されない。",0,strheight*5)
+gosub"refresh"
+clearinput()
+message[0]="副｢高すぎです。調整してください。｣"message[1]="機｢機が重い。やたら扱いづらい。厄介だ｣"message[2]="｢成田着陸担当、こちら407便。問題が発生｣"message[3]="無｢407便、問題の種類は。大丈夫か。｣"message[4]="機｢油圧に異常が。高度の調整も厄介だ｣"message[5]="｢でも大丈夫だと思う。やってみる。｣"message[6]="無｢わかった407。滑走路を空けておく。｣"message[7]="｢消防車も向かっている。万全をきす。｣"message[8]="｢407。レーダー確認。こちら成田アプローチ"message[9]="着陸誘導を行う。指示に従え。｣"message[10]="｢高度が低い。これ以上下げず保て。｣"
+goUp=2
+goDown=5
+moveP=1
+moveM=0
+mapScaleX=10000
+mapScaleY=10000
+input()
+return
+
+label missionExp5
+gosub"cls"
+color(255,255,255)
+text("MISSION IV",0,0)
+text("かんたんコース",0,strheight)
+text("着陸は簡単です。飛行機の旅をお楽しみくだ",0,strheight*3)
+text("さい。",0,strheight*4)
+text("機内放送が流れます。",0,strheight*6)
+gosub"refresh"
+message[10]="着陸態勢に入りました。ご着席願います。"message[1]="…シドニーは有名なオペラハウスの他、ハ…"message[2]="…の直ぐ近くにはカンガルー等の野性動物…"message[3]="…ないのかい。僕にそんなつもりはなかっ…"message[4]="…らない、もう信じられないわ。あなたに…"message[5]="...ow what it mean. It's my, my new l... "message[6]="...re gone. What makes you feel so lo..."message[7]="…え盛るmy fight spirit。前に塞がるha…"message[8]="…フカードは世界中どこでも使えます。貴…"message[9]="…の日本人スタッフがおります。なにか御…"message[0]="…ッシュサラダとカレーがございますが、…"
+goUp=3
+goDown=3
+moveP=3
+moveM=3
+mapScaleX=100000
+mapScaleY=100000
+clearinput()
+input()
+return
+
+label missionExp6
+gosub"cls"
+color(255,255,255)
+text("MISSION V",0,0)
+text("かんたんコース PLUS",0,strheight)
+text("副操縦士と共に快適な飛行機の旅をお楽しみ",0,strheight*3)
+text("ください。",0,strheight*4)
+gosub"refresh"
+message[10]="｢そろそろ仕事に戻ろう。｣"
+message[1]="｢君か、上を悩ましている厄介児ってのは。｣"
+message[2]="｢なによ｡今時｡女性ﾊﾟｲﾛｯﾄなんて珍しくもな"
+message[3]="いわよ｡大体､よそなら最低でも十はいるって"
+message[4]="のに｡何様のつもりなのかしら…｡｣"
+message[5]="｢そう単純でも無いよ。ここ、ほら密室だし｣"
+message[6]="｢だめよ、操縦士さん、まって。箱が。｣"
+message[7]="｢墜ちなきゃ大丈夫だよ。｣"
+message[8]="｢随分な自信家さんね｣"
+message[9]="……………………"
+message[0]="｢すみません。あの、お客様から揺、まぁ！｣"
+goUp=3
+goDown=3
+moveP=3
+moveM=3
+mapScaleX=100000
+mapScaleY=100
+clearinput()
+input()
+return
+

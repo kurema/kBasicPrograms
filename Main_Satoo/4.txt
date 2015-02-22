@@ -1,0 +1,23 @@
+'ƒTƒ“ƒvƒ‹
+
+soft1("EXIT")
+soft2("NEXT")
+a=1
+b=0
+c=0
+d=2
+setfont(T)
+label aaa
+'clear(0,0,width,height)
+text(a,c,'abs(rand)%'height-b)
+a=a*d
+b=b+12
+label chk
+i=input(0)
+if i and keysoft1 then exit endif
+if a>1000000000/d then a=1 b=0 c=0 d=d+1 clear(0,0,width,height) endif
+if b>height-13 then b=0 c=c+80 endif
+if i and keysoft2 then d=2 a=1 b=0 c=0  clear(0,0,width,height) endif
+'goto "chk" 
+goto "aaa"
+

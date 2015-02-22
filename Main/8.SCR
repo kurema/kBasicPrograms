@@ -1,0 +1,51 @@
+'グラフ作成ソフト
+
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+
+soft1("EXIT")
+soft2("NEXT")
+a=1
+b=0
+c=0
+d=2
+j=1
+e=0
+setfont(T)
+label aaa
+'グラフ定義
+'gはグラフ倍率
+g=2
+h=1
+if b%90=0 then a=0 else a=tan(b) endif
+ab=sin(b) ac=cos(b)
+'三角関数のグラフ
+'a=abs(b-50)ab=abs(b-80)ac=abs(b-110)
+'a=(b-5)*(b-1)*(b-4) 三次関数
+'a=2*(b-3)*(b-3)+5 二次関数
+'if b=5 then a=0 else a=(5/(b-5))+5
+
+'a,ab,acはグラフy座標 bはx座標
+
+'おしまい
+'clear(0,0,width,height)
+color(255,0,0)
+frect((b/h/j),(height/2)-(a/g),1,1)
+color(0,255,0)
+frect((b/h/j),(height/2)-(ab/g),1,1)
+color(0,0,255)
+frect((b/h/j),(height/2)-(ac/g),1,1)
+color(128,128,128)
+frect(0,(height/2),width,1)
+color(255,255,255)
+'if a%2=0 then color(255,255,255) a=a/2 else color(160,160,160) a=a*3+1 endif
+'a=(b-30)*(b-152)*(b-46)*(b-240)*(b-500)
+b=b+1
+label chk
+i=input(0)
+if i and keysoft1 then end endif
+'if a=1 then a=d b=0 c=0 d=d+1 color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+if (b/h/j)>width-3 then b=0 c=c+45 j=j+1 color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+'if c>width-45 then b=0 c=0 color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+if i and keysoft2 then d=2 a=1 b=0 c=0   color(0,0,0)frect(0,0,width,height)color(255,255,255) endif
+'goto "chk" 
+goto "aaa"

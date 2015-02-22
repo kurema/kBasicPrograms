@@ -1,0 +1,597 @@
+lock()
+label main
+gosub"init"
+while 1
+gosub"menu"
+wend
+end
+
+label over
+end
+
+label menu
+gosub"softInit"
+arg0="ƒQ[ƒ€,ƒ‰ƒ“ƒLƒ“ƒO,ƒwƒ‹ƒv,‚â‚ß‚é"
+arg1=2
+arg2=0
+arg3=""
+gosub"gameMenu"
+if gMenuSelected=0 then gosub"menuGame"
+elseif gMenuSelected=1 then gosub"menuRanking"
+elseif gMenuSelected=2 then gosub"menuHelp"
+elseif gMenuSelected=3 then goto"over"
+endif
+return
+
+label menuGame
+arg0="ƒwƒrƒjƒ‡ƒ,”š’eƒQ[ƒ€,–ß‚é"
+arg1=1
+arg2=0
+arg3=""
+gosub"gameMenu"
+if gMenuSelected=0 then gosub"game0"
+elseif gMenuSelected=1 then gosub"game1"
+endif
+return
+
+label menuHelp
+arg0="—V‚Ñ•û,(ƒwƒrƒjƒ‡ƒ),,•ûŒüƒL[‚ÅŽÖ‚ÌˆÚ“®,ŽÖ‚ªŽ©•ª‚É‚Ô‚Â‚©‚Á‚½‚çƒQ[ƒ€ƒI[ƒo[,‚Ü‚½‹tŒü‚«‚É‚ài‚ß‚Ü‚¹‚ñ,‚½‚¾‚µ’[‚É‚Ô‚Â‚©‚Á‚Ä‚à–â‘è‚ ‚è‚Ü‚¹‚ñ,,pause¨end‚ÅI—¹|—V‚Ñ•û,(”š’eƒQ[ƒ€),,•ûŒüƒL[‚ÅˆÚ“®,”š•—‚©”š’e‚É“–‚½‚é‚ÆƒQ[ƒ€ƒI[ƒo[,(”š•—‚Íã‰º¶‰E‚É‚«o‚µ‚Ü‚·),Œˆ’èƒL[‚Å”š’e”z’u,,pause¨end‚ÅI—¹|FAQ,(ƒwƒrƒjƒ‡ƒ),,‚p.‚È‚ºŒãi‚·‚é‚Æ¹Þ°Ñµ°ÊÞ°‚È‚Ì‚Å‚·‚©,‚`.ŽÖ‚É‚Æ‚Á‚ÄŒãi‚ÍŠëŒ¯‚ÅŽ€‚ðˆÓ–¡‚µ‚Ü‚·,(‹Zp“I‚È–â‘è‚à‚ ‚è‚Ü‚·),,‚p.’·‚³‚ª‚P`‚Q‚È‚çŽ€‚È‚È‚¢‚Ì‚Å‚·‚©,‚`.Ž€‚É‚Ü‚¹‚ñ,,‚p.ƒƒjƒ…[‚ª—Ç‚­‚È‚è‚Ü‚µ‚½‚Ë,‚`.‚ ‚è‚ª‚Æ‚¤‚²‚´‚¢‚Ü‚·,Vƒƒjƒ…[‚Ì•”•ª‚ÍŽ©—R‚É‚¨Žg‚¢‰º‚³‚¢|FAQ,(”š’eƒQ[ƒ€),,‚p.‚È‚ºŽ©•ª‚Å”š’e‚ð”z’u‚Å‚«‚é‚Ì‚Å‚·‚©,‚`.”š”­‚Ì”ü‚µ‚³‚ð‹‚ß‚él‚Ì‚½‚ß‚Å‚·,,‚p.‚¢‚«‚È‚èƒGƒ‰[I—¹‚µ‚Ü‚µ‚½,‚`.‚¨‚»‚ç‚­input()Œn‚ÌƒAƒvƒŠ‚ÌƒoƒO‚Å‚·,‘Îô‚ÍŒŸ“¢’†‚Å‚·B,,‚p.‘f°‚ç‚µ‚¢ƒnƒCƒXƒRƒA‚ðŽæ‚Á‚½‚Ì‚Å‚·‚ª,‚`.Á‚¦‚Ü‚·BŽ†‚É‚Å‚àƒƒ‚‚µ‚Ä‚­‚¾‚³‚¢B|THE BLOCK GAMES,by,AutoLook,Copyright(C)2008 by,AutoLook"
+gosub"gameMenuSubText"
+return
+
+label menuRanking
+if game0Rank="" then
+arg0="ƒ‰ƒ“ƒLƒ“ƒO,(ƒwƒrƒjƒ‡ƒ),,‚ ‚è‚Ü‚¹‚ñ"
+else
+arg0="ƒ‰ƒ“ƒLƒ“ƒO,(ƒwƒrƒjƒ‡ƒ),,"+game0Rank
+endif
+if game1Rank="" then
+arg0=arg0+"|ƒ‰ƒ“ƒLƒ“ƒO,(”š’eƒQ[ƒ€),,‚ ‚è‚Ü‚¹‚ñ"
+else
+arg0=arg0+"|ƒ‰ƒ“ƒLƒ“ƒO,(”š’eƒQ[ƒ€),,"+game1Rank
+endif
+gosub"gameMenuSubText"
+return
+
+label init
+startX=0
+startY=0
+objX=width
+objY=height
+bR=0bG=0bB=0
+fR=255fG=255fB=255
+tR=255tG=255tB=255
+eR=255eG=0eB=0
+
+game0Rank=""
+game1Rank=""
+return
+
+label cls
+color(bR,bG,bB)
+frect(startX,startY,objX,objY)
+return
+
+label pauseInit
+soft1("")
+soft2("PAUSE")
+return
+
+label softInit
+soft1("")
+soft2("")
+return
+
+label pause
+soft1("END")
+soft2("RETURN")
+gc()
+clearinput()
+key=0
+while key=0
+key=input()
+wend
+if key=keysoft1 then gameStat=-1endif
+gosub"pauseInit"
+return
+
+label showF
+frect(startX+objX*fX/fW,startY+objY*fY/fH,objX/fW,objY/fH)
+return
+
+label showE
+frect(startX+objX*eX/fW,startY+objY*eY/fH,objX/fW,objY/fH)
+return
+
+label showT
+frect(startX+objX*tX/fW,startY+objY*tY/fH,objX/fW,objY/fH)
+return
+
+label addHistory
+fHis=fHis+substr(10000+100*fX+fY,1,4)+";"
+return
+
+label gameDefInit
+gosub"pauseInit"
+gameStat=0
+fW=10
+fH=10
+fX=5
+fY=5
+fD=1'“®‚«‚Ì•ûŒü ‚‘¬‰»‚Ìˆ×1248‚Å
+fL=1'•W€’·‚³
+return
+
+label gameDef
+gosub"gameDefInit"
+gosub"cls"
+while gameStat=0
+color(fR,fG,fB)
+gosub"showF"
+unlock(1)lock()
+color(bR,bG,bB)
+gosub"showF"
+fX=(fX+(fD and 1)-(fD and 2)+fW)%fW
+fY=(fY+(fD and 4)-(fD and 8)+fH)%fH
+key=scan
+nFD=(key = keyright)+(key = keyleft)*2+(key = keydown)*4+(key = keyup)*8
+fD=(nFD = 0)*fD+(nFD > 0)*nFD
+if key and keysoft2 then gosub"pause"endif
+wend
+return
+
+label game0Init
+gosub"pauseInit"
+gameStat=0
+fW=20
+fH=20
+fX=fW/2
+fY=fH/2
+fD=1'“®‚«‚Ì•ûŒü ‚‘¬‰»‚Ìˆ×1248‚Å
+fL=1'•W€’·‚³
+fHis=""
+return
+
+label game0GO
+color(bR,bG,bB)
+text("GAME OVER",width/2-strwidth("GAME OVER")/2+1,height/2-strheight/2)
+color(tR,tG,tB)
+text("GAME OVER",width/2-strwidth("GAME OVER")/2,height/2-strheight/2)
+color(bR,bG,bB)
+text("Length "+fL,width/2-strwidth("Length "+fL)/2+1,height/2+strheight/2+2)
+color(tR,tG,tB)
+text("Length "+fL,width/2-strwidth("Length "+fL)/2,height/2+strheight/2+2)
+clearinput()
+unlock(1)lock()
+gosub"game0GORankSet"
+gosub"game0Init"
+input()
+gosub"cls"
+gosub"game0BS"
+return
+
+label game0GORankSet
+i=strlen(game0Rank)/13-1
+if i>=0 then
+while i>0 and substr(game0Rank,i*13,3)*1<fL
+i=i-1
+wend
+if i=0 then
+i=(substr(game0Rank,i*13,3)*1>=fL)-1
+endif
+endif
+i=i+1
+game0Rank=substr(game0Rank,0,max(i,0)*13)+substr(1000+fL+" ",1,4)+substr(100+hourofday+":",1,3)+substr(100+minute+":",1,3)+substr(100+second+",",1,3)+substr(game0Rank,max(i,0)*13,min(strlen(game0Rank),13*10)-max(i,0)*13)
+game0Rank=substr(game0Rank,0,min(13*10,strlen(game0Rank)))
+return
+
+label game0BS
+'bomb set
+eX=abs(rand)%fW
+eY=abs(rand)%fH
+while stridx(fHis,substr((10000+100*eX+eY)+";",1,5))>-1
+eX=abs(rand)%fW
+eY=abs(rand)%fH
+wend
+color(eR,eG,eB)
+gosub"showE"
+return
+
+label game0
+gosub"game0Init"
+gosub"cls"
+gosub"game0BS"
+gameStat=0
+while gameStat=0
+color(fR,fG,fB)
+gosub"showF"
+unlock(1)lock()
+fHis=fHis+substr((10000+100*fX+fY)+";",1,5)
+color(bR,bG,bB)
+tX=substr(fHis,0,2)
+tY=substr(fHis,2,2)
+gosub"showT"
+if (fX=eX)and(fY=eY)then
+fL=fL+1
+gosub"game0BS"
+else
+fHis=substr(fHis,5,strlen(fHis)-5)
+endif
+
+fX=(fX+(fD and 1)-(fD and 2)+fW)%fW
+fY=(fY+(fD and 4)-(fD and 8)+fH)%fH
+key=input(1)
+clearinput()
+nFD=(key = keyright)+(key = keyleft)*2+(key = keydown)*4+(key = keyup)*8
+fD=(nFD = 0)*fD+(nFD > 0)*nFD
+if key and keysoft2 then gosub"pause"endif
+if stridx(fHis,substr((10000+100*fX+fY)+";",1,5))>-1 then gosub"game0GO"endif
+wend
+return
+
+label game1Init
+clearinput()
+gosub"pauseInit"
+gameStat=0
+fW=20
+fH=20
+fX=fW/2
+fY=fH/2
+fD=1'“®‚«‚Ì•ûŒü ‚‘¬‰»‚Ìˆ×1248‚Å
+fT=0
+game1Bomb=""
+return
+
+label game1BSr
+tmpX=abs(rand)%fW
+tmpY=abs(rand)%fH
+while stridx(game1Bomb,"x"+substr(100+tmpX+"y",1,3)+substr(100+tmpY+"t",1,3))>=0 or abs(tmpX-fX)<2 or abs(tmpY-fY)<2
+tmpX=abs(rand)%fW
+tmpY=abs(rand)%fH
+wend
+game1Bomb=game1Bomb+"x"+substr(100+tmpX+"y",1,3)+substr(100+tmpY+"t",1,3)+substr(100+(abs(rand)%10+fT+5)%100+",",1,3)
+color(eR,eG,eB)
+eX=tmpX
+eY=tmpY
+gosub"showE"
+return
+
+label game1BSs
+game1Bomb=game1Bomb+"x"+substr(100+fX+"y",1,3)+substr(100+fY+"t",1,3)+substr(100+(abs(rand)%10+fT+5)%100+",",1,3)
+color(eR,eG,eB)
+eX=fX
+eY=fY
+gosub"showE"
+return
+
+label game1BE
+tmpX=substr(game1Bomb,tmp*10+1,2)+0
+tmpY=substr(game1Bomb,tmp*10+4,2)+0
+game1Bomb=substr(game1Bomb,0,tmp*10)+substr(game1Bomb,(tmp+1)*10,strlen(game1Bomb)-(tmp+1)*10)
+
+color(fR,fG,fB)
+gosub"showF"
+color(255,0,0)
+line((tmpX*2+1)*width/fW/2,0,(tmpX*2+1)*width/fW/2,height)
+line(0,(tmpY*2+1)*height/fH/2,width,(tmpY*2+1)*height/fH/2)
+unlock(1)lock()
+color(bR,bG,bB)
+line((tmpX*2+1)*width/fW/2,0,(tmpX*2+1)*width/fW/2,height)
+line(0,(tmpY*2+1)*height/fH/2,width,(tmpY*2+1)*height/fH/2)
+color(bR,bG,bB)
+gosub"showF"
+
+color(bR,bG,bB)
+tX=tmpX
+tY=tmpY
+gosub"showT"
+if tmpX=fX or tmpY=fY then
+gosub"game1GO"
+endif
+if stridx(game1Bomb,"x"+substr(100+tmpX+"y",1,3))>=0 then
+tmp=stridx(game1Bomb,"x"+substr(100+tmpX+"y",1,3))/10
+gosub"game1BE"
+endif
+if stridx(game1Bomb,"y"+substr(100+tmpY+"t",1,3))>=0 then
+tmp=stridx(game1Bomb,"y"+substr(100+tmpY+"t",1,3))/10
+gosub"game1BE"
+endif
+
+return
+
+label game1GO
+color(bR,bG,bB)
+text("GAME OVER",width/2-strwidth("GAME OVER")/2+1,height/2-strheight/2)
+color(tR,tG,tB)
+text("GAME OVER",width/2-strwidth("GAME OVER")/2,height/2-strheight/2)
+color(bR,bG,bB)
+text(fT+" steps",width/2-strwidth(fT+" steps")/2+1,height/2+strheight/2+2)
+color(tR,tG,tB)
+text(fT+" steps",width/2-strwidth(fT+" steps")/2,height/2+strheight/2+2)
+clearinput()
+unlock(1)lock()
+gosub"game1GORankSet"
+gosub"game1Init"
+input()
+gosub"cls"
+return
+
+label game1GORankSet
+i=strlen(game1Rank)/15-1
+if i>=0 then
+while i>0 and substr(game1Rank,i*15,5)*1<fT
+i=i-1
+wend
+if i=0 then
+i=(substr(game1Rank,i*15,5)*1>=fT)-1
+endif
+endif
+i=i+1
+game1Rank=substr(game1Rank,0,max(i,0)*15)+substr(100000+fT+" ",1,6)+substr(100+hourofday+":",1,3)+substr(100+minute+":",1,3)+substr(100+second+",",1,3)+substr(game1Rank,max(i,0)*15,min(strlen(game1Rank),15*10)-max(i,0)*15)
+game1Rank=substr(game1Rank,0,min(15*10,strlen(game1Rank)))
+return
+
+label game1
+gosub"game1Init"
+gosub"cls"
+while gameStat=0
+fX=(fX+(fD and 1)-(fD and 2)+fW)%fW
+fY=(fY+(fD and 4)-(fD and 8)+fH)%fH
+color(fR,fG,fB)
+gosub"showF"
+unlock(1)lock()
+color(bR,bG,bB)
+gosub"showF"
+key=input(1)
+clearinput()
+nFD=(key = keyright)+(key = keyleft)*2+(key = keydown)*4+(key = keyup)*8
+fD=(nFD = 0)*fD+(nFD > 0)*nFD
+if stridx(game1Bomb,"x"+substr(100+fX+"y",1,3)+substr(100+fY+"t",1,3))>=0 then
+gosub"game1GO"
+endif
+while stridx(game1Bomb,"t"+substr(100+(fT)%100+",",1,3))>=0
+tmp=stridx(game1Bomb,"t"+substr(100+fT%100+",",1,3))/10
+gosub"game1BE"
+wend
+if key and keysoft2 then gosub"pause"
+elseif key and keyselect then gosub"game1BSs"
+endif
+if (rand)%10 = 0 then
+gosub"game1BSr"
+endif
+fT=fT+1
+wend
+return
+
+
+'ˆÈ‰ºVƒƒjƒ…[•”
+label split
+i=0
+tmp=splitText
+while not(stridx(tmp,splitLetter)=-1)
+splitLine[i]=substr(tmp,0,stridx(tmp,splitLetter))
+tmp=substr(tmp,stridx(tmp,splitLetter)+1,strlen(tmp)-(stridx(tmp,splitLetter)+1))
+i=i+1
+wend
+splitLine[i]=tmp
+splitLineLength=i
+return
+
+'text(splitLine[i],(width-strlen(splitLine[i]))/2,(max(arg1,1)-1)*width/2+(2-min(arg1,1))*height/2)
+
+label gameMenuCls
+color(0,0,0)
+frect(0,0,width,height)
+return
+
+label gMenuClsText
+color(0,0,0)
+frect(0,0,width,height-strheight*3)
+return
+
+
+label gameMenuShow
+splitText=arg0
+splitLetter=","
+gosub"split"
+gosub"gameMenuCls"
+if not(arg1=1) then
+ if arg2=1 then
+ gosub"gameMenuEPCtrl"
+ elseif arg2=2 then
+ gosub"gameMenuShowPics"
+ elseif arg2=3 then
+ color(substr(arg3,0,3),substr(arg3,4,3),substr(arg3,8,3))
+ frect(0,height*(2-arg1)/4,width,height/2)
+ endif
+endif
+color(255,255,255)
+for i=0 to splitLineLength
+text(splitLine[i],(width-strwidth(splitLine[i]))/2,height*(arg1+1)/4+(i*2-splitLineLength)*(strheight+4)/2)
+next
+return
+
+label gameMenuSelectedText
+tmp=gMenuSelected
+color(255,255,255)
+text(splitLine[tmp],(width-strwidth(splitLine[tmp]))/2+1,height*(arg1+1)/4+(tmp*2-gMenuLen)*(strheight+4)/2)
+unlock(1)lock()
+color(0,0,0)
+frect(0,height*(arg1+1)/4+(tmp*2-gMenuLen)*(strheight+4)/2,width,strheight+1)
+color(255,255,255)
+text(splitLine[tmp],(width-strwidth(splitLine[tmp]))/2,height*(arg1+1)/4+(tmp*2-gMenuLen)*(strheight+4)/2)
+return
+
+label gameMenuKeyCheck
+key=input()
+if key=keyselect then
+gMenuStat=0
+elseif (key=keyup)or(key=keyleft) then
+gMenuSelected=(gMenuSelected+gMenuLen)%(gMenuLen+1)
+elseif (key=keydown)or(key=keyright) then
+gMenuSelected=(gMenuSelected+1)%(gMenuLen+1)
+endif
+return
+
+label gameMenu
+gosub"gameMenuShow"
+gMenuSelected=0
+gMenuStat=1
+gMenuLen=splitLineLength
+ splitLineLength=0
+while gMenuStat=1
+gosub"gameMenuSelectedText"
+gosub"gameMenuKeyCheck"
+wend
+return
+
+label gameMenuShowPics
+origin(0,height*(2-arg1)/4)
+drawarea(0,0,width,height/2)
+loadimg(bgimg,arg3)
+drawimg(bgimg,(width-imgwidth(bgimg))/2,(height-imgheight(bgimg)*2)/4)
+imgdispose(bgimg)
+origin(0,0)
+drawarea(0,0,width,height)
+return
+
+label gameMenuEPCtrl
+origin(width/2-arg4,height*(2-arg1)/4)
+drawarea(0,0,width,height/2)
+paintList=arg3
+gosub"execPaint"
+origin(0,0)
+drawarea(0,0,width,height)
+return
+
+label execPaint
+len=0
+tmp=paintList
+color(0,0,0)
+while not(tmp="")
+cap=strat(tmp,0)
+if cap="a" then
+ arc(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="b" then
+ farc(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="l" then
+ line(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="r" then
+ rect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="s" then
+ frect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="d" then
+ clear(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="c" then
+ color(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3))
+len=14
+elseif cap="t" then
+ text(substr(tmp,10,stridx(tmp,";")-10),substr(tmp,2,3),substr(tmp,6,3))
+len=stridx(tmp,";")+1
+endif
+if strlen(tmp)>len then
+tmp=substr(tmp,len,strlen(tmp)-len)
+else
+tmp=""
+endif
+wend
+lastLen=len
+return
+
+label gameMenuSubTextShow
+splitText=arg0
+splitLetter=","
+gosub"split"
+color(255,255,255)
+for i=0 to splitLineLength
+text(splitLine[i],(width-strwidth(splitLine[i]))/2,(1+i)*(strheight+4))
+next
+return
+
+label gameMenuSubTextS
+gosub"gameMenuCls"
+gosub"gameMenuSubTextShow"
+gosub"gMenuTextButtonSetS"
+gosub"gMenuTextShow"
+gMenuStat=1
+while gMenuStat=1
+gosub"gMenuTextShowSelected"
+gosub"gameMenuKeyCheck"
+wend
+return
+
+label gameMenuSubText
+gosub"gMenuTextListSet"
+gosub"gameMenuCls"
+gosub"gMenuTextButtonSet"
+gosub"gMenuTextShow"
+gMenuTextStat=1
+while gMenuTextStat=1
+arg0=gMenuTextList[gMenuTextListSelected]
+gosub"gameMenuSubTextShow"
+gMenuStat=1
+while gMenuStat=1
+gosub"gMenuTextShowSelected"
+gosub"gameMenuKeyCheck"
+wend
+if gMenuSelected=0 then
+gMenuTextListSelected=(gMenuTextListSelected+gMenuTextListLen)%(gMenuTextListLen+1)
+elseif gMenuSelected=1 then
+gMenuTextListSelected=(gMenuTextListSelected+gMenuTextListLen+2)%(gMenuTextListLen+1)
+elseif gMenuSelected=2 then
+gMenuTextStat=0
+endif
+gosub"gMenuClsText"
+wend
+return
+
+label gMenuTextShow
+gMenuSelected=0
+color(255,255,255)
+for i=0 to gMenuLen
+text(gMenuText[i],substr(gMenuTextPos,i*8,3),substr(gMenuTextPos,i*8+4,3))
+next
+return
+
+label gMenuTextShowSelected
+tmpGMTSS=gMenuSelected
+color(255,255,255)
+text(gMenuText[tmpGMTSS],substr(gMenuTextPos,tmpGMTSS*8,3)+1,substr(gMenuTextPos,tmpGMTSS*8+4,3))
+unlock(1)lock()
+color(0,0,0)
+frect(substr(gMenuTextPos,tmpGMTSS*8,3)-1,substr(gMenuTextPos,tmpGMTSS*8+4,3)-1,strwidth(gMenuText[tmpGMTSS])+3,strheight+2)
+color(255,255,255)
+text(gMenuText[tmpGMTSS],substr(gMenuTextPos,tmpGMTSS*8,3),substr(gMenuTextPos,tmpGMTSS*8+4,3))
+return
+
+label gMenuTextButtonSet
+gMenuText[0]="‘O"
+gMenuText[1]="ŽŸ"
+gMenuText[2]="–ß‚é"
+gMenuLen=2
+ tmpY=substr(1000+(height-strheight*2)+";",1,4)
+ gMenuTextPos=substr(1000+(width/5-strwidth("‘O")/2)+",",1,4)+tmpY+substr(1000+(width*2/5-strwidth("‘O")/2)+",",1,4)+tmpY+substr(1000+(width*4/5-strwidth("–ß‚é")/2)+",",1,4)+tmpY
+return
+
+label gMenuTextButtonSetS
+gMenuText[0]="–ß‚é"
+gMenuLen=0
+gMenuTextPos=substr(1000+(width*4/5-strwidth("–ß‚é")/2)+",",1,4)+substr(1000+(height-strheight*2)+";",1,4)
+return
+
+label gMenuTextListSet
+splitText=arg0
+splitLetter="|"
+gosub"split"
+for i=0 to splitLineLength
+gMenuTextList[i]=splitLine[i]
+next
+gMenuTextListSelected=0
+gMenuTextListLen=splitLineLength
+return

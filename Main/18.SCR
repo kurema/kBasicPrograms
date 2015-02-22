@@ -1,0 +1,120 @@
+step=0
+label start
+gosub"setSoft"
+unlock(1)lock()
+halfStep=step
+bgr=0 bgg=0 bgb=0
+mer=255 meg=0 meb=0
+bmr=255 bmg=255 bmb=255
+mas=15
+px=1
+py=0
+mX=width
+mY=height
+enem=4
+enemP=2
+bStep=5
+mStep=5
+b=0
+
+for i=0 to enem
+bombX[i]=mas+1
+bombY[i]=mas+1
+next
+
+label keyMan
+step=step+1
+ipt=input(1)
+clearinput()
+if ipt and keyup then py=-1 px=0 endif
+if ipt and keyleft then px=-1 py=0 endif
+if ipt and keydown then py=1 px=0 endif
+if ipt and keyright then px=1 py=0 endif
+x=(x+px+mas)%mas
+y=(y+py+mas)%mas
+if ipt=keysoft2 then gosub"pause" endif
+if ipt and keyselect then gosub"putBomb" endif
+gosub"cls"
+gosub"setBomb"
+gosub"drawMe"
+unlock(1)lock()
+goto"keyMan"
+
+label drawMe
+color(mer,meg,meb)
+frect(mX*x/mas,mY*y/mas,mX/mas,mY/mas)
+return
+
+label pause
+soft1("exit")
+soft2("start")
+
+color(255,0,0)
+'text("≤¬œ√ﬁ” ∆πﬁ…Àﬁ◊⁄Ÿƒ µ”≥≈÷",0,0)
+text("∑≠≥π≤¡≠≥",0,0)
+text("œ¿ﬁ"+(step-halfStep),0,strheight)
+text("ø≥Œﬁ—Ω≥ "+b,0,strheight*2)
+unlock(1)lock()
+
+while scan=0
+sleep(10)
+wend
+if scan=keysoft1 then end endif
+gosub"setSoft"
+clearinput()
+return
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,width,height)
+return
+
+label setSoft
+soft1("")
+soft2("pause")
+return
+
+label putBomb
+bombX[0]=x
+bombY[0]=y
+bombT[0]=step+mStep+abs(rand)%(bStep)
+return
+
+label setBomb
+color(bmr,bmg,bmb)
+for i=0 to enem
+frect(mX*bombX[i]/mas,mY*bombY[i]/mas,mX/mas,mY/mas)
+if step=bombT[i] then gosub"bomb"endif
+next
+if rand%enemP=1 then gosub"randBomb"endif
+return
+
+label bomb
+b=b+1
+line(mX*(bombX[i]*2+1)/mas/2,0,mX*(bombX[i]*2+1)/mas/2,mY)
+line(0,mY*(bombY[i]*2+1)/mas/2,mX,mY*(bombY[i]*2+1)/mas/2)
+if bombX[i]=x or bombY[i]=y then gosub"dead"endif
+bombX[i]=mas+1
+bombY[i]=mas+1
+return
+
+label dead
+color(255,0,0)
+text("±≈¿ º∆œº¿",0,0)
+text("ºﬁ≠–Æ≥ "+(step-halfStep),0,strheight)
+text("ø≥Œﬁ—Ω≥ "+b,0,strheight*2)
+x=0
+y=0
+unlock(1)lock()
+clearinput()
+input()
+goto"start"
+
+label randBomb
+tmp=abs(rand%enem)+1
+if bombT[tmp]<step then
+bombX[tmp]=abs(rand%mas)
+bombY[tmp]=abs(rand%mas)
+bombT[tmp]=step+mStep+abs(rand)%(bStep)
+endif
+return

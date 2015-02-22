@@ -1,0 +1,308 @@
+clearinput()
+lock()
+posx=FNKPOSX
+posy=FNKPOSY
+objx=FNKOBJX
+objy=FNKOBJY
+prp=">"
+gosub"setdefc"
+gosub"setkey"
+
+wsize=min(objx,objy)/2
+hfont=objy/strheight
+origin(posx,posy)
+drawarea(0,0,objx,objy)
+gosub"defc"
+gosub"setq"
+
+while 1
+gosub"fnk1"
+while 1
+gosub"prompt"
+link="fnk"+(ipts%14)
+gosub link
+wend
+wend
+
+label fnk0
+arg="Help" gosub"print"
+arg="0  help" gosub"print"
+arg="1  ver" gosub"print"
+arg="2  time" gosub"print"
+arg="3  info" gosub"print"
+arg="4  font L" gosub"print"
+arg="5  font S" gosub"print"
+arg="6  color test" gosub"print"
+arg="7  dir" gosub"print"
+arg="8  CD" gosub"print"
+arg="9  exit" gosub"print"
+arg="10 color model" gosub"print"
+arg="11 color type" gosub"print"
+arg="12 set color BG" gosub"print"
+arg="13 set color char" gosub"print"
+
+return
+
+label fnk1
+arg="AutoLook CUI System" gosub"print"
+arg="(c)2006 by AutoLook" gosub"print"
+arg="ver 1.00" gosub"print"
+return
+
+label fnk2
+arg="Date and Time" gosub"print"
+arg="Date: "+year+"/"+month+"/"+date gosub"print"
+arg="Time: "+hourofday+":"+minute+":"+second gosub"print"
+return
+
+label fnk3
+arg="Infomation" gosub"print"
+arg="Memory:  "+freememory+"/"+totalmemory gosub"print"
+arg="Keycode: "+scan gosub"print"
+arg="PastTime:"+tick gosub"print"
+return
+
+label fnk4
+arg="large fontsize" gosub"print"
+setfont("L")
+hfont=objy/strheight
+return
+
+label fnk5
+arg="small fontsize" gosub"print"
+setfont("T")
+hfont=objy/strheight
+return
+
+label fnk6
+arg="Colour test" gosub"print"
+g=0 b=0 r=255 arg="red" gosub"print"
+r=0 b=0 g=255 arg="green" gosub"print"
+r=0 g=0 b=255 arg="blue" gosub"print"
+return
+
+label fnk7
+arg="Dir" gosub"print"
+arg="Dir: "+basedir gosub"print"
+for k=0 to ald
+arg=name[k] gosub"print"
+next
+return
+
+label fnk8
+arg="CD" gosub"print"
+gosub"prompt"
+return
+
+label fnk9
+arg="Exit" gosub"print"
+prp="quit?(1/0)>"
+lnum=10
+gosub"prompt"
+if ipts=1 then
+arg="bye bye" gosub"print"
+goto"enc"
+endif
+return
+
+label fnk10
+arg="FulColour" gosub"print"
+for k=0 to 7
+r=(((k+1)/2+1)%2)*255
+g=(k%2)*255
+b=(((k+8)%9%8+(k/5)+1)%2)*255
+arg=""+k+" ¡¡¡¡" gosub"print"
+next
+return
+
+label fnk11
+arg="TypeColour" gosub"print"
+gosub"askcolor"
+return
+
+label fnk12
+arg="Set Colour" gosub"print"
+arg="Background" gosub"print"
+gosub"askcolor"
+prp="Set? "
+gosub"prompt"
+if ipts=1 then
+bcr=tmpr bcg=tmpg bcb=tmpb
+endif
+return
+
+label fnk13
+arg="Set Colour" gosub"print"
+arg="Text" gosub"print"
+gosub"askcolor"
+prp="Set? "
+gosub"prompt"
+if ipts=1 then
+lcr=tmpr lcg=tmpg lcb=tmpb
+endif
+r=lcr g=lcg b=lcb
+return
+
+label askcolor
+prp="Red? "
+lnum=1000 gosub"prompt"
+gosub"ccp" tmpr=(ipts)%256 r=tmpr
+arg="¡¡¡¡" gosub"print"
+prp="Green? "
+lnum=1000 gosub"prompt"
+gosub"ccp" tmpg=(ipts)%256 g=tmpg
+arg="¡¡¡¡" gosub"print"
+prp="Blue? "
+lnum=1000 gosub"prompt"
+gosub"ccp" tmpb=(ipts)%256 b=tmpb
+arg="¡¡¡¡" gosub"print"
+r=tmpr g=tmpg b=tmpb
+arg="¡¡¡¡" gosub"print"
+return
+
+label enc
+end
+
+label setq
+i=0
+tmp="s"
+while not(strcomp(tmp,"")=0)
+tmp=dir(basedir)
+name[i]=tmp
+i=i+1
+wend
+ald=i-2
+return
+
+label ccp
+r=0 g=0 b=0
+return
+
+label mesw
+color(bcr,bcg,bcb)
+frect(objx/2-strwidth(arg)/2-5,objy/2-strheight/2-2,strwidth(arg)+10,strheight+2)
+color(lcr,lcg,lcb)
+rect(objx/2-strwidth(arg)/2-5,objy/2-strheight/2-2,strwidth(arg)+10,strheight+2)
+text(arg,objx/2-strwidth(arg)/2,objy/2-strheight/2)
+gosub"renew"
+clearinput()input()
+return
+
+label errw
+arg="AlCS Err "+arg
+gosub"mesw"
+return
+
+label prompt
+arg=prp gosub"print"
+nolimit=max(100,lnum)
+posx=strwidth(prp)
+posy=strheight*(no-max(no-hfont,0)-1)
+gosub"gets"
+no=no-1
+ipts=ipts%(max(lnum,100)+1)
+arg=prp+ipts gosub"print"
+lnum=0
+prp=">"
+return
+
+label renew
+unlock(1)lock()
+return
+
+label cls
+color(bcr,bcg,bcb)
+frect(0,0,objx,objy)
+return
+
+label print
+letter[no]=arg
+pr[no]=r pg[no]=g pb[no]=b
+gosub"show"
+gosub"defc"
+no=no+1
+return
+
+label show
+i=0
+gosub"cls"
+for j=max(no-hfont+1,0) to no
+color(pr[j],pg[j],pb[j])
+text(letter[j],0,i*strheight)
+i=i+1
+next
+gosub"renew"
+return
+
+label defc
+r=lcr g=lcg b=lcb
+return
+
+label setdefc
+lcr=255 lcg=255 lcb=255
+bcr=0 bcg=0 bcb=0
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+arg[0]=0
+gosub"noshow"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+'if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if not(nolimit=0) then
+if keyup and ipt then ipts=(ipts+1)%nolimit endif
+if keydown and ipt then ipts=(ipts-1+nolimit)%nolimit endif
+elseif abs(ipts)<1073741820 then 
+if keyup and ipt then 
+if ipts=0 then ipts=1 mino=1
+elseif mino=1 then ipts=ipts+1 elseif
+mino=-1 then ipts=ipts-1 endif
+ endif
+if keydown and ipt then
+if ipts=0 then ipts=1 mino=-1
+elseif mino=1 then ipts=ipts-1 elseif
+mino=-1 then ipts=ipts+1 endif
+endif
+endif
+'endif
+if keyselect and ipt then stopper=0 endif
+if not(nolimit=0) then
+if abs(ipts)<nolimit/10 then gosub"getno" endif
+elseif abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"noshow" endif
+wend
+'if keysoft1 and ipt then exit endif
+return
+
+label noshow
+color(bcr,bcg,bcb)
+frect(posx,posy,strwidth("1073741820"),strheight)
+color(lcr,lcg,lcb)
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return

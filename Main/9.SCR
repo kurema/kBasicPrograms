@@ -1,0 +1,52 @@
+'スクリーンセーバー 文字
+
+color(0,0,0) frect(0,0,width,height)
+m=abs(rand%9)
+
+'サンプルリスト'
+NO=10
+'リストのかず'
+'身近なネタを書き込もう'
+A[0]="ニャー"
+A[1]="ワン"
+A[2]="ブー"
+A[3]="ガー"
+A[4]="コケコッコ"
+A[5]="キャー"
+A[6]="オギャァッ"
+A[7]="ミャー"
+A[8]="ヒュー"
+A[9]="グォーゥ"
+
+'サンプル終わりました'
+
+fnt[0]="T"
+fnt[1]="S"
+fnt[2]="M"
+fnt[3]="L"
+
+'thread(basedir+"9p.scr","th2")
+'thread(basedir+"9q.scr","th1")
+label adm
+setfont(fnt[abs(rand%4)])
+'m=abs(rand%9)
+R[0]=abs(rand%255) R[1]=abs(rand%255) R[2]=abs(rand%255) 
+if m=0 then color(255,255,255) elseif
+m=1 then color(R[0],R[1],R[2]) elseif
+m=2 then color(0,R[1],R[2]) elseif
+m=3 then color(R[0],0,R[2]) elseif
+m=4 then color(R[0],R[1],0) elseif
+m=5 then color(R[0],0,0) elseif
+m=6 then color(0,R[1],0) elseif
+m=7 then color(0,0,R[2]) elseif
+m=8 then color(R[0],R[0],R[0]) endif
+'sleep(128)
+r=abs(rand%NO)
+text(A[r],abs(rand%width+strwidth(A[r]))-strwidth(A[r]),abs(rand%height))
+'unlock(1)lock()
+i=input(0)
+if i and keysoft1 then 'kill("th1")' end endif
+if i and keysoft2 then color(0,0,0) frect(0,0,width,height) m=abs(rand%9) endif
+if rand%150=0 then color(0,0,0) frect(0,0,width,height) m=abs(rand%9) endif
+goto "adm"
+

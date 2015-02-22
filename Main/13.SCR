@@ -1,0 +1,1107 @@
+'thread(basedir+"9s.scr",dbg)
+'thread(basedir+"7.scr",dbg)
+soft1("Exit")
+clpt=6 gosub"setclpt"
+gosub"cls"
+'gosub"mine"
+arg[0]="AUTO LOOK"
+gosub"prctr"
+unlock(1)lock()
+sleep(900)
+framef=0'枠表示時のフォント設定
+ftypeset=0'一般フォント設定
+mrewf=1
+menutype=1
+doenchk=1
+rewf=1
+tfrm=1
+sdkopenno=35
+ifdlg=2
+mmasx=15
+masx=15
+'setfont("M")
+nolimit=0
+difmine=5
+chkfnk=2
+htcps=1
+mmx=0mmy=0
+coltype=2
+gosub"setsdiv"
+gosub"setsetmenu"
+gosub"setkey"
+gosub"gi"
+gosub"setbsln"
+gosub"setmname"
+gosub"setftype"
+
+label choosegame
+clearinput()
+gc() setfont(ftype[ftypeset])
+if menutype=0 then
+goto"menuisd"
+else gosub"cgame" endif
+
+label gimf
+if ipts=0 then goto"num"endif
+if ipts=1 then goto"ship"endif
+if ipts=2 then goto"mine"endif
+if ipts=3 then goto"board"endif
+if ipts=4 then goto"minedif"endif
+goto"choosegamer"
+
+label menuisd
+gosub"help"
+mesl=5
+label choosegamer
+posx=0 posy=height-strheight
+arg[0]=0
+nolimit=10
+gosub"gets"
+nolimit=0
+goto"gimf"
+
+label lncltw
+unlock(1)
+color(bgm[0],bgm[1],bgm[2])
+for i=0 to width
+line(i,0,0,height-(i*height/width/2))
+line(width-i,height,width,(i*height/width/2))
+next
+for i=0 to height/2
+line(0,height/2,width,i)
+line(width,height/2,0,height-i)
+next
+lock()
+return
+
+label cgame
+gosub"cls"
+'gosub"lncltw"
+color(ltm[0],ltm[1],ltm[2])
+for i=0 to numgame
+text(gamenum[i],0,strheight*i)
+next
+hnum=numgame
+mtype=0
+tgt=0 gosub"sccgame"
+gosub"ccgame"
+return
+
+label ccgame
+rep=1
+while (rep=1)
+ipta=input()
+if ipta=keyup then tgt=(tgt+hnum)%(hnum+1) gosub"sccgame"
+elseif ipta=keydown then tgt=(tgt+1)%(hnum+1) gosub"sccgame"
+elseif ipta=keyselect then ipts=tgt rep=0
+elseif ipta=keysoft1 then goto"over"
+elseif ipta=keypound then goto"choosegame"
+endif
+wend
+return
+
+label over
+end
+
+label sccgame
+if mtype=0 then tshx=gamenum[tgt]else
+tshx=setmenu[tgt]+"  ("+sdiv[tgt]+")"endif
+color(ltm[0],ltm[1],ltm[2])
+frect(0,tgt*strheight,width,strheight)
+color(bgm[0],bgm[1],bgm[2])
+text(tshx,0,tgt*strheight)
+unlock(1)lock()
+color(bgm[0],bgm[1],bgm[2])
+frect(0,tgt*strheight,width,strheight)
+color(ltm[0],ltm[1],ltm[2])
+text(tshx,0,tgt*strheight)
+return
+
+label gi
+numgame=4
+gamenum[0]="数当て"gamenum[1]="バトルシップ"gamenum[2]="マインスイーパ"gamenum[4]="設定"gamenum[3]="板"
+return
+
+label setsetmenu
+stmenu=11
+setmenu[0]="マインスイーパ難易度"setmenu[1]="アシスト機能"setmenu[2]="選択方法"setmenu[3]="チェック機能 色数"setmenu[4]="結果表示"setmenu[5]="フォントサイズ"setmenu[6]="マインスイーパサイズ"setmenu[7]="カラーパターン"setmenu[8]="再描画機能"setmenu[9]="NP数"setmenu[10]="メニュータイプ"setmenu[11]="区切り線"setmenu[stmenu+1]="戻る"
+return
+
+label setftype
+ftype[0]="T"ftype[1]="S"ftype[2]="M"ftype[3]="L"
+return
+
+label setbsln
+bsln[0]=4bsln[1]=3bsln[2]=2bsln[3]=2bsln=3
+return
+
+label setmname
+mname[0]="."mname[1]="1"mname[2]="2"mname[3]="3"mname[4]="4"mname[5]="5"mname[6]="6"mname[7]="7"mname[8]="8"mname[9]="*"
+return
+
+label setsdiv
+sdiv[0]=difmine-2 sdiv[1]=chkfnk sdiv[2]=htcps sdiv[3]=coltype sdiv[4]=ifdlg sdiv[5]=ftypeset+","+framef sdiv[6]=mmasx sdiv[7]=clpt%92 sdiv[8]=mrewf sdiv[9]=sdkopenno sdiv[10]=menutype sdiv[11]=tfrm sdiv[12]="Main Menu"
+return
+
+label cdif
+gosub"cls"
+color(ltm[0],ltm[1],ltm[2])
+for i=0 to stmenu+1
+text(setmenu[i]+"  ("+sdiv[i]+")",0,strheight*i)
+next
+hnum=stmenu+1
+mtype=1
+tgt=0 gosub"sccgame"
+gosub"ccgame"
+return
+
+label minedif
+if menutype=1 then
+gosub"cdif" goto"cmdif" endif
+gosub"cls"
+for i=0 to stmenu
+posx=0 posy=strheight*i
+arg[0]=i+"."+setmenu[i]
+gosub"show"
+next
+posx=0 posy=strheight*(i+1)
+arg[0]=99+".quit"gosub"show"
+posx=0 posy=height-strheight*2
+arg[0]="SELECT"gosub"show"
+posx=0 posy=height-strheight
+arg[0]=0nolimit=100gosub"gets"
+label cmdif
+if ipts=0 then
+arg[0]="Difficulty? [0-99]  ( "+(difmine-2)+" )"
+nolimit=100gosub"iptdlg"nolimit=0
+difmine=ipts+2
+elseif ipts=1 then
+arg[0]="Assist type? [0-2]   ( "+(chkfnk)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+chkfnk=ipts%3
+elseif ipts=2 then
+arg[0]="Possition? [0-1]   ( "+(htcps)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+htcps=ipts%2
+elseif ipts=3 then
+arg[0]="How many colour? [0-6]   ( "+(coltype)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+coltype=(ipts)%7
+elseif ipts=4 then
+arg[0]="Show information? [0-2]   ( "+(ifdlg)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+ifdlg=(ipts)%3
+elseif ipts=5 then
+arg[0]="fontsize? [0-3]   ( "+(ftypeset)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+ftypeset=(ipts)%4
+arg[0]="frame fontsize? [0-3]   ( "+(framef)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+framef=(ipts)%4
+setfont(ftype[ftypeset])
+elseif ipts=6 then
+arg[0]="size? [2-99]   ( "+(mmasx)+" )"
+nolimit=100gosub"iptdlg"nolimit=0
+mmasx=(ipts)%100
+mmasx=abs(mmasx-2)+2
+if mmasx>14 then mrewf=1 else mrewf=0 endif
+elseif ipts=7 then
+arg[0]="color pattern? [0-9]   ( "+(clpt%92)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+clpt=(ipts)%10
+gosub"setclpt"
+elseif ipts=8 then
+arg[0]="Re Write? [0-1]   ( "+(mrewf)+" )"
+nolimit=10gosub"iptdlg"nolimit=0
+mrewf=(ipts)%2
+elseif ipts=9 then
+arg[0]="How many sdk? [0-99]   ( "+(sdkopenno)+" )"
+nolimit=100gosub"iptdlg"nolimit=0
+sdkopenno=(ipts)%100
+if ipts>0 then tfrm=1 endif
+elseif ipts=10 then
+arg[0]="Menu type? [0-1]   ( "+(menutype)+" )"
+nolimit=100gosub"iptdlg"nolimit=0
+menutype=(ipts)%2
+elseif ipts=11 then
+arg[0]="3*3 frame? [0-1]   ( "+(tfrm)+" )"
+nolimit=100gosub"iptdlg"nolimit=0
+tfrm=(ipts)%2
+elseif ipts=99 or ipts=stmenu+1 then
+goto"choosegame"
+endif
+gosub"setsdiv"
+goto"minedif"
+
+label setclpt
+if clpt=0 then
+fc[0]=127fc[1]=127fc[2]=127
+bgm[0]=0bgm[1]=0bgm[2]=0
+ltm[0]=255ltm[1]=255ltm[2]=255
+elseif clpt=1 then
+fc[0]=127fc[1]=127fc[2]=127
+bgm[0]=153bgm[1]=180bgm[2]=153
+ltm[0]=60ltm[1]=60ltm[2]=60
+elseif clpt=2 then
+fc[0]=127fc[1]=127fc[2]=127
+bgm[0]=255bgm[1]=255bgm[2]=255
+ltm[0]=0ltm[1]=0ltm[2]=0
+elseif clpt=3 then
+fc[0]=152fc[1]=152fc[2]=152
+bgm[0]=192bgm[1]=192bgm[2]=192
+ltm[0]=0ltm[1]=0ltm[2]=0
+elseif clpt=4 then
+fc[0]=0fc[1]=0fc[2]=255
+bgm[0]=0bgm[1]=255bgm[2]=0
+ltm[0]=255ltm[1]=0ltm[2]=0
+elseif clpt=5 then
+fc[0]=130fc[1]=130fc[2]=130
+bgm[0]=55bgm[1]=103bgm[2]=21
+ltm[0]=230ltm[1]=230ltm[2]=230
+elseif clpt=6 then
+fc[0]=0fc[1]=127fc[2]=0
+bgm[0]=0bgm[1]=0bgm[2]=0
+ltm[0]=0ltm[1]=255ltm[2]=0
+elseif clpt=9 then
+fc[0]=0fc[1]=127fc[2]=255
+bgm[0]=255bgm[1]=255bgm[2]=255
+ltm[0]=0ltm[1]=127ltm[2]=127
+elseif clpt=7 then
+tc[0]=bgm[0]tc[1]=bgm[1]tc[2]=bgm[2]
+bgm[0]=ltm[0]bgm[1]=ltm[1]bgm[2]=ltm[2]
+ltm[0]=tc[0]ltm[1]=tc[1]ltm[2]=tc[2]
+gosub"settmc"
+clpt=100
+elseif clpt=8 then
+fc[0]=abs(rand)%256fc[1]=abs(rand)%256fc[2]=abs(rand)%256
+bgm[0]=abs(rand)%256bgm[1]=abs(rand)%256bgm[2]=abs(rand)%256
+ltm[0]=abs(rand)%256ltm[1]=abs(rand)%256ltm[2]=abs(rand)%256
+clpt=100
+gosub"settmc"
+elseif clpt=100 then
+fc[0]=tc[9]fc[1]=tc[10]fc[2]=tc[11]
+bgm[0]=tc[3]bgm[1]=tc[4]bgm[2]=tc[5]
+ltm[0]=tc[6]ltm[1]=tc[7]ltm[2]=tc[8]
+endif
+return
+
+label settmc
+tc[9]=fc[0]tc[10]=fc[1]tc[11]=fc[2]
+tc[3]=bgm[0]tc[4]=bgm[1]tc[5]=bgm[2]
+tc[6]=ltm[0]tc[7]=ltm[1]tc[8]=ltm[2]
+return
+
+label board
+gc() setfont(ftype[framef])
+gosub"cls"
+masx=9
+mmx=mmx%masx mmy=mmy%masx
+for i=0 to masx*masx-1
+sdklock[i]=0 chkf[i]=3 gchk[i]=0
+next
+arg[0]=masx gosub"mkmass"
+if tfrm=1 then
+fc[0]=ltm[0]fc[1]=ltm[1]fc[2]=ltm[2]
+arg[0]=3 gosub"mkmass" gosub"setclpt" endif
+if not(sdkopenno=0) then gosub"mksdk" endif
+label boardj
+posx=0 posy=height-strheight*2
+arg[0]="Click" gosub"show"
+arg[0]="0"
+posx=width/2 posy=height-strheight*2
+nolimit=masx*masx
+if htcps=0 then gosub"gets" elseif
+htcps=1 then gosub"cursor"endif
+nolimit=10
+posx=0 posy=height-strheight*2
+arg[0]="Input"
+color(bgm[0],bgm[1],bgm[2]) frect(posx,posy,width,strheight) color(ltm[0],ltm[1],ltm[2]) text(arg[0],posx,posy)
+ltm[0]=fc[0]ltm[1]=fc[1]ltm[2]=fc[2]
+gosub"fillcursor"gosub"setclpt"
+arg[0]=0
+sdkplc=ipts
+posx=((width-1)*((ipts/masx)*2+1)/2/masx)-strwidth("1")/2
+posy=((height-1-strheight*2)*((ipts%masx)*2+1)/2/9)-strheight/2
+ipts=0
+if sdklock[sdkplc]=0 then gosub"bgetn" endif
+nolimit=0
+goto"boardj"
+return
+
+label bgetn
+ipts=0
+while(ipts=0)
+ipt=input()
+gosub"getno"
+if ipt=keysoft2 then sdklock[sdkplc]=(sdklock[sdkplc]+1)%2 endif
+if ipt=key0 then ipts=""endif
+if ipt=keyast and not(sdkopenno=0) then ipts=sdkplc gosub"opnsdk" ipts=sdkno endif
+wend
+color(bgm[0],bgm[1],bgm[2])
+frect(posx,posy,strwidth("A"),strheight)
+color(ltm[0],ltm[1],ltm[2])
+if sdklock[sdkplc]=1 then color(fc[0],fc[1],fc[2]) endif
+text(ipts,posx,posy)
+return
+
+label mksdk
+posx=0 posy=height-strheight*2
+arg[0]="Wait; It's not sdk"
+gosub"show"
+gosub"sdkremix"
+gosub"sdkrpcptn"
+for i=0 to sdkopenno
+ipts=abs(rand)%(masx*masx)
+gosub"opnsdk"
+next
+return
+
+label opnsdk
+color(fc[0],fc[1],fc[2])
+posx=((width-1)*((ipts/masx)*2+1)/2/masx)-strwidth("1")/2
+posy=((height-1-strheight*2)*((ipts%masx)*2+1)/2/9)-strheight/2
+sdklock[ipts]=1
+gosub"sdkcfs"
+sdkno=sdkrn[(((((ipts/masx)/3)+((ipts%masx)/3)*3)+((xrplc[0])*3+(xrplc[1])))%9)]
+text(sdkno,posx,posy)
+return
+
+label sdkcfs
+xrplc[0]=rmx[ipts/masx/3]
+xrplc[0]=abs((xrplc[0]+((ipts/masx)%3))%3*(-(xrplc[0]/3)*2+1)+((xrplc[0]/3)*2))
+xrplc[1]=rmx[ipts%masx/3+3]
+xrplc[1]=abs((xrplc[1]+((ipts%masx)%3))%3*(-(xrplc[1]/3)*2+1)+((xrplc[1]/3)*2))
+return
+
+label sdkrpcptn
+for i=0 to 9
+sdkal[i]=0
+next
+for i=0 to 8
+sdkrn[i]=abs(rand)%9+1
+while sdkal[sdkrn[i]]=1
+sdkrn[i]=abs(rand)%9+1
+wend
+sdkal[sdkrn[i]]=1
+next
+return
+
+label sdkremix
+for i=0 to 5
+rmx[i]=abs(rand)%6
+next
+return
+
+label num
+gc() setfont(ftype[ftypeset])
+tmp[1]=abs(rand)%5+3
+tmp[1]=pow(10,tmp[1])
+tmp[0]=abs(rand)%tmp[1]
+gosub"cls"
+ppy=0
+arg[0]="New. Less "+tmp[1]
+posx=0 posy=ppy
+gosub"show"
+ppy=ppy+strheight
+
+label frep
+if ppy+strheight*1>height then ppy=0 gosub"cls" endif
+arg[0]=0
+posx=0 posy=ppy nolimit=tmp[1]
+gosub"gets"
+posx=width/2 posy=ppy
+if ipts>tmp[0] then arg[0]="大きい" elseif ipts<tmp[0] then arg[0]="小さい" else gosub"win" goto"num" endif
+gosub"show"
+ppy=ppy+strheight
+goto"frep"
+
+label win
+arg[0]="正解  ( "+ipts+" )"wboxttl="数当て"
+gosub"dlg"
+return
+
+label ship
+posx=0 posy=height-strheight
+arg[0]="Wait a minute"
+gosub"show"
+
+gc() setfont(ftype[framef])
+bslin=0 hiten=0 hitfr=0
+for i=0 to 99
+chkf[i]=0 ens[i]=0 frs[i]=0 bscen[i]=0 enbscen[i]=0 chkf[i]=3 gchk[i]=0
+next
+gosub"chklen"
+gosub"bssen"
+mmx=mmx%10 mmy=mmy%10
+masx=10 rewf=0
+gosub"cls"
+arg[0]=10gosub"mkmass"
+clearinput()
+label forrepship
+gosub"askjvsfr"
+gosub"bsturn"
+return
+
+label chklen
+sumbsln=0
+for i=0 to bsln
+sumbsln=sumbsln+bsln[i]
+next
+return
+
+label bsturn
+gosub"frattack"
+ipts=0
+gosub"enattack"
+if hitfr=sumbsln then gosub"bswin" goto"ship" elseif hiten=sumbsln then gosub"bslose" goto"ship" else goto"bsturn"
+
+label askjvsfr
+for j=0 to bsln
+posx=0 posy=height-strheight*2
+lenship=bsln[j]
+gosub"cerpos"
+arg[0]=tmpplc[0]arg[1]=tmpplc[1]
+gosub"chkoon"
+gosub"chkfrship"
+if not(peace) then gosub"putfrship" else j=j-1 endif
+next
+return
+
+label frattack
+arg[0]="ATTACK"
+posx=0 posy=height-strheight*2
+gosub"show"
+posx=width/2 posy=height-strheight*2
+nolimit=10*10
+if htcps=0 then gosub"gets" elseif
+htcps=1 then gosub"cursor"endif
+nolimit=0
+arg[0]=((width-1)*(ipts/10)/10)+12
+arg[1]=((height-1-strheight*2)*(ipts%10)/10)+6
+if not(ens[ipts])=0 and bscen[ipts]=0 then cl[0]=255cl[1]=0cl[2]=0 hitfr=hitfr+1 else cl[0]=0cl[1]=255cl[2]=0 endif
+bscen[ipts]=1
+gosub"putcolor"
+return
+
+label enattack
+arg[0]="ENEMY ATTACK"
+posx=0 posy=height-strheight*2
+gosub"show"
+ipts=-1
+if not(hiten=0)and(doenchk=1) then gosub"doenkwya"endif
+if ipts=-1 then gosub"seafrt" endif
+arg[0]=((width-1)*(ipts/10)/10)+6
+arg[1]=((height-1-strheight*2)*(ipts%10)/10)+6
+if not(frs[ipts])=0 then enkwya[hiten]=ipts cl[0]=255cl[1]=255cl[2]=0 hiten=hiten+1 else cl[0]=0cl[1]=255cl[2]=255 'gosub"chkarenbs"' endif
+enbscen[ipts]=1
+gosub"putcolor"
+return
+
+label seafrt
+ipts=abs(rand)%50
+ipts=ipts*2+((ipts/5)%2)
+while enbscen[ipts]=1
+ipts=abs(rand)%50
+ipts=ipts*2+((ipts/5)%2)
+wend
+return
+
+label doenkwya
+stppp=0
+in=bslin
+while (in<hiten)and(stppp=0)
+for im=0 to 3
+k=im-1-2*(im/3)
+l=((im+1)%4)-1-2*(((im+1)%4)/3)
+if not((k+(enkwya[in]/10))<0 or (l+(enkwya[in]%10))<0 or (k+(enkwya[in]/10))>9 or (l+(enkwya[in]%10))>9) and enbscen[(enkwya[in]+k*10+l)]=0 then
+ipts=(enkwya[in]+k*10+l) bslin=max(in-1,0) stppp=1 endif
+next
+in=in+1
+wend
+return
+
+label bswin
+posx=0 posy=height-strheight*2
+setfont("L")
+arg[0]="WIN" gosub"show"
+setfont(ftype[framef])
+input()
+arg[0]="YOU WON"wboxttl="battle ship"
+gosub"dlg"
+return
+
+label bslose
+posx=0 posy=height-strheight*2
+setfont("L")
+arg[0]="LOSE" gosub"show"
+input()
+setfont(ftype[framef])
+arg[0]="YOU LOSE"wboxttl="battle ship"
+gosub"dlg"
+return
+
+label chkarenbs
+for i=0 to 3
+k=i-1-2*(i/3)
+l=((i+1)%4)-1-2*(((i+1)%4)/3)
+if not((k+(ipts/10))<0 or (l+(ipts%10))<0 or (k+(ipts/10))>9 or (l+(ipts%10))>9) then enbscen[(ipts+k*10+l)]=1 endif
+next
+return
+
+label bssen
+for j=0 to bsln
+posx=0 posy=height-strheight*2
+tmpplc[0]=abs(rand)%10
+tmpplc[1]=abs(rand)%10
+udrl=abs(rand)%4
+lenship=bsln[j]
+arg[0]=tmpplc[0]arg[1]=tmpplc[1]
+gosub"chkoon"
+gosub"chkenship"
+if not(peace) then gosub"putenship" else j=j-1 endif
+next
+return
+
+label chkoon
+peace=1
+if ((abs(2*(arg[1]-lenship*(1-udrl*2))-9)<13) and (udrl<2)) or ((abs(2*(arg[0]-lenship*(5-udrl*2))-9)<13) and (udrl>1)) then peace=0 endif
+'text((abs(arg[1]-lenship*(udrl*2-1)-5))+","+(udrl)+","+(abs(arg[0]-lenship*(udrl*2-5)-5)),0,height-strheight*2)
+endif
+
+label chkfrship
+for i=0 to lenship-1
+if ((not(frs[arg[0]*10+(arg[1]+(i*(udrl*2-1)))]=0))and(udrl<2))or((not(frs[arg[1]+10*(arg[0]+(i*(udrl*2-5)))]=0))and(udrl>1)) then peace=1 endif next
+return
+
+label putfrship
+tgt[0]=arg[1] tgt[1]=arg[0]
+tmt[0]=arg[0] tmt[1]=arg[1]
+for i=0 to lenship-1
+if udrl<2 then tgt[0]=tmt[1]+(i*(udrl*2-1))endif
+if udrl>1 then tgt[1]=tmt[0]+(i*(udrl*2-5))endif
+tgt=tgt[1]*10+tgt[0]
+frs[tgt]=j+1
+arg[0]=((width-1)*(tgt[1])/10)+6
+arg[1]=((height-1-strheight*2)*(tgt[0])/10)+6
+cl[0]=0cl[1]=0cl[2]=255
+gosub"putcolor"
+next
+return
+
+label putcolor
+color(cl[0],cl[1],cl[2])
+frect(arg[0],arg[1],4,4)
+color(255,255,255)
+unlock(1)lock()
+return
+
+label fkey
+ipt=input()
+if ipt and keyup then udrl=0 
+elseif ipt and keydown then udrl=1
+elseif ipt and keyleft then udrl=2
+elseif ipt and keyright then udrl=3
+elseif ipt and keysoft1 then end
+else gosub"fkey" endif
+return
+
+label cerpos
+posx=0 posy=height-strheight*2
+arg[0]="Ship "+lenship gosub"show"
+arg[0]="0"
+posx=width/2 posy=height-strheight*2
+nolimit=10*10
+if htcps=0 then gosub"gets" elseif
+htcps=1 then gosub"cursor"endif
+nolimit=0
+posx=0 posy=height-strheight*2
+arg[0]="Direction?"gosub"show"
+arg[0]="0"
+gosub"fkey"
+posx=width/2 posy=height-strheight*2
+tmpplc[0]=ipts/10
+tmpplc[1]=ipts%10
+return
+
+label chkenship
+for i=0 to lenship-1
+if ((not(ens[arg[0]*10+(arg[1]+(i*(udrl*2-1)))]=0))and(udrl<2))or((not(ens[arg[1]+10*(arg[0]+(i*(udrl*2-5)))]=0))and(udrl>1)) then peace=1 endif next
+return
+
+label putenship
+tgt[0]=arg[1] tgt[1]=arg[0]
+tmt[0]=arg[0] tmt[1]=arg[1]
+for i=0 to lenship-1
+if udrl<2 then tgt[0]=tmt[1]+(i*(udrl*2-1))endif
+if udrl>1 then tgt[1]=tmt[0]+(i*(udrl*2-5))endif
+tgt=tgt[1]*10+tgt[0]
+ens[tgt]=j+1
+next
+return
+
+label mine
+gc() setfont(ftype[framef])
+gosub"cls"
+masx=mmasx rewf=mrewf
+mmx=mmx%mmasx mmy=mmy%mmasx
+da[0]=0da[1]=0da[2]=0
+summine=0
+fstp=1
+arg[0]=masx gosub"mkmass"
+for i=0 to masx*masx-1
+if abs(rand)%difmine=0 then
+mine[i]=1 summine=summine+1 else
+mine[i]=0 endif
+'open[i]=0
+gchk[i]=0
+chkd[i]=0
+mchk[i]=0
+chkf[i]=3
+next
+starts=((date*24*60+hourofday*60)+minute)*60+second
+if summine=0 then mine[abs(rand)%(masx*masx)]=1 fstp=0 summine=1 endif
+hat=0
+label forrepmine
+if hat+summine=masx*masx then goto"omine" endif
+posx=0 posy=height-strheight*2
+arg[0]=""+hat+"/"+(masx*masx-summine)
+gosub"show"
+arg[0]="0"
+posx=width/2 posy=height-strheight*2
+nolimit=masx*masx
+if htcps=0 then gosub"gets" elseif
+htcps=1 then gosub"cursor"endif
+nolimit=0
+arg[0]="0"
+posx=width/2 posy=height-strheight*2
+tmpplc[0]=ipts/masx
+tmpplc[1]=ipts%masx
+arg[0]=(tmpplc[0])
+arg[1]=(tmpplc[1])
+gosub"chkmine"
+arg[0]=((width-1)*(tmpplc[0]*2+1)/2/masx)-strwidth("1")/2
+arg[1]=((height-1-strheight*2)*(tmpplc[1]*2+1)/2/masx)-strheight/2
+arg[2]=mname[hmmat]
+gosub"ltmine"
+goto"forrepmine"
+return
+
+label cursor
+stopper=1
+while(stopper)
+gosub"fillcursor"
+'gosub"fkey"
+ipt=input()
+if (ipt and keyselect) or (ipt and keysoft1) or (ipt and keypound) then stopper=0 endif
+if ipt and keyup then mmy=(mmy+masx-1)%masx endif
+if ipt and keysoft2 then 'chkf[mmx*10+mmy]=(chkf[mmx*10+mmy]+1)%coltype' gosub"chkfnk"endif
+if ipt and keydown then mmy=(mmy+1)%masx endif
+if ipt and keyleft then mmx=(mmx+masx-1)%masx endif
+if ipt and keyright then mmx=(mmx+1)%masx endif
+wend
+if ipt and keysoft1 then end endif
+if ipt and keypound then goto"choosegame"endif
+if ipt and keyselect then ipts=mmx*masx+mmy endif
+return
+
+label fillcursor
+color(ltm[0],ltm[1],ltm[2])
+rect((width-1)*mmx/masx+2,(height-1-strheight*2)*mmy/masx+2,(width-1)/masx-4,(height-1-strheight*2)/masx-4)
+unlock(1)lock()
+color(bgm[0],bgm[1],bgm[2])
+rect((width-1)*mmx/masx+2,(height-1-strheight*2)*mmy/masx+2,(width-1)/masx-4,(height-1-strheight*2)/masx-4)
+color(ltm[0],ltm[1],ltm[2])
+if rewf=1 and gchk[mmx*masx+mmy]>0
+then gosub"makeisd"  endif
+return
+
+label chkfnk
+if chkf[mmx*masx+mmy]=3 then chkf[mmx*masx+mmy]=4 endif
+'text(chkf[mmx*10+mmy]+","+((((chkf[mmx*10+mmy]+1)/2+1)%2))+","+((chkf[mmx*10+mmy]%2))+","+((((chkf[mmx*10+mmy]+8)%9%8+(chkf[mmx*10+mmy]/5)+1)%2)),0,ppy)
+color((((chkf[mmx*masx+mmy]+1)/2+1)%2)*255,(chkf[mmx*masx+mmy]%2)*255,(((chkf[mmx*masx+mmy]+8)%9%8+(chkf[mmx*masx+mmy]/5)+1)%2)*255)
+if chkf[mmx*masx+mmy]=2 then color(bgm[0],bgm[1],bgm[2]) endif
+chkf[mmx*masx+mmy]=((((chkf[mmx*masx+mmy]+2)%8'+(chkf[mmx*masx+mmy]/6)'+1+6)%8+6)%8%(coltype+2)+2)%8
+if coltype=0 then chkf[mmx*masx+mmy]=2 color(bgm[0],bgm[1],bgm[2]) endif
+ppy=ppy+strheight
+'color(255,255,255)
+'if chkf[mmx*10+mmy]=0 then
+'color(0,0,0)
+'elseif chkf[mmx*10+mmy]=1 then
+'color(255,0,0)
+'elseif chkf[mmx*10+mmy]=2 then
+'color(0,255,0)endif
+rect((width-1)*mmx/masx+4,(height-1-strheight*2)*mmy/masx+4,(width-1)/masx-8,(height-1-strheight*2)/masx-8)
+unlock(1)lock()
+color(ltm[0],ltm[1],ltm[2])
+return
+
+label omine
+posx=0 posy=height-strheight*2
+arg[0]="CONGRATULATIONS"
+setfont("L")
+gosub"show"
+setfont(ftype[framef])
+gosub"ansha"
+starts=((date*24*60+hourofday*60)+minute)*60+second-starts
+wboxttl="Mine"
+mes[0]="Lv. "+(difmine-2)
+mes[1]="Mine. "+summine+"/"+(masx*masx)
+mes[2]="Time. "+starts+" sec"
+mesl=2
+input()
+if not(ifdlg=0) then gosub"ldlg" endif
+goto"mine"
+
+label lose
+'gosub"cls"
+posx=0 posy=height-strheight*2
+arg[0]="GAME OVER"
+setfont("L")
+gosub"show"
+setfont(ftype[framef])
+gosub"ansha"
+starts=((date*24*60+hourofday*60)+minute)*60+second-starts
+wboxttl="Mine"
+mes[0]="GAME OVER"
+mes[1]="Lv. "+(difmine-2)
+mes[2]="Mine. "+summine+"/"+(masx*masx)
+mes[3]="Time. "+starts+" sec"
+mesl=3
+input()
+if not(ifdlg=0) then gosub"ldlg" endif
+goto"mine"
+
+label ansha
+unlock(1)
+for i=0 to masx*masx-1
+if mine[i]=1 then
+arg[0]=((width-1)*((i/masx)*2+1)/2/masx)-strwidth("1")/2
+arg[1]=((height-1-strheight*2)*((i%masx)*2+1)/2/masx)-strheight/2
+arg[2]=mname[9]
+color(ltm[0],ltm[1],ltm[2])
+gosub"ltmine"
+endif
+next
+lock()
+return
+
+label chkmine
+hmmat=0
+if mine[arg[0]*masx+arg[1]]=1 then
+if fstp=1 then mine[arg[0]*masx+arg[1]]=0
+summine=summine-1
+else
+gosub"lose" endif
+'if open[arg[0]*masx+arg[1]]=0 then hat=hat+1 endif
+endif
+'open[arg[0]*masx+arg[1]]=1
+fstp=0
+for i=-1 to 1
+for j=-1 to 1
+if arg[0]+i<0 or arg[0]+i>masx-1 or arg[1]+j<0 or arg[1]+j>masx-1 then none()
+elseif mine[(arg[0]+i)*masx+(arg[1]+j)]=1 then hmmat=hmmat+1 endif
+next
+next
+if chkfnk=1 and nowonchk=0 and hmmat=0 then gosub"chkall" hmmat=0 endif
+if hmmat=0 and chkd[(arg[0])*masx+(arg[1])]=0 then dax[da[0]]=arg[0] day[da[0]]=arg[1] da[0]=da[0]+1 chkd[(arg[0])*masx+(arg[1])]=1 endif
+if mchk[(arg[0])*masx+(arg[1])]=0 then hat=hat+1 mchk[(arg[0])*masx+(arg[1])]=1 endif
+if chkfnk=2 and nowonchk=0 and hmmat=0 then gosub"chkraller" hmmat=0 clearinput() endif
+if gchk[arg[0]*masx+arg[1]]=0 then
+gchk[arg[0]*masx+arg[1]]=(hmmat+1)
+endif
+return
+
+label chkraller
+while(not(da[0]=da[1]))
+gosub"chkrall"
+wend
+return
+
+label chkrall
+pa=da[0]
+for minus=da[1] to da[0]-1
+arg[0]=dax[minus]
+arg[1]=day[minus]
+gosub"chkall"
+next
+da[1]=pa
+return
+
+label ltmine
+text(arg[2],arg[0],arg[1])
+unlock(1)lock()
+return
+
+label chkall
+nowonchk=1
+jjj[0]=arg[0]jjj[1]=arg[1]
+for k=-1 to 1
+for l=-1 to 1
+if jjj[0]+k<0 or jjj[0]+k>masx-1 or jjj[1]+l<0 or jjj[1]+l>masx-1 then none()
+else
+tttt[0]=jjj[0]+k tttt[1]=jjj[1]+l
+arg[0]=tttt[0] arg[1]=tttt[1]
+if gchk[tttt[0]*masx+tttt[1]]=0 then
+gosub"dempaisd"
+endif
+endif
+next
+next
+nowonchk=0
+return
+
+label dempaisd
+'gchk[(tttt[0])*masx+(tttt[1])]=1
+gosub"chkmine"
+arg[0]=((width-1)*(tttt[0]*2+1)/2/masx)-strwidth("1")/2
+arg[1]=((height-1-strheight*2)*(tttt[1]*2+1)/2/masx)-strheight/2
+arg[2]=mname[hmmat]
+gosub"ltmine"
+return
+
+label makeisd
+text(mname[(gchk[mmx*masx+mmy]-1)],((width-1)*(mmx*2+1)/2/masx)-strwidth("1")/2,((height-1-strheight*2)*(mmy*2+1)/2/masx)-strheight/2)
+return
+
+label dlg
+if ifdlg=2 then 
+arg[2]=(width-max(strwidth(arg[0]),40)-40)/2 arg[3]=(height-strheight*5)/2 arg[4]=max(strwidth(arg[0]),40)+40 arg[5]=strheight*11/2+9 arg[1]=wboxttl gosub"wbox"
+color(0,0,0)
+else gosub"boxbw" endif
+gosub"prctr"
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=height/2+2*strheight arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(ltm[0],ltm[1],ltm[2])
+return
+
+label boxbw
+color(bgm[0],bgm[1],bgm[2])
+'color(0,0,0)
+frect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+color(ltm[0],ltm[1],ltm[2])
+'color(255,255,255)
+rect((width-strwidth(arg[0])-40)/2,(height-strheight*3)/2,strwidth(arg[0])+40,strheight*3)
+return
+
+label ldlg
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+if ifdlg=2 then 
+arg[2]=(width-longestw-40)/2 arg[3]=(height-strheight*(mesl+5))/2 arg[4]=longestw+40 arg[5]=strheight*(mesl+5)+15 arg[1]=wboxttl gosub"wbox" color(0,0,0)
+else 
+'color(0,0,0)
+color(bgm[0],bgm[1],bgm[2])
+frect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3))
+'color(255,255,255)
+color(ltm[0],ltm[1],ltm[2])
+rect((width-longestw-40)/2,(height-strheight*(mesl+3))/2,longestw+40,strheight*(mesl+3)) endif
+for i=0 to mesl
+text(mes[i],width/2-(strwidth(mes[i])/2),(height-strheight*(mesl-i*2+1))/2)
+next
+if ifdlg=2 then 
+arg[1]="OK"arg[2]=width/2-30 arg[3]=(height+strheight*(mesl+3))/2 arg[4]=60 arg[5]=strheight+2
+gosub"btchk" endif
+unlock(1)lock()
+if not(ifdlg and 2) then
+input() endif
+color(ltm[0],ltm[1],ltm[2])
+return
+
+label iptdlg
+'color(0,0,0)
+color(bgm[0],bgm[1],bgm[2])
+frect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+'color(255,255,255)
+color(ltm[0],ltm[1],ltm[2])
+rect((width-max(strwidth("1073741820"),strwidth(arg[0]))-40)/2,(height-strheight*5)/2,max(strwidth("1073741820"),strwidth(arg[0]))+40,strheight*5)
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight*3)/2)
+posx=(width-strwidth(((nolimit+1073741819)%1073741820)))/2
+posy=(height+strheight*2)/2
+gosub"gets"
+color(ltm[0],ltm[1],ltm[2])
+return
+
+label clrbtm
+color(64,64,64)frect(0,height-strheight,width,height)color(ltm[0],ltm[1],ltm[2])
+return
+
+label prctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight)/2)
+return
+
+label mkmass
+color(fc[0],fc[1],fc[2])
+unlock(1)
+for i=0 to arg[0]
+line((width-1)*i/arg[0],0,(width-1)*i/arg[0],(height-1-strheight*2))
+line(0,(height-1-strheight*2)*i/arg[0],width,(height-1-strheight*2)*i/arg[0])
+next
+lock()
+return
+
+label prbtmctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight))
+return
+
+label cls
+color(bgm[0],bgm[1],bgm[2])frect(0,0,width,height)color(ltm[0],ltm[1],ltm[2])
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+arg[0]=0
+gosub"noshow"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+if keypound and ipt then stopper=0 endif
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if not(nolimit=0) then
+if keyup and ipt then ipts=(ipts+1)%nolimit endif
+if keydown and ipt then ipts=(ipts-1+nolimit)%nolimit endif
+elseif abs(ipts)<1073741820 then 
+if keyup and ipt then 
+if ipts=0 then ipts=1 mino=1
+elseif mino=1 then ipts=ipts+1 elseif
+mino=-1 then ipts=ipts-1 endif
+ endif
+if keydown and ipt then
+if ipts=0 then ipts=1 mino=-1
+elseif mino=1 then ipts=ipts-1 elseif
+mino=-1 then ipts=ipts+1 endif
+endif
+endif
+'endif
+if keyselect and ipt then stopper=0 endif
+if not(nolimit=0) then
+if abs(ipts)<nolimit/10 then gosub"getno" endif
+elseif abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"noshow" endif
+wend
+if keysoft1 and ipt then end endif
+if keypound and ipt then goto"choosegame"endif
+return
+
+label noshow
+color(bgm[0],bgm[1],bgm[2])
+frect(posx,posy,strwidth("1073741820"),strheight)
+color(ltm[0],ltm[1],ltm[2])
+'if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label show
+color(bgm[0],bgm[1],bgm[2])
+frect(posx,posy,width,strheight)
+color(ltm[0],ltm[1],ltm[2])
+'if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return
+
+label help
+gosub"cls"
+posx=0posy=0
+arg[0]="MENU"
+gosub"show"
+for i=0 to numgame
+posy=posy+strheight
+arg[0]=""+i+" "+gamenum[i]
+gosub"show"
+next
+posy=height-strheight*2
+arg[0]="SELECT GAME"
+gosub"show"
+arg[0]=0
+'input()
+return
+
+label wbox
+color(192,192,192)
+frect(arg[2],arg[3],arg[4],arg[5])
+color(0,0,128)
+frect(arg[2],arg[3],arg[4],strheight+2)
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(255,255,255)
+text(arg[1],arg[2]+1,arg[3]+1)
+'unlock(1)lock()
+return
+
+label btchk
+gosub"button"
+unlock(1)lock()
+while(not(scan=keyselect))
+none()
+wend
+gosub"downbutton"
+unlock(1)lock()
+while((scan=keyselect))
+none()
+wend
+gosub"button"
+unlock(1)lock()clearinput()
+return
+
+label button
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+1,arg[5]+1)
+color(0,0,0)
+line(arg[2],arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3],arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2],arg[3]+arg[5],arg[2]+arg[4],arg[3]+arg[5])
+line(arg[2]+arg[4],arg[3],arg[2]+arg[4],arg[3]+arg[5])
+color(222,222,222)
+line(arg[2],arg[3],arg[2]+arg[4],arg[3])
+line(arg[2],arg[3],arg[2],arg[3]+arg[5])
+color(0,0,0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2,arg[3]+1)
+return
+
+label downbutton
+color(192,192,192)
+frect(arg[2],arg[3],arg[4]+2,arg[5]+2)
+color(222,222,222)
+line(arg[2]+1,arg[3]+arg[5]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+line(arg[2]+arg[4]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+arg[5]+1)
+color(152,152,152)
+line(arg[2]+1,arg[3]+1,arg[2]+arg[4]+1,arg[3]+1)
+line(arg[2]+1,arg[3]+1,arg[2]+1,arg[3]+arg[5]+1)
+color(0,0,0)
+text(arg[1],arg[2]+(arg[4]-strwidth(arg[1]))/2+1,arg[3]+1+1)
+return

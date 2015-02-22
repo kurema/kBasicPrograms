@@ -1,0 +1,242 @@
+'CUI‚Á‚Û‚¢ “ü—Í•s‰Â
+
+a=0
+dr=0 dg=0 db=0
+hi=(height/strheight) space=strheight
+gosub"cls"
+gosub"setkey"
+'ºº¶×'
+
+ver="1.03"
+alfct=10
+
+'001:start
+'002:info
+'003:sysinfo
+
+gosub"fctname"
+
+gosub"c1"
+gosub"c2"
+gosub"c3"
+gosub"c6"
+gosub"c9"
+gosub"c8"
+gosub"c10"
+label chcom
+gosub"gets"
+gosub"c"+ipts
+goto"chcom"
+'goto"check"
+
+label fctname
+exp[1]="MCI start"
+exp[2]="MCI INFO"
+exp[3]="SYS INFO"
+exp[4]="TIME"
+exp[5]="SHUTDOWN"
+exp[6]="COLOR TEST"
+exp[7]="system erorr"
+exp[8]="Help!"
+exp[9]="pause"
+exp[10]="30or31"
+return
+
+
+label c1
+word="MOBILE CUI SYSTEM VER "+ver gosub"print"
+word="" gosub"print"
+return
+
+label c2
+word="INFO" gosub"print"
+word="MCS ver "+ver+"" gosub"print"
+word="DEVELOPED BY JAMES K FRANCIS" gosub"print"
+word="2005/10/25" gosub"print"
+word="" gosub"print"
+return
+
+label c3
+word="SYSTEM INFORMATION" gosub"print"
+word="memory    "+totalmemory+"Byte" gosub"print"
+word="date      "+year+"/"+(month+1)+"/"+date gosub"print"
+word="time      "+hourofday+":"+minute+":"+second gosub"print"
+'word="" gosub"print"
+'a=23gosub"print"
+word="timecode  "+tick gosub"print"
+word="display   "+width+"*"+height gosub"print"
+word="font size "+ascent+";"+descent+";"+strheight gosub"print"
+word="" gosub"print"
+return
+
+label c4
+word="TIME" gosub"print"
+word="date "+year+"/"+(month+1)+"/"+date gosub"print"
+word="time "+hourofday+":"+minute+":"+second gosub"print"
+word="" gosub"print"
+return
+
+label c5
+word="SHUTDOWNING SYSTEM" gosub"print"
+end
+return
+
+label c6
+word="COLOR TEST" gosub"print"
+'r=0g=0b=0 word="BLACK" gosub"print"
+r=255g=0b=0 word="RED" gosub"print"
+r=0g=255b=0 word="GREEN" gosub"print"
+r=0g=0b=255 word="BLUE" gosub"print"
+r=255g=255b=255 word="WHITE" gosub"print"
+word="" gosub"print"
+return
+
+label c7
+r=255g=0b=0 word="system erorr" gosub"print"
+word="" gosub"print"
+return
+
+label c8
+word="COMMAND LIST" gosub"print"
+cnt[8]=1
+cd=0
+while cd=0
+if exp[cnt[8]+1]=0 then cd=1 endif
+word=""+cnt[8]+" "+exp[cnt[8]] gosub"print"
+cnt[8]=cnt[8]+1
+wend
+word="" gosub"print"
+return
+
+label c9
+word="press any key" gosub"print"
+input()
+word="" gosub"print"
+return
+
+label c10
+months=1
+word="DAY OF MONTH" gosub"print"
+while months<13
+if (months+months/8)%2=1 then daom=31 else daom=30 endif
+if months=2 then daom=28 endif
+word=""+months+" "+daom gosub"print"
+months=months+1
+wend
+word="" gosub"print"
+
+
+
+'ººÏÃÞ'
+goto"check"
+
+label print
+pr[a]=word
+r[a]=r g[a]=g b[a]=b
+if r=0 and g=0 and b=0 then r[a]=255 g[a]=255 b[a]=255 endif
+a=a+1
+gosub"disp"
+return
+
+label cls
+color(dr,dg,db)frect(0,0,width,height)
+return
+
+label disp
+gosub"cls"
+if a<hi then st=0 else st=a-hi endif
+for cnt=st to a-1
+cnta=cnt-st
+color(r[cnt],g[cnt],b[cnt])
+text(pr[cnt],0,(cnta)*space)
+next
+unlock(1)lock()
+return
+
+label check
+i=input(1)
+if i=keysoft1 then end endif
+goto"check"
+
+label prompt
+if key0=i then input[cnt]=0 endif
+if key1=i then input[cnt]=1 endif
+if key2=i then input[cnt]=2 endif
+if key3=i then input[cnt]=3 endif
+if key4=i then input[cnt]=4 endif
+if key5=i then input[cnt]=5 endif
+if key6=i then input[cnt]=6 endif
+if key7=i then input[cnt]=7 endif
+if key8=i then input[cnt]=8 endif
+if key9=i then input[cnt]=9 endif
+if keyselect=i then gosub"cmd" endif
+if keyast=i then inside=0 a=a+1 gosub"clipt" cnt=0 endif
+cnt=(cnt+1)%3
+inside=1
+return
+
+label cmd
+if cnt=0 then gosub"c"+input[0]+input[1]+input[2] endif
+'inside=0
+return
+
+label cmdprp
+word="> "+input[0]+input[1]+input[2]
+if inside=1 then a=a-1 endif
+
+label clipt
+for cnt=0 to 2
+input[cnt]=""
+next
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+gosub"show"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if keyup and ipt then ipts=ipts+1 endif
+if keydown and ipt then ipts=ipts-1 endif
+
+if keyselect and ipt then stopper=0 endif
+if abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"show" endif
+wend
+if keysoft1 and ipt then end endif
+word="> "+(ipts*mimo)
+gosub"print"
+return
+
+label show
+color(0,0,0)
+frect(0,height-strheight,width,strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text("> "+arg[0],0,height-strheight)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return

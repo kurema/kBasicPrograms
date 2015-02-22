@@ -1,0 +1,501 @@
+useIcon=0
+iconList="　"
+username="guest"
+dline=0
+'gosub"clsBlue"
+arg[0]="K-BASIC DESKTOP"gosub"wakeDis"
+arg[0]="INITILIZING SYSTEMS..."gosub"wakeDis"
+soft1("start")soft2("")
+desktopImgName=""
+arg[0]="EXECUTING WINDOW MAKER..."gosub"wakeDis"
+thread(basedir+"win.scr","win")
+arg[0]="OPENING K-DESKTOP SYSTEM..."gosub"wakeDis"
+arg[0]="起動中です"gosub"wakeDis"
+'gosub"login"
+gosub"cls"
+gosub"start"
+f=0
+
+while 1
+gosub"stch"
+gc()
+gosub"wunk"
+soft1("start")soft2("")
+wend
+return
+
+label stch
+gosub"wuk"
+ipt=scan
+if ipt=key1 then gosub"soft1" sg=0
+elseif ipt=key2 then gosub"soft2" sg=0
+elseif ipt=key3 then gosub"soft3" sg=0
+elseif ipt=key4 then gosub"soft4" sg=0
+elseif ipt=key5 then gosub"soft5" sg=0
+elseif ipt=key6 then gosub"soft6" sg=0
+elseif ipt=key7 then gosub"soft7" sg=0
+elseif ipt=keypound then fd=(fd+1)%2
+gosub"setf"
+elseif ipt=keysoft1 then gosub"smenu"
+endif
+return
+
+label wuk
+while (scan=0)
+yield()
+wend
+return
+
+label wunk
+while not(scan=0)
+yield()
+wend
+return
+
+label wakeDis
+gosub"wakeUp"
+percent=percent+25
+'gosub"newline"
+return
+
+label wakeUp
+color(0,0,0)
+frect(0,0,width,height)
+color(255,255,255)
+show="起動中です..."
+text(show,width/2-strwidth(show),height/2-strheight*2)
+text(arg[0],width/2-strwidth(arg[0])/2,height/2+strheight)
+rect(width/2-50,height/2,100,strheight)
+frect(width/2-50,height/2,percent,strheight)
+gosub"renew"
+return
+
+label login
+color(192,192,192)
+frect(0,0,width,height)
+color(0,0,0)
+setfont("L")
+text("ようこそ",(width-strwidth("ようこそ"))/2,0)
+setfont("T")
+WINMES="ユーザー名を入力してください"
+WINOBJX=width/2
+WINCOM=9
+gosub"wsync"
+username=WBOXRET
+'gosub"checkUser"
+'gosub"logInSuccess"
+return
+
+label fNameExec
+WINMES="ファイル名を入力してください"
+WINOBJX=width/2
+WINCOM=9
+gosub"wsync"
+command=WBOXRET
+if command="" or command=" " or command=0 then gosub"cls"
+elseif tolower(command)="exit" then goto"over"
+elseif stridx(command,"gosub")=0 then tmp=substr(command,6,strlen(command)-6)
+gosub tmp
+elseif stridx(command,"login")=0 then
+username=substr(command,6,strlen(command)-6) gosub"cls"
+else softName=path(basedir+command) gosub"newSoft"endif
+return
+
+label checkUser
+if not(username="root") then gosub"logInFailure" endif
+return
+
+label logInSuccess
+gosub"clsBlue"
+dline=0 arg[0]="LOGIN SUCCEEDED" gosub"newline"
+arg[0]="USER:"+username gosub"newline"
+input()
+return
+
+label logInFailure
+gosub"clsBlue"
+dline=0 arg[0]="LOGIN FAILED" gosub"newline"
+arg[0]="USER:"+username gosub"newline"
+input()
+end
+return
+
+label clsBlue
+color(0,0,255)
+frect(0,0,width,height)
+unlock(1)lock()
+return
+
+label newline
+color(255,255,255)
+text(arg[0],0,strheight*dline)
+text(arg[0],1,strheight*dline)
+dline=dline+1
+unlock(1)lock()
+return
+
+label over
+kill("win")
+gc()
+end
+
+label prpwin
+if f=1 then kill("fnk")endif
+f=0
+gc()
+clearinput()
+return
+
+label soft7
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="explorer"
+WINX=width/9
+WINY=height/10
+WINOBJX=width*7/9
+WINOBJY=height*8/10
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX
+FNKOBJY=WINDSIZEY
+if fd=1 then gosub"fuld" endif
+thread(basedir+"explorer.dtp","fnk")
+gosub"cleanb"
+f=1
+join("fnk")
+f=0
+soft1("")soft2("")
+gosub"wasteImg"
+if not(XPRDTP="") then desktopImgName=XPRDTP gosub"setDesktopImg"endif
+if not(XPRAPP="") then softName=XPRAPP gosub"newSoft"endif
+return
+
+label setDesktopImg
+loadimg(desktopImg,desktopImgName)
+return
+
+label wasteImg
+if not(desktopImgName="") then dispose(desktopImg)desktopImgName=""endif
+return
+
+label newSoft
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="software"
+WINX=width/8
+WINY=height/8
+WINOBJX=width*3/4
+WINOBJY=height*3/4
+WINREF=0
+WINEDGE=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX'WINOBJX-WINPOSX+WINX
+FNKOBJY=WINDSIZEY'WINOBJY-WINPOSY+WINY
+f=1
+if fd=1 then gosub"fuld" endif
+thread(softName,"fnk")
+join("fnk")
+f=0
+return
+
+label soft3
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="clock"
+WINX=width/4+25
+WINY=height/4+35
+WINOBJX=width/2
+WINOBJY=height/2
+WINREF=0
+WINEDGE=1
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX'WINOBJX-WINPOSX+WINX
+FNKOBJY=WINDSIZEY'WINOBJY-WINPOSY+WINY
+f=1
+if fd=1 then gosub"fuld" endif
+thread(basedir+"clock.dtp","fnk")
+return
+
+label soft1
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="ssaver"
+WINX=0'width/4
+WINY=0'height/4
+WINOBJX=width*3/4'/2
+WINOBJY=height*3/4'/2
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX'WINOBJX-WINPOSX+WINX
+FNKOBJY=WINDSIZEY'WINOBJY-WINPOSY+WINY
+f=1
+if fd=1 then gosub"fuld" endif
+thread(basedir+"ssaver.dtp","fnk")
+return
+
+label soft2
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="cmd"
+WINX=width/8
+WINY=height/7
+WINOBJX=width*3/4
+WINOBJY=WINOBJX*3/4
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX
+FNKOBJY=WINDSIZEY
+if fd=1 then gosub"fuld" endif
+thread(basedir+"cmd.dtp","fnk")
+gosub"cleanb"
+f=1
+join("fnk")
+f=0
+return
+
+label soft6
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="graph"
+WINX=width/7
+WINY=height/4
+WINOBJX=width*3/4
+WINOBJY=width*3/4
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX
+FNKOBJY=WINDSIZEY
+if fd=1 then gosub"fuld" endif
+thread(basedir+"graph.dtp","fnk")
+gosub"cleanb"
+f=1
+join("fnk")
+f=0
+return
+
+label soft4
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="game"
+WINX=width/6
+WINY=height/5
+WINOBJX=106
+WINOBJY=112
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX
+FNKOBJY=WINDSIZEY
+if fd=1 then gosub"fuld" endif
+thread(basedir+"sample1.dtp","fnk")
+gosub"cleanb"
+f=1
+join("fnk")
+f=0
+return
+
+label soft5
+gosub"prpwin"
+WINCOM=1*(1-fd)
+WINNAME="calc"
+setfont("M")
+WINOBJX=strwidth("107374182 abc")+4
+
+WINOBJY=strheight*3+4
+WINX=(width-WINOBJX)/2
+WINY=(height-WINOBJY)/2
+setfont("T")
+WINREF=0
+gosub"wsync"
+FNKPOSX=WINPOSX
+FNKPOSY=WINPOSY
+FNKOBJX=WINDSIZEX
+FNKOBJY=WINDSIZEY
+if fd=1 then gosub"fuld" endif
+thread(basedir+"calc.dtp","fnk")
+gosub"cleanb"
+f=1
+join("fnk")
+f=0
+return
+
+label cleanb
+soft1("")soft2("")
+return
+
+label wsync
+while not(WINCOM=0)
+yield()
+wend
+'kill("win")
+return
+
+label renew
+unlock(1)lock()
+return
+
+label fuld
+FNKPOSX=0
+FNKPOSY=0
+FNKOBJX=width
+FNKOBJY=height
+return
+
+label start
+WINCOM=3
+WINNAME="start"
+WINLINE=9
+WINLMES[0]="HELP"
+WINLMES[1]=""
+WINLMES[2]="数字キーでプログラム起動"
+WINLMES[3]="1:画面描画"
+WINLMES[4]="2:コマンドライン"
+WINLMES[5]="3:簡易時計"
+WINLMES[6]="4:ブロック崩し"
+WINLMES[7]="5:簡易電卓"
+WINLMES[8]="6:グラフソフト"
+WINLMES[9]="7:ファイルブラウザ"
+WINLMES[10]="#:最大化設定"
+WINREF=1
+gosub"wsync"
+gosub"cls"
+return
+
+label cls
+color(58,110,165)
+frect(0,0,width,height)
+if not(desktopImgName="") then drawimg(desktopImg,(width-imgwidth(desktopImg))/2,(height-imgheight(desktopImg))/2)endif
+
+WINCOM=11
+WINREF=1
+gosub"wsync"
+
+gosub"renew"
+return
+
+label setf
+gosub"prpwin"
+if fd=0 then
+WINLINE=1
+WINLMES[0]="ウインドウモード"
+WINLMES[1]="に設定しました。"
+elseif fd=1 then
+WINLINE=1
+WINLMES[0]="全画面モード"
+WINLMES[1]="に設定しました。"
+endif
+WINREF=1
+WINCOM=3
+WINNAME="設定"
+gosub"wsync"
+gosub"cls"
+return
+
+label seti
+gosub"prpwin"
+if useIcon=0 then
+WINLINE=1
+WINLMES[0]="アイコン非使用"
+WINLMES[1]="に設定しました。"
+elseif useIcon=1 then
+WINLINE=1
+WINLMES[0]="アイコン使用"
+WINLMES[1]="に設定しました。"
+endif
+WINREF=1
+WINCOM=3
+WINNAME="設定"
+gosub"wsync"
+gosub"cls"
+return
+
+label smenu
+gosub"prpwin"
+
+WINCOM=12
+WINREF=0
+gosub"wsync"
+
+WINLINE=5
+WINLMES[0]="ﾌﾟﾛｸﾞﾗﾑ"
+WINLMES[1]="設定"
+WINLMES[2]="ﾍﾙﾌﾟ"
+WINLMES[3]="ﾌｧｲﾙ名を指定して実行"
+WINLMES[4]=username+" のﾛｸﾞｵﾌ"
+WINLMES[5]="kDesktop の終了"
+for j=0 to WINLINE
+if useIcon=1 then WINLMES[j]=strat(iconList,j)+WINLMES[j]
+else WINLMES[j]="  "+WINLMES[j] endif
+next
+WINX=1
+WINY=height-strheight*(WINLINE+1)-6-strheight-6
+WINCOM=7
+gosub"wsync"
+if WINMENU=1 then gosub"hmenu"
+elseif WINMENU=2 then gosub"start"
+elseif WINMENU=3 then gosub"fNameExec"
+elseif WINMENU=5 then goto"over"
+elseif WINMENU=4 then gosub"login" gosub"cls"
+elseif WINMENU=0 then gosub"pmenu"
+elseif WINMENU=-1 then gosub"cls"
+endif
+return
+
+label pmenu
+WINCOM=7
+WINLINE=6
+WINLMES[0]="画面テスト"
+WINLMES[1]="コマンドプロンプト"
+WINLMES[2]="時計"
+WINLMES[3]="ブロック崩し"
+WINLMES[4]="電卓"
+WINLMES[5]="グラフソフト"
+WINLMES[6]="ファイルブラウザ"
+WINX=strwidth("  ﾌﾟﾛｸﾞﾗﾑ  ")+2+3
+WINY=height-strheight*(WINLINE+1)-6-strheight-6
+gosub"wsync"
+menuno=WINMENU
+if menuno=-1 then gosub"smenu" sg=0
+else gosub"cls"
+if menuno=0 then gosub"soft1" sg=0
+elseif menuno=1 then gosub"soft2" sg=0
+elseif menuno=2 then gosub"soft3" sg=0
+elseif menuno=3 then gosub"soft4" sg=0
+elseif menuno=4 then gosub"soft5" sg=0
+elseif menuno=5 then gosub"soft6" sg=0
+elseif menuno=6 then gosub"soft7" sg=0
+endif endif
+return
+
+label hmenu
+WINCOM=7
+WINLINE=3
+WINLMES[0]="画面設定"
+WINLMES[1]="ユーザー名設定"
+WINLMES[2]="アイコン表示"
+WINLMES[3]="壁紙 破棄"
+WINX=strwidth("  ﾌﾟﾛｸﾞﾗﾑ  ")+2+3
+WINY=height-strheight*(WINLINE+1)-6-strheight-6
+gosub"wsync"
+menuno=WINMENU
+if menuno=-1 then gosub"smenu" sg=0
+else
+if menuno=0 then fd=(fd+1)%2 gosub"setf"
+elseif menuno=1 then gosub"login"
+elseif menuno=2 then useIcon=(useIcon+1)%2 gosub"seti"
+elseif menuno=3 then gosub"wasteImg" endif
+gosub"cls" endif
+return

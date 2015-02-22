@@ -1,0 +1,36 @@
+label S
+
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+
+
+for i=0 to 10
+a[i]=abs(rand)%100+1
+next
+
+for i=0 to 30
+b[i]=abs(rand)%10+1
+next
+
+for i=0 to 5
+tmp=0
+for j=0 to 3
+tmp=tmp+a[j]*b[j+i*4]
+next
+x[i]=tmp
+next
+
+for i=0 to 5
+text(b[i*4]+"A+"+b[i*4+1]+"B+"+b[i*4+2]+"C+"+b[i*4+3]+"D="+x[i],0,12*i)
+next
+label C
+i=input(1)
+if i and keysoft1 then end endif
+if i and keysoft2 then goto"A" endif
+goto"C"
+label A
+text("A:"+a[0]+" B:"+a[1]+" C:"+a[2]+" D:"+a[3],0,12*7)
+label D
+i=input(1)
+if i and keysoft1 then end endif
+if i and keysoft2 then goto"S" endif
+goto"D"

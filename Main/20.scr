@@ -1,0 +1,52 @@
+gosub"init"
+
+label main
+gosub"cls"
+gosub"keyMan"
+gosub"drF"
+gosub"drE"
+gosub"refresh"
+goto"main"
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,width,height)
+return
+
+label drF
+color(frr,frg,frb)
+frect(width-spc,frY,wdt,lenF)
+return
+
+label drE
+color(enr,eng,enb)
+frect(spc-wdt,enY,wdt,lenE)
+return
+
+label drB
+color(blr,blg,blb)
+farc(blX-1,blY-1,3,3)
+return
+
+label init
+soft1("")soft2("end")
+blr=255 blg=255 blb=255
+enr=255 eng=255 enb=255
+frr=255 frg=255 frb=255
+bgr=0 bgg=0 bgb=0
+blX=width/2 blY=height/2
+enY=0 lenE=30 wdt=5
+frY=0 lenF=30 spc=20
+mvs=3
+return
+
+label keyMan
+ipt=scan
+if ipt and keyup then frY=max(frY-mvs,0) endif
+if ipt and keydown then frY=min(frY+mvs,height-lenF) endif
+if ipt and keysoft2 then end endif
+return
+
+label refresh
+unlock(1)lock()
+return

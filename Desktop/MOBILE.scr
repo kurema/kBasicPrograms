@@ -1,0 +1,736 @@
+version="1.01"
+'setfont("L")
+lock()
+label main
+percent=0 gosub"wakeUp"
+gosub"init"
+gosub"colorSet"
+gosub"setThemeColor"
+percent=100 gosub"wakeUp"
+gosub"initTitlebar"
+gosub"initSoft"
+gosub"setHelp"
+gosub"setIcon"
+gosub"setFortune"
+gosub"createStart"
+'gosub"sampleDialogYesNo"
+while 1
+gc()
+gosub"refresh"
+gosub"keyman"
+wend
+return
+
+label sampleDialog
+winTitle="サンプル"
+dialogText="今日の晩御飯はまた肉料理です"
+gosub"dialog"
+return
+
+label sampleDialogYesNo
+winTitle="サンプル"
+dialogText="やりますか？"
+gosub"dialogYesNo"
+return
+
+label sampleButtonMan
+buttonLength=2
+buttonName[0]="再試行"
+buttonx[0]=0buttony[0]=strheight*1
+buttonName[1]="無視"
+buttonx[1]=0buttony[1]=strheight*3
+buttonName[2]="中止"
+buttonx[2]=0buttony[2]=strheight*5
+gosub"buttonMan"
+return
+
+label wakeUp
+color(0,0,0)
+frect(0,0,width,height)
+color(255,255,255)
+show="起動中です..."
+text(show,width/2-strwidth(show),height/2-strheight*2)
+rect(width/2-50,height/2,100,strheight)
+frect(width/2-50,height/2,percent,strheight)
+gosub"renew"
+return
+
+label buttonMan
+for i=0 to buttonLength
+buttonName=buttonName[i]
+buttonx=buttonx[i]
+buttony=buttony[i]
+gosub"drawButton"
+next
+gosub"renew"
+p=-1
+ipt=0
+while not(ipt and keyselect)or(p=-1)
+gosub"buttonManKeyMan"
+if not(p=-1)then gosub"buttonManRefresh"endif
+wend
+clearinput()
+return
+
+label buttonManRefresh
+buttonName=buttonName[p]
+buttonx=buttonx[p]
+buttony=buttony[p]
+gosub"drawButton"
+color(0,0,0)
+rect(buttonx[p]+2,buttony[p]+2,buttonWidth-4,buttonHeight-4)
+gosub"renew"
+gosub"drawButton"
+return
+
+label buttonManKeyMan
+ipt=0
+while ipt=0
+ipt=scan
+wend
+if (ipt and keydown) or (ipt and keyright) then p=(p+1)%(buttonLength+1)
+elseif (ipt and keyup) or (ipt and keyleft) then p=(p-1+(buttonLength+1))%(buttonLength+1) endif
+return
+
+label dialogOk
+buttonName="OK"
+gosub"dialog"
+return
+
+label dialogYesNo
+buttonLength=1
+buttonName[0]="はい"
+buttonName[1]="いいえ"
+gosub"dialogButton2"
+return
+
+label dialog
+sizeMin=0
+gosub"dialogP0"
+gosub"dialogB0"
+gosub"dialogP1"
+return
+
+label dialogButton2
+mLn=0
+for i=0 to buttonLength
+mLn=max(mLn,strwidth(buttonName[i]))
+next
+sizeMin=(mLn+strwidth("  ")+10)*(buttonLength+1)+30
+gosub"dialogP0"
+gosub"dialogB1"
+return
+
+label dialogP0
+winObjx=max(max(strwidth(winTitle+"   "),strwidth(dialogText)+30),sizeMin)
+winObjy=24+5*strheight
+winx=objx/2-winObjx/2
+winy=objy/2-winObjy/2
+sizeMin=0
+gosub"drawWindow"
+color(0,0,0)
+text(dialogText,objx/2-strwidth(dialogText)/2,winy+20+strheight)
+return
+
+label dialogB0
+buttonx=objx/2-strwidth(buttonName+"  ")/2
+buttony=winy+20+strheight*3
+gosub"drawButton"
+return
+
+label dialogB1
+for i=0 to buttonLength
+buttonx[i]=objx/2+(mLn+strwidth("  ")+10)*(i*2-buttonLength-1+1)/2-strwidth(buttonName[i])/2
+buttony[i]=winy+20+strheight*3
+next
+gosub"buttonMan"
+return
+
+label dialogP1
+gosub"renew"
+clearinput()input()
+return
+
+label drawButton
+color(192,192,192)
+buttonWidth=strwidth(buttonName+"  ")
+buttonHeight=strheight+4
+frect(buttonx,buttony,buttonWidth,buttonHeight)
+color(0,0,0)
+rect(buttonx,buttony,buttonWidth,buttonHeight)
+color(0,0,0)
+text(buttonName,buttonx+strwidth(" "),buttony+1)
+return
+
+label drawWindow
+winObjy=max(20,winObjy)
+winObjx=max(strwidth(winTitle),winObjx)
+'color(192,192,192)
+color(255,255,255)
+frect(winx,winy,winObjx,winObjy)
+color(lnr,lng,lnb)
+rect(winx,winy,winObjx,winObjy)
+color(thr[0],thg[0],thb[0])
+frect(winx,winy,winObjx,10)
+color(thr[1],thg[1],thb[1])
+frect(winx,winy+10,winObjx,10)
+color(tlr,tlg,tlb)
+text(winTitle,winx+strwidth("ABJ"),winy+10-strheight/2)
+return
+
+label showInfo
+color(chr,chg,chb)
+y=(strheight+span*2-1)*lineOrder
+'x=min(0,max(objx-strwidth(show),objx/2-(abs(tick)/64)%(strwidth(show)+objx)))
+tmp=strwidth(show)+objx
+x=min(0,max(objx-strwidth(show),objx/2-((tick/64)%tmp+tmp)%tmp))
+text(show,x,y)
+color(lnr,lng,lnb)
+line(0,y+strheight+span,objx,y+strheight+span)
+return
+
+label exec
+thread(addr,"newThread")
+join("newThread")
+gosub"createStart"
+gosub"initSoft"
+clearinput()
+return
+
+label execWDS
+winObjx=execObjx+1
+winObjy=execObjy+20
+winx=objx/2-winObjx/2
+winy=objy/2-winObjy/2
+winTitle=titlebar
+FNKPOSX=winx+1
+FNKPOSY=winy+winObjy-execObjy+20
+FNKOBJX=execObjx
+FNKOBJY=execObjy
+gosub"drawWindow"
+gosub"execDSP"
+return
+
+label execWD
+winObjx=execObjx+1
+winObjy=execObjy+20
+winx=objx/2-winObjx/2
+winy=objy/2-winObjy/2
+winTitle=titlebar
+FNKPOSX=winx+1
+FNKPOSY=winy+winObjy-execObjy+20
+FNKOBJX=execObjx
+FNKOBJY=execObjy
+gosub"drawWindow"
+gosub"execDP"
+return
+
+label colorMenu
+titlebar="画面色設定"gosub"createStart"
+ipt=0
+menu[0]="初期化"menu[1]="適用"
+gosub"createSoft"
+gosub"renew"
+while not(ipt and keyselect)
+color(bgr,bgg,bgb)
+frect(objx/2-100,objy/2-strheight,200,strheight*2)
+color(lnr,lng,lnb)
+rect(objx/2-100,objy/2-strheight,200,strheight*2)
+color(thr[0],thg[0],thb[0])
+frect(objx/2-80,objy/2-strheight/2,160,strheight)
+color(thr[1],thg[1],thb[1])
+frect(objx/2-80+5,objy/2-strheight/2+5,160,strheight)
+color(chr,chg,chb)
+text("COLOR",objx/2-strwidth("COLOR"),objy/2-strheight/2)
+
+gosub"renew"
+
+ipt=0
+while ipt=0
+ipt=scan
+wend
+
+if ipt and keyleft then thc=(thc+8-1)%8 gosub"setThemeColor"
+elseif ipt and keyright then thc=(thc+1)%8 gosub"setThemeColor"
+elseif ipt and keyup then bgr=min(bgr+8,255) bgg=min(bgg+8,255) bgb=min(bgb+8,255) gosub"setThemeColor"
+elseif ipt and keydown then bgr=max(bgr-8,0) bgg=max(bgg-8,0) bgb=max(bgb-8,0) gosub"setThemeColor"
+elseif ipt and keysoft2 then gc()gosub"createStart"gosub"createSoft"gosub"refresh"
+elseif ipt and keysoft1 then gosub"colorSet"gosub"setThemeColor"
+endif
+clearinput()
+if thr[1]+thg[1]+thb[1]=255*3 then
+tlr=0 tlg=0 tlb=0 else
+tlr=255 tlg=255 tlb=255 endif
+if bgr+bgg+bgb>127*3 then chr=0 chg=0 chb=0
+else chr=255 chg=255 chb=255 endif
+wend
+gosub"createSoft"gosub"initTitlebar"gosub"createStart"
+return
+
+label execDS
+FNKPOSX=0
+FNKPOSY=20
+FNKOBJX=width
+FNKOBJY=height-40
+gosub"execDSP"
+return
+
+label execDSP
+thread(addr,"newThread")
+menu[0]="停止"menu[1]=""gosub"createSoft"
+while not(scan and keysoft1)
+yield()
+wend
+kill("newThread")
+gosub"initSoft"
+gosub"initTitlebar"
+gosub"createStart"
+clearinput()
+return
+
+label setThemeColor
+for i=0 to 1
+thb[i]=thc[(((thc+1)/2+1)%2)+i*2]
+thg[i]=thc[(thc%2)+i*2]
+thr[i]=thc[(((thc+8)%9%8+(thc/5)+1)%2)+i*2]
+next
+lnr=thr[0] lng=thg[0] lnb=thb[0]
+return
+
+label execD
+FNKPOSX=0
+FNKPOSY=20
+FNKOBJX=width
+FNKOBJY=height-20
+gosub"execDP"
+return
+
+label execDP
+gosub"exec"
+gosub"initTitlebar"
+gosub"createStart"
+clearinput()
+return
+
+label fileMan
+addr=basedir+"explorer.dtp" gosub"execD"if not(XPRAPP="")then
+addr=XPRAPP titlebar="外部 "+addr gosub"createStart" gosub"execD"
+endif
+return
+
+label startMenu
+menu[0]=""menu[1]=""gosub"createSoft"
+clearinput()
+mwinx=0mwiny=0
+p=0
+messageLength=4
+message[0]="デスクトップ"
+message[1]="設定"
+message[2]="ソフト"
+message[3]="シャットダウン"
+message[4]="終了"
+message[1][0]=4
+message[1][1]="バナーの追加と削除"
+message[1][2]="画面色設定"
+message[1][3]="フォントサイズ"
+message[1][4]="初期化"
+gosub"multiMenu"
+
+if p=-1 then none()
+elseif p[0]=0 then addr=basedir+"main.scr" gosub"exec"
+elseif p[0]=1 then
+if p[1]=0 then gosub"menu"
+elseif p[1]=1 then gosub"colorMenu"
+elseif p[1]=2 then fontType=(fontType+1)%2 setfont(fontType[fontType])
+winTitle="フォントサイズ" dialogText="フォントサイズを "+fontType[fontType]+" に設定しました" gosub"dialogOk"
+gosub"createStart"
+elseif p[1]=3 then
+winTitle="初期化" dialogText="初期化しますか" gosub"dialogYesNo"
+if(p=0)then
+winTitle="初期化" dialogText="設定を初期化します" gosub"dialogOk"
+goto"main"
+endif
+endif
+elseif p[0]=2 then gosub"softwareMenu"
+elseif p[0]=3 then goto"shutdown"
+elseif p[0]=4 then goto"over"
+endif
+gosub"initSoft"
+return
+
+label softwareMenu
+menu[0]=""menu[1]=""gosub"createSoft"
+clearinput()
+winx=strwidth("a")winy=strheight*3
+p=0
+mesl=6
+mes[0]="ファイルマネージャー"
+mes[1]="コマンドライン"
+mes[2]="電卓"
+mes[3]="時計"
+mes[4]="スクリーンセーバー"
+mes[5]="グラフソフト"
+mes[6]="ブロック崩し"
+gosub"stdMenu"
+
+if p=-1 then gosub"startMenu" gosub"initTitlebar"
+else
+titlebar=mes[p] gosub"createStart"
+if p=0 then gosub"fileMan"
+elseif p=1 then addr=basedir+"cmd.dtp"gosub"execD"
+elseif p=2 then setfont("L") execObjx=strwidth("107374182 abc") execObjy=strheight*2+2 setfont(fontType[fontType]) addr=basedir+"calc.dtp"gosub"execWD"
+elseif p=3 then addr=basedir+"clock.dtp"gosub"execDS"
+elseif p=4 then addr=basedir+"ssaver.dtp"gosub"execDS"
+elseif p=5 then addr=basedir+"graph.dtp"gosub"execD"
+elseif p=6 then execObjx=104 execObjy=100 addr=basedir+"sample1.dtp"gosub"execWD"
+endif endif
+'gosub"initSoft"
+return
+
+label stdMenu
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+arg[0]=""
+arg[1]=winx
+arg[2]=winy
+arg[3]=longestw+4
+arg[4]=(mesl+1)*(strheight+3)+4
+gosub"menubg"
+color(chr,chg,chb)
+for i=0 to mesl
+text(mes[i],winx+2,winy+(strheight+3)*i+2)
+next
+pnt=0
+gosub"mcon"
+return
+
+label menubg
+color(bgr,bgg,bgb)
+frect(arg[1],arg[2],arg[3],arg[4])
+color(lnr,lng,lnb)
+rect(arg[1],arg[2],arg[3],arg[4])
+return
+
+label mcon
+escp=1
+while escp
+gosub"writem"
+ipt=input()
+gosub"mckey"
+wend
+return
+
+label writem
+color(0,0,255)
+frect(winx+2,winy+2+p*(strheight+3),longestw+1,(strheight+3))
+color(255,255,255)
+text(mes[p],winx+2,winy+2+p*(strheight+3))
+unlock(1)lock()
+color(bgr,bgg,bgb)
+frect(winx+2,winy+2+p*(strheight+3),longestw+1,(strheight+3))
+color(chr,chg,chb)
+text(mes[p],winx+2,winy+2+p*(strheight+3))
+return
+
+label mckey
+if ipt=keyup then p=(p+mesl)%(mesl+1)
+elseif ipt=keydown then p=(p+1)%(mesl+1)
+elseif ipt=keyright then escp=0
+elseif ipt=keyleft then escp=0 p=-1
+elseif ipt=keyselect then escp=0
+endif
+return
+
+label refresh
+gosub"cls"
+for i=0 to taskLen
+lineOrder=i
+p="f"+task[i]
+gosub p
+next
+gosub"renew"
+return
+
+label initSoft
+menu[0]="START"menu[1]="MENU"gosub"createSoft"
+'soft1("END")soft2("MENU")
+return
+
+label initTitlebar
+titlebar="スタート"
+return
+
+label init
+fontType=0
+fontType[0]="T"
+fontType[1]="L"
+setfont(fontType[fontType])
+
+span=3
+
+objx=width objy=height
+iconList="譓﨨字"
+taskLen=2
+task[0]=0
+task[1]=2
+task[2]=10
+return
+
+label createStart
+gosub"drawModeF"
+color(thr[0],thg[0],thb[0])
+frect(0,0,width,10)
+color(thr[1],thg[1],thb[1])
+frect(0,10,width,10)
+color(tlr,tlg,tlb)
+text(titlebar,strwidth("bcd"),10-strheight/2)
+gosub"drawModeL"
+return
+
+label drawModeL
+origin(0,20)
+drawarea(0,0,width,height-40)
+objx=width objy=height-40
+return
+
+label drawModeF
+origin(0,0)
+drawarea(0,0,width,height)
+objx=width objy=height
+return
+
+label createSoft
+gosub"drawModeF"
+color(thr[0],thg[0],thb[0])
+frect(0,height-20,width,10)
+color(thr[1],thg[1],thb[1])
+frect(0,height-10,width,10)
+color(tlr,tlg,tlb)
+text(menu[0],width/4-strwidth(menu[0])/2,height-10-strheight/2)
+text(menu[1],width*3/4-strwidth(menu[1])/2,height-10-strheight/2)
+soft1(menu[0])soft2(menu[1])
+gosub"drawModeL"
+return
+
+label setFortune
+f[0]=abs(rand)%100
+f[1]=strat("黒赤緑青黄桃紫白金銀灰",abs(rand)%11)
+luckCent=abs(rand)%101
+f[2]=strat("大中小 ",abs(rand)%4)+strat("凶吉",luckCent/51)
+f[3]=strat("",abs(rand)%3)
+return
+
+label over
+end
+
+label shutdown
+exit
+
+label keyman
+ipt=input(1)clearinput()
+if ipt and keysoft1 then gosub"startMenu"
+elseif ipt and keysoft2 then gosub"menu"
+endif
+return
+
+label menu
+titlebar="バナーの追加と削除"gosub"createStart"
+menu[0]="削除"menu[1]=""gosub"createSoft"
+'soft1("削除")soft2("")
+ipt=0
+gosub"showMenu"
+while not((ipt and keyselect) or (ipt and keysoft1) or (ipt and keysoft2))
+ipt=0
+while ipt=0
+ipt=scan
+wend
+mPos=(mPos+(ipt and keyright)-(ipt and keyleft)+strlen(iconList))%strlen(iconList)
+if ipt and keydown then gc() span=max(1,span-1) gosub"refresh"
+elseif ipt and keyup then gc() span=max(1,span+1) gosub"refresh"
+endif
+gosub"showMenu"
+wend
+if ipt and keysoft1 then gosub"delTask"
+elseif ipt and keyselect then gosub"addTask"
+endif
+gosub"initSoft"gosub"initTitlebar"gosub"createStart"
+clearinput()
+return
+
+label addTask
+taskLen=taskLen+1 task[taskLen]=mPos
+return
+
+label delTask
+taskLen=max(0,taskLen-1)
+return
+
+label showMenu
+gosub"menuCls"
+color((bgr+128)%256,(bgg+128)%256,(bgb+128)%256)
+frect((objx-strwidth(iconList))/2+strwidth("")*mPos-1,(objy-strheight)/2-1,strwidth("")+2,strheight+2)
+text(iconList,(objx-strwidth(iconList))/2,(objy-strheight)/2)
+gosub"renew"
+return
+
+label menuCls
+color(bgr,bgg,bgb)
+frect((objx-strwidth(iconList)-10)/2,objy/2-strheight,strwidth(iconList)+10,strheight*2)
+color(lnr,lng,lnb)
+rect((objx-strwidth(iconList)-10)/2,objy/2-strheight,strwidth(iconList)+10,strheight*2)
+return
+
+label colorSet
+thc=4
+thc[0]=31thc[1]=223thc[2]=63thc[3]=255
+bgr=79 bgg=79 bgb=79
+chr=255 chg=255 chb=255
+'lnr=64 lng=64 lnb=255
+tlr=255 tlg=255 tlb=255
+return
+
+label renew
+unlock(1)lock()
+return
+
+label cls
+color(min(bgr*(600+second)/600,255),min(bgg*(600+second)/600,255),min(bgb*(600+second)/600,255))
+frect(0,0,objx,objy)
+return
+
+label showInfoG
+y=(strheight+span*2-1)*lineOrder
+color(255,255,255)
+frect(strwidth("abc"),y,width/2,strheight)
+color(0,0,255)
+frect(strwidth("abc"),y,width*percent/100/2,strheight)
+color(0,0,0)
+text(percent+"%",strwidth("abc")-strwidth(percent+"%")/2+width/4,y+1)
+rect(strwidth("abc"),y,width/2,strheight)
+color(chr,chg,chb)
+text(show,width/2+strwidth("abc"),y)
+color(lnr,lng,lnb)
+line(0,y+strheight+span,objx,y+strheight+span)
+return
+
+label multiMenu
+p=0
+mesl=messageLength
+winx=mwinx winy=mwiny
+for i=0 to messageLength
+mes[i]=message[i]
+next
+gosub"stdMenu"
+p[0]=p
+if not(message[p][0]=0 or p=-1)then
+winx=mwinx+strwidth("s")
+winy=mwiny+(strheight+3)*(p*2+1)/2+2
+for i=1 to message[p][0]
+mesl=message[p][0]-1
+mes[i-1]=message[p][i]
+next
+p=0
+gosub"stdMenu"
+p[1]=p
+if p[1]=-1 then gosub"multiMenu"endif
+for i=0 to messageLength
+message[i][0]=0
+next
+endif
+return
+
+label f0
+show=" "+year+"年"+(month+1)+"月"+date+"日"
+gosub"showInfo"
+return
+
+label f1
+show=" AutoLook software systems"
+gosub"showInfo"
+return
+
+label f2
+show=" "+help[(abs(tick)/60000)%helpLen]
+gosub"showInfo"
+return
+
+label f3
+show="譓 日本語バージョン"
+gosub"showInfo"
+return
+
+label f4
+show=" ようこそ ver "+version
+gosub"showInfo"
+return
+
+label f5
+show=" "+basedir
+gosub"showInfo"
+return
+
+label f6
+show="﨨 鋿錝錂はソフトバンクへ"
+gosub"showInfo"
+return
+
+label f7
+show=" 公共の場ではマナーモードで"
+gosub"showInfo"
+return
+
+label f8
+show=" キー "+scan
+gosub"showInfo"
+return
+
+label f9
+show=" "+hourofday+"時"+minute+"分"
+gosub"showInfo"
+return
+
+label f10
+percent=freememory*100/totalmemory
+show=""+freememory+"/"+totalmemory+"B"
+gosub"showInfoG"
+return
+
+label f11
+show="字 縦"+ascent+" : "+descent+" : "+strheight+" |横 "+strwidth("A")
+gosub"showInfo"
+return
+
+label f12
+percent=luckCent
+show=""+f[0]+" "+f[1]+" "+f[2]+" "+f[3]
+'show=" 数 "+f[0]+"  色 "+f[1]+"  占 "+f[2]+" 空  "+f[3]
+gosub"showInfoG"
+return
+
+label f13
+show=" theme"+thc+" "+thr[0]+","+thg[0]+","+thb[0]+" "+thr[1]+","+thg[1]+","+thb[1]
+gosub"showInfo"
+return
+
+label setHelp
+helpText="左ソフトキーでスタートメニュー,スタートメニュー内終了で本ソフト終了,シャットダウンでアプリを終了できます,デスクトップで携帯desktop起動,ソフト内メニューで各種ソフト起動可能,バナーにはメモリ確認・占い等あります,メモリ確認バナーはグラフ表示対応,ヘルプバナーでは各種ヘルプを表示,占いバナーでは今日の運勢を占えます,右ソフトキーでバナーの追加と削除,一定時間でヘルプの表示を更新します,"
+helpLen=0
+frontier=0
+while (frontier>-1)
+frontier=stridx(helpText,",")
+if frontier>0 then
+help[helpLen]=substr(helpText,0,frontier)
+helpText=substr(helpText,frontier+1,strlen(helpText)-(frontier+1))
+helpLen=helpLen+1
+endif
+wend
+return
+
+label setIcon
+for i=0 to strlen(iconList)-1
+icon[i]=strat(iconList,i)
+next
+return
+

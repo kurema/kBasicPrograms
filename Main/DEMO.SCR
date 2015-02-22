@@ -1,0 +1,301 @@
+'デモ
+'骨折回復祝い！
+
+n=2000
+lnno=0
+setfont("L")
+goto"start"
+
+label prctrrdm
+text(arg[0],width/2-(strwidth(arg[0])/2),abs(rand)%(height-strheight))
+return
+
+label lncltw
+color(0,0,0)
+for i=0 to width
+line(i,0,0,height-(i*height/width/2))
+line(width-i,height,width,(i*height/width/2))
+next
+for i=0 to height/2
+line(0,height/2,width,i)
+line(width,height/2,0,height-i)
+next
+return
+
+label prbtmctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight))
+return
+
+label prbtmr
+text(arg[0],width-strwidth(arg[0]),(height-strheight))
+return
+
+label lstprt
+for i=0 to j
+arg[0]=txt[i]
+gosub"stdprt"
+next
+sleep(n)
+return
+
+label ttlofprgt
+gosub"cls"
+arg[0]=""+no+".scr"
+no=no+1
+gosub"prctr"
+sleep(1000)
+gosub"cls"
+color(64,64,64)
+arg[0]="AUTO LOOK"
+gosub"prbtmr"
+return
+
+label stdprt
+sleep(500)
+setfont("T")
+color(255,255,255)
+gosub"prctrlbl"
+return
+
+label lnbnw
+for i=0 to 255
+tmp[0]=abs(rand)
+tmp[1]=abs(rand)
+color(tmp[0]%256,tmp[0]%256,tmp[0]%256)
+line(0,tmp[1]%height,width,tmp[1]%height)
+next
+lnno=0
+return
+
+label lnclr
+color(0,0,0)
+for i=0 to width/2
+line(i,0,i,height)
+line(width-i,0,width-i,height)
+next
+lnno=0
+return
+
+label prctr
+text(arg[0],width/2-(strwidth(arg[0])/2),height/2-(strheight/2))
+return
+
+label prctrlbl
+text(arg[0],width/2-(strwidth(arg[0])/2),lnno)
+lnno=lnno+strheight
+gosub"chk"
+return
+
+label cls
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+lnno=0
+return
+
+label chk
+ikey=input(1)
+if ikey and keysoft1 then end endif
+if ikey and keysoft2 then 
+thread(basedir+max(no-1,0)+".scr",th)
+join(th)
+endif
+return
+
+label wff
+gosub"chk"
+goto"wff"
+
+label start
+gosub"cls"
+for i=0 to 255
+color(i,i,i)
+arg[0]="DEMO"
+gosub"prctr"
+next
+setfont("T")
+sleep(3000)
+gosub"chk"
+gosub"lnbnw"
+'gosub"lnclr"
+gosub"lncltw"
+setfont("T")
+color(255,255,255)
+arg[0]="WELCOME  AND  THANK YOU"
+gosub"prctr"
+sleep(1000)
+gosub"cls"
+setfont("T")
+color(255,255,255)
+arg[0]="THESE PROGRAMS ARE MADE BY"
+gosub"prctrlbl"
+sleep(1000)
+setfont("M")
+color(255,0,0)
+arg[0]="AUTO LOOK"
+gosub"prctrlbl"
+sleep(500)
+setfont("T")
+color(255,255,255)
+arg[0]="(http://autolook.infoseek.co.jp)"
+gosub"prctrlbl"
+sleep(1000)
+gosub"lnclr"
+color(255,255,255)
+arg[0]="ソフト紹介"
+gosub"prctr"
+sleep(5000)
+gosub"ttlofprgt"
+txt[0]="時計関係のプログラムです"
+txt[1]="以下の機能を含みます"
+txt[2]="・クリック・カウンター"
+txt[3]="・通常時計表示"
+txt[4]="・カレンダー（当月分）"
+txt[5]="・メモリー状況確認"
+txt[6]="・世界都市現地時間表示"
+txt[7]="・メモリー付きストップウォッチ"
+txt[8]=" （上キーでメモリーチェック）"
+txt[9]="・アナログ時計"
+txt[10]="・三段世界時計"
+j=10
+gosub"lstprt"
+gosub"ttlofprgt"
+
+txt[0]="画面関係機能です"
+txt[1]="以下の機能を含みます"
+txt[2]="・実体視"
+txt[3]="・ポ※モンフラッシュ"
+txt[4]="・グラデーション"
+txt[5]="・カラー図 （固定）"
+txt[6]="・ランダム色"
+txt[7]="・xy色図度 I（最大輝度の全色表示）"
+txt[8]="・xy色図度 II（ランダム版）"
+txt[9]="・ランダム曲線"
+txt[10]="・ランダム色表示"
+txt[11]="・星表示（癒されます）"
+txt[12]="・グラデーション全画面表示"
+txt[13]="・スクリーンセーバー I（中心から）"
+txt[14]="・スクリーンセーバー II（連続線）"
+txt[15]="・色盲チェック（Fキーで停止）"
+txt[16]="・星表示 回転パターン"
+j=16
+gosub"lstprt"
+gosub"ttlofprgt"
+
+i=0
+txt[i]="cuiもどきです。見ててください。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+i=i+1 txt[i]="スクリプト内の指定区間を"
+i=i+1 txt[i]="既存内容を参考に書き換え可能です。"
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+
+i=-1
+
+i=i+1 txt[i]="頭が良くなる計算ソフトです。"
+i=i+1 txt[i]="かなり難しいです。"
+i=i+1 txt[i]="加算をたくさんと四則演算・余りです。"
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+
+i=-1
+
+i=i+1 txt[i]="サンプルです。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+
+i=-1
+
+i=i+1 txt[i]="x=2nならx=x/2(=n)、"
+i=i+1 txt[i]="x=2n+1ならx=3x+1とする演算を繰り返しま"
+i=i+1 txt[i]="す。スパコンにより、あらゆる数の場合も"
+i=i+1 txt[i]="1に収束すると証明中です。"
+i=i+1 txt[i]="ランダム値から始まります。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+i=i+1 txt[i]="（順次実行版もあります）"
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+
+i=-1
+
+i=i+1 txt[i]="ランダムな数字を表示します。"
+i=i+1 txt[i]="カラー表示可。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+i=i+1 txt[i]="右ソフトキーで色変更。"
+
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+i=-1
+
+i=i+1 txt[i]="配列を作りまくります。"
+i=i+1 txt[i]="放っておくとエラー終了します。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+i=-1
+
+i=i+1 txt[i]="グラフ描画ソフトです。"
+i=i+1 txt[i]="標準では三角関数です。"
+i=i+1 txt[i]="ファイル内の指定範囲変更で"
+i=i+1 txt[i]="グラフ種類変更です。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+i=-1
+
+
+i=i+1 txt[i]="スクリーンセーバーです。"
+i=i+1 txt[i]="HSPで作ったものと同じです。"
+i=i+1 txt[i]="指定範囲変更で内容変更です。"
+i=i+1 txt[i]="左ソフトキーで終了。"
+
+j=i
+gosub"lstprt"
+gosub"ttlofprgt"
+
+txt[0]="頭が痛くなる計算ソフトです。"
+txt[1]="連立方程式の問題作成です。"
+j=1
+gosub"lstprt"
+
+sleep(1000)
+gosub"cls"
+arg[0]="THANK YOU"
+gosub"prctr"
+sleep(1000)
+gosub"cls"
+txt[0]="詳しくはreadme.txtをお読みください"
+txt[1]="ホームページでお待ちしております"
+txt[2]="http://autolook.infoseek.co.jp"
+j=2
+gosub"lstprt"
+sleep(2000)
+color(255,255,255)
+for i=0 to 64
+arg[0]="http://autolook.infoseek.co.jp"
+gosub"prctrrdm"
+next
+sleep(2000)
+gosub"lnbnw"
+gosub"lnclr"
+arg[0]="K-Basic Softwares"
+gosub"stdprt"
+arg[0]="by"
+gosub"stdprt"
+arg[0]="AUTO LOOK"
+gosub"stdprt"
+arg[0]="Copyright (C)2005-2006 by AUTO LOOK"
+gosub"stdprt"
+sleep(10000)
+

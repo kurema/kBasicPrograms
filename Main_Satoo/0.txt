@@ -1,0 +1,232 @@
+goto"anw"
+mil=1 mir=1
+label cntr
+a=a+1
+gosub"cl"
+text("COUNTER",0,12)
+text("No:"+a,0,24)
+gosub"l"
+label chk
+i=input(1) if i and keyselect  then goto"cntr" endif
+gosub"fnkchk"
+sleep(100)
+goto"chk"
+
+label tmer
+gosub"cl"
+text("CLOCK",0,12)
+text(hour+":"+minute+":"+second,0,36)
+text(year+"/"+(month+1)+"/"+date,0,24)
+i=input(1)
+gosub"l"
+if i and keysoft1 then exit endif
+gosub"fnkchk"
+sleep(100)
+goto"tmer"
+
+label anw
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+mil=1 mir=1
+goto"bi"
+label st
+
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+a=hour*30+minute/2 b=3 c=2  line((width/2),(height/2),(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*c/b)
+a=second*6 b=1 c=1 abc=10 line((width/2)'-sin(a)/abc',(height/2)'+cos(a)/abc',(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*c/b)
+a=minute*6+second/10 b=10 c=9 line((width/2),(height/2),(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*c/b)
+color(255,255,255)
+text(hour+":"+minute+":"+second,width/4*1,height/4*3)
+color(255,255,255)
+q=month+1
+text(year+"/"+q+"/"+date,width/3*1,height/4*3+12)
+unlock(1)
+lock()
+sleep(50)
+i=input(0)
+if i and keysoft1 then exit endif
+if i and keyselect then mil=(mil+1)%2 mir=(mil*2)-1 endif
+
+gosub"fnkchk"
+if minute=0' and second=0' then goto "bi" endif
+goto"st"
+
+label bi
+if second=0 and minute=0 then unlock(1) else goto "st" endif
+for j=0 to 20
+
+color(abs(rand%255),abs(rand%255),abs(rand%255))
+frect(abs(rand%width),abs(rand%height),abs(rand%width),abs(rand%height))
+sleep(100)
+next
+'endif
+goto"st"
+
+label fnkcng
+if fnk=1  then a=0 goto"cntr" endif
+if fnk=2  then goto"tmer" endif
+if fnk=3  then goto"cal" endif
+if fnk=4  then goto"ada" endif
+if fnk=5  then goto"wcc" endif
+if fnk=6  then goto"swt" endif
+if fnk=7  then goto"anw" endif
+'if fnk=8  then goto"" endif
+'if fnk=9  then goto"" endif
+fnk=1 goto"fnkcng"
+return
+goto fnkcng
+
+label fnkchk
+if i=key1  then fnk=1 goto"fnkcng" endif
+if i=key2  then fnk=2 goto"fnkcng"  endif
+if i=key3  then fnk=3 goto"fnkcng"  endif
+if i=key4  then fnk=4 goto"fnkcng"  endif
+if i=key5  then fnk=5 goto"fnkcng"  endif
+if i=key6  then fnk=6 goto"fnkcng"  endif
+if i=key7  then fnk=7 goto"fnkcng"  endif
+'if i=key8  then fnk=8 goto"fnkcng"  endif
+'if i=key9  then fnk=9 goto"fnkcng"  endif
+if i and keyright then fnk=fnk+1 gosub"fnkcng" endif
+if i and keyleft then fnk=fnk-1 gosub"fnkcng" endif
+if i and keysoft1 then exit endif
+return
+label cl
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+return
+
+label cal
+unlock(1)
+gosub "cl"
+S=(date-dayofweek+1)%7
+color(255,255,255)
+W=0
+text("Calendar",0,15)
+text("ŒŽ ‰Î … –Ø ‹à “y “ú",0,30)
+label mdja
+if (31+S-6+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-6+W*7-1)%31+1+"",0,45+W*15)
+if (31+S-5+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-5+W*7-1)%31+1+"",18,45+W*15)
+if (31+S-4+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-4+W*7-1)%31+1+"",36,45+W*15)
+if (31+S-3+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-3+W*7-1)%31+1+"",54,45+W*15)
+if (31+S-2+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-2+W*7-1)%31+1+"",72,45+W*15)
+if (31+S-1+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+text(""+(31+S-1+W*7-1)%31+1+"",90,45+W*15)
+color(255,0,0)
+text(""+(31+S-0+W*7-1)%31+1+"",108,45+W*15)
+color(0,0,0)
+W=W+1
+if W*7+S-7>30 then goto "CH" endif
+goto "mdja"
+
+label CH
+i=input(1)
+gosub "fnkchk"
+sleep(100)
+goto "CH"
+
+
+label ada
+gosub"cl"
+text("OTHER",0,12)
+text(freememory+"/"+totalmemory,0,36)
+text(tick,0,24)
+gosub"l"
+i=input(1)
+if i and keysoft1 then exit endif
+gosub"fnkchk"
+sleep(1)
+goto"ada"
+
+label l
+unlock(1)lock()
+return
+
+label wcc
+gosub"cl"
+text("WORLD CLOCK",0,12*1)
+secon=second
+text("GMT "+((hourofday+15)%24)+":"+((minute+0)%60)+":"+secon,0,12*2)
+text("PAR "+((hourofday+16)%24)+":"+((minute+0)%60)+":"+secon,0,12*3)
+text("CAI "+((hourofday+17)%24)+":"+((minute+0)%60)+":"+secon,0,12*4)
+text("JED "+((hourofday+18)%24)+":"+((minute+0)%60)+":"+secon,0,12*5)
+text("THR "+((hourofday+18+(minute+30)/60)%24)+":"+((minute+30)%60)+":"+secon,0,12*6)
+text("DXB "+((hourofday+19)%24)+":"+((minute+0)%60)+":"+secon,0,12*7)
+text("KBL "+((hourofday+19+(minute+30)/60)%24)+":"+((minute+30)%60)+":"+secon,0,12*8)
+text("KHI "+((hourofday+20)%24)+":"+((minute+0)%60)+":"+secon,0,12*9)
+text("DEL "+((hourofday+20+(minute+30)/60)%24)+":"+((minute+30)%60)+":"+secon,0,12*10)
+text("DAC "+((hourofday+21)%24)+":"+((minute+0)%60)+":"+secon,0,12*11)
+text("RGN "+((hourofday+21+(minute+30)/60)%24)+":"+((minute+30)%60)+":"+secon,0,12*12)
+text("BKK "+((hourofday+22)%24)+":"+((minute+0)%60)+":"+secon,0,12*13)
+text("HKG "+((hourofday+23)%24)+":"+((minute+0)%60)+":"+secon,0,12*14)
+text("TYO "+((hourofday+0)%24)+":"+((minute+0)%60)+":"+secon,0,12*15)
+text("ADL "+((hourofday+(minute+30)/60)%24)+":"+((minute+30)%60)+":"+secon,0,12*16)
+text("SYD "+((hourofday+1)%24)+":"+((minute+0)%60)+":"+secon,0,12*17)
+text("NOU "+((hourofday+2)%24)+":"+((minute+0)%60)+":"+secon,0,12*18)
+text("WLG "+((hourofday+3)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*2)
+text("    "+((hourofday+4)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*3)
+text("HNL "+((hourofday+5)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*4)
+text("ANC "+((hourofday+6)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*5)
+text("LAX "+((hourofday+7)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*6)
+text("DEN "+((hourofday+8)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*7)
+text("CHI "+((hourofday+9)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*8)
+text("NYC "+((hourofday+10)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*9)
+text("CCS "+((hourofday+11)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*10)
+text("RIO "+((hourofday+12)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*11)
+text("    "+((hourofday+13)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*12)
+text("    "+((hourofday+14)%24)+":"+((minute+0)%60)+":"+secon,width/2,12*13)
+
+i=input(1)
+gosub"l"
+if i and keysoft1 then exit endif
+gosub"fnkchk"
+sleep(50)
+goto"wcc"
+
+label swt
+cntb=0
+gosub"cl"
+text("STOPWATCH",0,12)
+text("0.0",0,24)
+label cheaj
+i=input(1)
+gosub"l"
+if i and keysoft1 then exit endif
+if i and keysoft2 then ntm=((date*24*60+hourofday*60)+minute)*60+second nms=millisecond 'goto"jjjjj"
+hll=0 hlm=0
+goto"rgj"
+endif
+gosub"fnkchk"
+sleep(1)
+goto"cheaj"
+
+label jjjjj
+millisec=millisecond
+hll=(((hourofday+date*24)*60)+minute)*60+second+(millisec-nms+1000'+10')/1000-1-ntm
+hlm=(millisec-nms+1000)%1000
+color(0,0,0)frect(0,12,width,12)color(255,255,255)
+text(""+hll+"."+hlm,0,24)
+'unlock(1)lock()
+i=input(1)
+gosub"l"
+gosub"fnkchk"
+if i and keysoft1 then exit endif
+if i and keysoft2 then goto"rgj" endif
+goto"jjjjj"
+
+label rgj
+color(0,0,0)frect(0,12,width,height)color(255,255,255)
+
+clochis[cntb]=""+hll+"."+hlm
+timehis[cntb]=""+hourofday+":"+minute+":"+second
+st=cntb-15
+cntb=cntb+1
+if cntb<16 then st=0 endif
+for cnta=st to cntb-1
+text(clochis[cnta],0,(cnta-st)*12+48)
+text(timehis[cnta],width/2,(cnta-st)*12+48)
+'text(""+cnta+","+cntb,0,(cnta-st)*12+60)
+next
+goto"jjjjj"

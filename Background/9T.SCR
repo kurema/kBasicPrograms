@@ -1,0 +1,9 @@
+A=A+1
+gc()
+clear(0,0,width,strheight)
+text("memory: "+freememory+" / "+totalmemory+"  "+A,0,0)
+color(abs(rand)%256,abs(rand)%256,abs(rand)%256)
+frect(abs(rand)%width,abs(rand)%height,1,1)
+thread(basedir+"9t.scr",b)
+input()
+end

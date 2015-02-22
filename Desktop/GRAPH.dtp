@@ -1,0 +1,609 @@
+gc()
+
+wmode=1
+
+lock()
+posx=FNKPOSX
+posy=FNKPOSY
+objx=FNKOBJX
+objy=FNKOBJY
+
+if objx=0 or wmode=0 then
+disp[0]=width
+disp[1]=height
+oorigx=0 oorigy=0
+else
+disp[0]=objx
+disp[1]=objy
+origin(posx,posy)
+drawarea(0,0,objx,objy)
+oorigx=posx oorigy=posy
+endif
+
+sorigs=0
+
+t[0]=""t[1]="w"
+ver="1.10p"+t[wmode]
+
+gosub"setcolt"
+gosub"settypelim"
+gosub"setparamlim"
+
+norigx=0 norigy=0
+sorigx=disp[0]/2 sorigy=disp[1]/2
+
+dtype=0
+
+lock()
+
+zoom=2
+direct=0
+bgr=255bgg=255bgb=255
+ltr=0ltg=0ltb=0
+flr=0flg=0flb=0
+gtype=2
+param=0
+
+gosub"mhelpd"
+gosub"empty"
+
+label mmain
+'gosub"cls"
+gc()
+soft1("")
+clearinput()
+norigx=0 norigy=0
+gosub"moveorig"
+winx=0 winy=0
+p=0
+mesl=3
+mes[0]="新規作成"
+mes[1]="設定"
+mes[2]="ヘルプ"
+mes[3]="グラフの終了"
+gosub"menu"
+if p=0 then goto"mgraphmain"
+elseif p=1 then goto"mset"
+elseif p=2 then goto"mhelp"
+elseif p=3 then unlock(1)lock() end
+elseif p=-1 then goto"mmain"
+endif
+
+label mhelpd
+gosub"cls"
+y=0
+color(ltr,ltg,ltb)
+setfont("L")
+text("ようこそグラフへ",0,y)
+y=y+strheight
+setfont("T")
+text("「グラフ」をご使用頂き",0,y)
+y=y+strheight
+text("ありがとうございます。",0,y)
+y=y+strheight*2
+text("menuから使用できます。",0,y)
+y=y+strheight
+return
+
+label mgraphc
+winx=strwidth("##") winy=strheight*2
+p=0
+mesl=3
+mes[0]="アルキメデスの渦巻線"
+mes[1]="正葉曲線"
+mes[2]="リマソン"
+mes[3]="カージオイド"
+gosub"menu"
+q=p
+if q=-1 then goto"mgraphmain"endif
+gtype=128
+ggtype=q
+param=1
+if q<3 then gosub"seta"endif
+if q=2 then gosub"setb"endif
+goto"mexecute"
+
+label seta
+winx=strwidth("###") winy=strheight*3
+p=0
+mesl=8
+for i=0 to 8
+mes[i]="A "+(i+1)
+next
+gosub"menu"
+if p=-1 then goto"mgraphmain"endif
+a=(p+1)
+return
+
+label setb
+winx=strwidth("####") winy=strheight*3
+p=0
+mesl=8
+for i=0 to 8
+mes[i]="B "+(i+1)
+next
+gosub"menu"
+if p=-1 then goto"mgraphmain"endif
+b=(p+1)
+return
+
+label gcalc2i0
+r=pos/a
+return
+
+label gcalc2i1
+r=sin(a*pos)
+return
+
+label gcalc2i2
+r=(100*a+b*cos(pos))/(a+b)
+return
+
+label gcalc2i3
+r=(100+cos(pos))/2
+return
+
+label empty
+unlock(1)lock()
+soft1("menu")
+clearinput()
+input()
+soft1("")
+return
+
+label mset
+winx=strwidth("@") winy=strheight
+p=0
+mesl=3
+mes[0]="座標方向"
+mes[1]="倍率"
+mes[2]="表示領域"
+mes[3]="グラフ設定"
+gosub"menu"
+if p=0 then goto"msetxy"
+elseif p=1 then goto"msetzoom"
+elseif p=2 then goto"msetplace"
+elseif p=3 then goto"msetdtype"
+elseif p=-1 then goto"mmain"
+endif
+
+label mhelp
+winx=strwidth("@") winy=strheight*2
+p=0
+mesl=2
+mes[0]="設定確認"
+mes[1]="使用方"
+mes[2]="グラフについて"
+gosub"menu"
+if p=0 then goto"mhelpa"
+elseif p=1 then goto"mhelpb"
+elseif p=2 then goto"mhelpc"
+elseif p=-1 then goto"mmain"
+endif
+
+label mhelpa
+gosub"cls"
+y=0
+color(ltr,ltg,ltb)
+setfont("L")
+text("現在設定",0,y)
+y=y+strheight
+setfont("T")
+t[0]="X-Y" t[1]="Y-X"
+text("座標方向 "+t[direct],0,y)
+y=y+strheight
+text("表示倍率 1/"+zoom,0,y)
+y=y+strheight
+t[0]="全体"
+t[1]="第一象限" t[2]="第二象限"
+t[3]="第三象限" t[4]="第四象限"
+t[5]="ｘ正範囲"
+text("座標範囲 "+t[sorigs],0,y)
+y=y+strheight
+t[0]="点" t[1]="直線"
+text("指示方法 "+t[dtype],0,y)
+y=y+strheight
+unlock(1)lock()
+gosub"empty"
+goto"mmain"
+
+label mhelpb
+gosub"cls"
+color(ltr,ltg,ltb)
+y=0
+setfont("L")
+text("使用方",0,y)
+y=y+strheight
+setfont("T")
+text("メニューから新規作成で作成。",0,y)
+y=y+strheight
+text("直行座標・パラメータ表示",0,y)
+y=y+strheight
+text("極座標表示対応。",0,y)
+y=y+strheight
+text("設定は複数。",0,y)
+y=y+strheight
+text("表示方向を90度変更可能。",0,y)
+y=y+strheight
+text("倍率で表示倍率を変更。",0,y)
+y=y+strheight
+text("表示領域を変更可能。",0,y)
+y=y+strheight
+text("指示方法を変更可能。",0,y)
+unlock(1)lock()
+gosub"empty"
+goto"mmain"
+
+label mhelpc
+gosub"cls"
+color(ltr,ltg,ltb)
+y=0
+setfont("L")
+text("グラフについて",0,y)
+y=y+strheight
+setfont("T")
+t[0]=""t[1]=" for KBD"
+text("AutoLook Graph Maker"+t[wmode],0,y)
+y=y+strheight
+text("Version "+ver,0,y)
+y=y+strheight
+text("2006/12/15",0,y)
+y=y+strheight*2
+text("copyright(c)2006 by AutoLook",0,y)
+y=y+strheight*2
+t[0]="単独版"t[1]="デスクトップ版"
+text(t[wmode],0,y)
+unlock(1)lock()
+gosub"empty"
+goto"mmain"
+
+label msetplace
+winx=strwidth("##") winy=strheight*3
+norigx=0 norigy=0
+p=sorigs
+mesl=5
+mes[0]="全体"
+mes[1]="第一象限"
+mes[2]="第二象限"
+mes[3]="第三象限"
+mes[4]="第四象限"
+mes[5]="ｘ正範囲"
+gosub"menu"
+if p=0 then
+sorigx=disp[0]/2 sorigy=disp[1]/2
+elseif p=1 then
+sorigx=0 sorigy=disp[1]
+elseif p=2 then
+sorigx=disp[0] sorigy=disp[1]
+elseif p=3 then
+sorigx=disp[0] sorigy=0
+elseif p=4 then
+sorigx=0 sorigy=0
+elseif p=5 then
+sorigx=0 sorigy=disp[1]/2
+elseif p=-1 then goto"mset"
+endif
+sorigs=p
+goto"mset"
+
+label msetzoom
+winx=strwidth("##") winy=strheight*2
+mesl=8
+p=zoom-1
+for i=0 to 8
+mes[i]="x 1/"+(i+1)
+next
+gosub"menu"
+if not(p=-1) then zoom=p+1 endif
+goto"mset"
+
+label mgraphmain
+winx=strwidth("#") winy=0
+p=0
+mesl=2
+mes[0]="直交座標グラフ"
+mes[1]="パラメータ表示グラフ"
+mes[2]="極方程式グラフ"
+gosub"menu"
+if p=0 then goto"mgrapha"
+elseif p=1 then goto"mgraphb"
+elseif p=2 then goto"mgraphc"
+elseif p=-1 then goto"mmain"
+endif
+
+label msetxy
+winx=strwidth("##") winy=strheight
+p=direct
+mesl=1
+mes[0]="X-Y"
+mes[1]="Y-X"
+gosub"menu"
+if not(p=-1) then direct=p endif
+goto"mset"
+
+label msetdtype
+winx=strwidth("##") winy=strheight*4
+p=dtype
+mesl=1
+mes[0]="点"
+mes[1]="直線"
+gosub"menu"
+if not(p=-1) then dtype=p endif
+goto"mset"
+
+label mgraphb
+winx=strwidth("##") winy=strheight
+p=0
+mesl=7
+mes[0]="円"
+mes[1]="楕円"
+mes[2]="放物線"
+mes[3]="双曲線"
+mes[4]="サイクロイド"
+mes[5]="エビサイクロイド"
+mes[6]="リサージュ曲線"
+mes[7]="時計"
+gosub"menu"
+if p=-1 then goto"mgraphmain"endif
+gtype=p
+param=1
+if p=5 or p=6 then gosub"seta" gosub"setb"endif
+goto"mexecute"
+
+label mgrapha
+winx=strwidth("##") winy=0
+mesl=1
+mes[0]="三角関数"
+mes[1]="二次曲線他"
+gosub"menu"
+if p=-1 then goto"mgraphmain"endif
+gtype=p+1
+param=0
+goto"mexecute"
+
+label mexecute
+soft1("描画中 入力で停止")
+gosub"drawgraph1"
+soft1("")
+gosub"empty"
+goto"mmain"
+
+label gcalc0i1
+value[0]=sin(pos)
+value[1]=cos(pos)
+value[2]=tan(min(pos*(pos%90),pos))
+return
+
+label gcalc1i0
+px[0]=cos(pos)
+py[0]=sin(pos)
+return
+
+label gcalc1i1
+px[0]=cos(pos)*2
+py[0]=sin(pos)*3/2
+return
+
+label gcalc1i2
+px[0]=(pos)*(pos)/75
+py[0]=2*(pos)
+return
+
+label gcalc1i3
+px[0]=10000/cos(min(pos*(pos%90),pos-1)+1)
+py[0]=tan(min(pos*(pos%90),pos))
+return
+
+label gcalc1i4
+px[0]=(pos*314/180-sin(pos))/4
+py[0]=(100-cos(pos))/4
+return
+
+label gcalc1i5
+'a=3 b=1
+px[0]=((a+b)*cos(pos)-b*cos(pos*(a+b)/b))/(a+b)
+py[0]=((a+b)*sin(pos)-b*sin(pos*(a+b)/b))/(a+b)
+px[1]=cos(pos)*a/(a+b)
+py[1]=sin(pos)*a/(a+b)
+return
+
+label gcalc1i6
+px[0]=sin(a*pos)
+py[0]=sin(b*pos)
+return
+
+label gcalc1i7
+n=(hour+ampm+date'+minute')%3
+px[(n+1)%3]=sin(6*second)*minute/30
+py[(n+1)%3]=cos(6*second)*minute/30
+px[n]=sin(30*hour+minute/2)*second/30
+py[n]=cos(30*hour+minute/2)*second/30
+px[(n+2)%3]=sin(6*minute+second/10)*2
+py[(n+2)%3]=cos(6*minute+second/10)*2
+return
+
+label gcalc1i128
+togo="gcalc2i"+ggtype
+gosub togo
+px[0]=r*cos(pos)/100
+py[0]=r*sin(pos)/100
+return
+
+label gcalc0i2
+value[0]=(pos-60)*(pos-120)/50
+value[1]=8000/(pos+30)
+value[2]=value[0]*value[1]/200
+return
+
+label settypelim
+typelim[1]=2
+typelim[2]=2
+typelim[128]=0
+typelim[129]=0
+typelim[130]=0
+typelim[131]=0
+typelim[132]=0
+typelim[133]=1
+typelim[134]=0
+typelim[135]=2
+typelim[256]=0
+return
+
+label setparamlim
+mnm[0]=0
+mxm[0]=360
+mnm[1]=0
+mxm[1]=360
+mnm[2]=0
+mxm[2]=disp[1]/2
+mnm[3]=0
+mxm[3]=360
+mnm[4]=0
+mxm[4]=disp[0]+360
+mnm[5]=0
+mxm[5]=360
+mnm[6]=0
+mxm[6]=360
+mnm[7]=0
+mxm[7]=60*60*24
+mnm[128]=0
+mxm[128]=360
+return
+
+label drawgraph1
+gosub"cls"
+norigx=sorigx norigy=sorigy
+gosub"moveorig"
+pos=0
+if(param=1)then
+sizelim=(mxm[gtype]-mnm[gtype])+1 else
+sizelim=disp[direct]*zoom+1 endif
+'while pos<sizelim
+while 1
+togo="gcalc"+param+"i"+gtype
+gosub togo
+for i=0 to typelim[gtype+128*param]
+val=value[i]
+color(grr[i%7],grg[i%7],grb[i%7])
+togo="draw1inside"+param+"i"+dtype
+gosub togo
+next
+pos=pos+1
+unlock(1)lock()
+if not(scan=0) then gosub"cleanl" gosub"empty" goto"mmain"endif
+wend
+return
+
+label cleanl
+for i=0 to typelim[gtype+128*param]
+oldx[i]=0 oldy[i]=0
+next
+return
+
+label moveorig
+origin(norigx+oorigx,norigy+oorigy)
+'oorigx=norigx oorigy=norigy
+color(flr,flg,flb)
+line(-disp[0],0,disp[0],0)
+line(0,-disp[1],0,disp[1])
+return
+
+label draw1inside0i0
+y=pos*direct-val*(1-direct)
+x=pos*(1-direct)+val*direct
+frect(x/zoom,y/zoom,1,1)
+return
+
+label draw1inside0i1
+y=pos*direct-val*(1-direct)
+x=pos*(1-direct)+val*direct
+line(x/zoom,y/zoom,oldx[i]/zoom,oldy[i]/zoom)
+oldx[i]=x oldy[i]=y
+return
+
+label draw1inside1i0
+y=px[i]*direct+py[i]*(1-direct)
+x=px[i]*(1-direct)+py[i]*direct
+frect(x/zoom,-y/zoom,1,1)
+return
+
+label draw1inside1i1
+y=px[i]*direct+py[i]*(1-direct)
+x=px[i]*(1-direct)+py[i]*direct
+line(x/zoom,-y/zoom,oldx[i]/zoom,-oldy[i]/zoom)
+oldx[i]=x oldy[i]=y
+return
+
+label setcolt
+for i=0 to 7
+ct=(4+i)%7
+grr[i]=(((ct+1)/2+1)%2)*255
+grg[i]=(ct%2)*255
+grb[i]=(((ct+8)%9%8+(ct/5)+1)%2)*255
+next
+return
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,disp[0],disp[1])
+return
+
+label menu
+longestw=0
+for i=0 to mesl
+longestw=max(longestw,strwidth(mes[i]))
+next
+arg[0]=""
+arg[1]=winx
+arg[2]=winy
+arg[3]=longestw+4
+arg[4]=(mesl+1)*strheight+4
+gosub"menubg"
+color(0,0,0)
+for i=0 to mesl
+text(mes[i],winx+2,winy+strheight*i+2)
+next
+pnt=0
+gosub"mcon"
+return
+
+label menubg
+color(192,192,192)
+frect(arg[1],arg[2],arg[3],arg[4])
+color(222,222,222)
+line(arg[1],arg[2],arg[1]+arg[3],arg[2])
+line(arg[1],arg[2],arg[1],arg[2]+arg[4])
+color(152,152,152)
+line(arg[1]+arg[3],arg[2],arg[1]+arg[3],arg[2]+arg[4])
+line(arg[1],arg[2]+arg[4],arg[1]+arg[3],arg[2]+arg[4])
+return
+
+label mcon
+escp=1
+while escp
+gosub"writem"
+ipt=input()
+gosub"mckey"
+wend
+return
+
+label writem
+color(0,0,128)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(255,255,255)
+text(mes[p],winx+2,winy+2+p*strheight)
+unlock(1)lock()
+color(192,192,192)
+frect(winx+2,winy+2+p*strheight,longestw+1,strheight)
+color(0,0,0)
+text(mes[p],winx+2,winy+2+p*strheight)
+return
+
+label mckey
+if ipt=keyup then p=(p+mesl)%(mesl+1)
+elseif ipt=keydown then p=(p+1)%(mesl+1)
+elseif ipt=keyright then escp=0
+elseif ipt=keyleft then escp=0 p=-1
+elseif ipt=keyselect then escp=0
+endif
+return

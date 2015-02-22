@@ -1,0 +1,160 @@
+if not(strcomp(pfx,"")=0)then ify=1 else ify="" endif
+lock()
+soft1("êÿë÷")soft2("Exit")
+fstplc=0
+gosub"setplace"
+gosub"setcl"
+goto"function"
+
+label setcl
+bg[0]=0bg[1]=0bg[2]=0
+lt[0]=0lt[1]=255lt[2]=0
+sel[0]=0sel[1]=0sel[2]=0
+se[0]=0se[1]=255se[2]=0
+sp[0]=255sp[1]=0sp[2]=0
+return
+
+label setplace
+if fstplc=0 then cd="file:///mc/"
+else cd="file:///ms/" endif
+ndir=0
+dirl[0]=cd
+return
+
+label chkdir
+i=-1
+while not(strcomp(fname[i],"")=0)
+i=i+1
+fname[i]=dir(cd)
+if isFolder(cd+fname[i])=0 then
+folder[i]=0 else folder[i]=1 endif
+
+'folder[i]=(isFolder(cd+fname[i]))
+wend
+allnum=i
+if not(ndir=0) then fname[i]="../" allnum=i+1 endif
+return
+
+label writemenu
+color(lt[0],lt[1],lt[2])
+text(cd,0,0)
+for i=scr to min(allnum-1,scr+(height/strheight)-2)
+if (strcomp(tolower(getext(cd+fname[i])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])else
+color(lt[0],lt[1],lt[2])endif
+text(fname[i],0,strheight*(i+1-scr))
+next
+return
+
+label writeselectmenu
+color(se[0],se[1],se[2])
+if (strcomp(tolower(getext(cd+fname[tgt])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])endif
+frect(0,strheight*(tgt+1-scr),width,strheight)
+color(sel[0],sel[1],sel[2])
+text(fname[tgt],0,strheight*(tgt+1-scr))
+unlock(1)lock()
+color(bg[0],bg[1],bg[2])
+frect(0,strheight*(tgt+1-scr),width,strheight)
+color(lt[0],lt[1],lt[2])
+if (strcomp(tolower(getext(cd+fname[tgt])),pfx)=0)and(ify=1) then
+color(sp[0],sp[1],sp[2])endif
+text(fname[tgt],0,strheight*(tgt+1-scr))return
+
+label menukey
+rep=1
+while rep=1
+rep=0
+if desktop=1 then gosub"cls" gosub"writemenu"endif
+ipt=input()
+if ipt=keyup then tgt=(tgt-1+allnum)%allnum
+elseif ipt=keydown then tgt=(tgt+1)%allnum
+elseif ipt=keyselect then gosub"cfct"
+elseif ipt=keysoft1 then fstplc=(fstplc+1)%2 gosub"setplace" goto"function"
+elseif ipt=keysoft2 then goto"over"
+else rep=0 endif
+if scr+tgt>(height/strheight-2) then
+scr=tgt/(height/strheight-1)*(height/strheight-1) gosub"cls" gosub"writemenu" endif
+wend
+return
+
+label cls
+gc()
+color(bg[0],bg[1],bg[2])
+frect(0,0,width,height)
+if desktop=1 then drawimg(dtpimg,0,0)endif
+color(lt[0],lt[1],lt[2])
+return
+
+label function
+gosub"cls"
+gosub"chkdir"
+tgt=0
+gosub"writemenu"
+goto"furep"
+
+label furep
+gosub"writeselectmenu"
+gosub"menukey"
+goto"furep"
+
+label cfct
+if strcomp(fname[tgt],"../")=0 then
+ndir=ndir-1
+cd=dirl[ndir]
+scr=0
+goto"function"
+elseif (strcomp(tolower(getext(cd+fname[tgt])),pfx)=0)and(ify=1) then
+CMDLINE=cd+fname[tgt]
+if ify=1 then ARG[0]=""endif
+end
+elseif (strcomp(tolower(getext(cd+fname[tgt])),"txt")=0) then
+arg[0]=cd+fname[tgt] gosub"textview"
+elseif (strcomp(tolower(getext(cd+fname[tgt])),"jpg")=0) or (strcomp(tolower(getext(cd+fname[tgt])),"jpeg")=0) or (strcomp(tolower(getext(cd+fname[tgt])),"png")=0) then
+arg[0]=cd+fname[tgt] gosub"photo"
+elseif (strcomp(tolower(getext(cd+fname[tgt])),"scr")=0) then
+thread(cd+fname[tgt],tha)
+soft1("")soft2("")
+if ify=1 then ARG[0]=""endif
+CMDLINE=cd+fname[tgt]
+join(tha)
+clearinput()
+soft1("êÿë÷")soft2("Exit")
+goto"function"
+elseif folder[tgt]=1 then
+cd=cd+fname[tgt]
+ndir=ndir+1
+scr=0
+dirl[ndir]=cd
+goto"function"
+endif
+return
+
+label photo
+color(bg[0],bg[1],bg[2])
+frect(0,0,width,height)
+loadimg(tmpimg,arg[0])
+drawimg(tmpimg,0,0)
+unlock(1)lock()
+soft1("")soft2("ï«éÜê›íË")
+ipt=input()
+if dtpimg=arg[0] and ipt=keysoft2 then desktop=0 imgdispose(dtpimg)
+elseif ipt=keysoft2 then desktop=(1)%2 dtpimg=arg[0] loadimg(dtpimg,arg[0]) endif
+imgdispose(tmpimg)
+scr=0
+soft1("êÿë÷")soft2("Exit")
+goto"function"
+
+label over
+end
+
+label textview
+gosub"cls"
+soft1("")soft2("")
+tmptxt=loadtext(arg[0])
+text(arg[0],0,0)
+text(tmptxt,0,strheight)
+unlock(1)lock()
+input()
+soft1("êÿë÷")soft2("Exit")
+goto"function"

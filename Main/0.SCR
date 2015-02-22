@@ -1,0 +1,437 @@
+'‘½‹@”\‚ÈŽžŒv‚Å‚·
+
+divno=24
+ap[0]="AM"ap[1]="PM"
+excp[4]=1excp[6]=1excp[8]=1excp[10]=1
+excp[14]=1
+
+city[0]="GMT"city[1]="PAR"city[2]="CAI"city[3]="JED"city[4]="THR"city[5]="DXB"
+city[6]="KBC"city[7]="KHI"city[8]="DEL"city[9]="DAC"city[10]="RGN"city[11]="BKK"city[12]="HKG"city[13]="TYO"city[14]="ADL"city[15]="SYD"city[16]="NOU"city[17]="WLG"city[18]="   "city[19]="HNL"city[20]="ANC"city[21]="LAX"city[22]="DEN"city[23]="CHI"city[24]="NYC"city[25]="CCS"city[26]="RIO"city[27]="   "city[28]="   "
+
+june=0
+sap=1
+lastc=0
+cnttma="(------)"
+clist=""
+darkness=160
+
+fnk=7
+goto"fnkcng"
+mil=1 mir=1
+label cntrst
+lastc=abs(cntmoa)+" "+cnttma
+if (not(cntmoa=0)) then clist=""+(abs(cntmoa))+" "+clist endif
+cntmoa=0
+porm=1
+label cntr
+gosub"cl"
+text("COUNTER",0,0)
+text("No:"+(abs(cntmoa)),0,strheight)
+text("LAST:"+lastc,0,strheight*3)
+text(""+clist,0,strheight*4)
+gosub"l"
+label chk
+i=input(1)
+gosub"fnkchk"
+if i and keyselect then cntmoa=(abs(cntmoa)+1)*(abs(cntmoa)-abs(cntmoa-1)) goto"cntr" endif
+if i and keydown then cntmoa=cntmoa+1 goto"cntr" endif
+if i and keyup then cntmoa=cntmoa-1 goto"cntr" endif
+if i and keysoft2 then goto"cntrst" endif
+sleep(100)
+cnttma=" ("+hour+":"+minute+" "+ap[ampm]+" )"
+goto"chk"
+
+label tmer
+gosub"cl"
+text("CLOCK",0,0)
+if sap then
+text((hourofday%12)+":"+minute+":"+second+" "+ap[ampm],0,24)
+else
+text(hourofday+":"+minute+":"+second,0,24)
+endif
+text(year+"/"+(month+1)+"/"+date,0,12)
+i=input(1)
+if i and keysoft1 then end endif
+if i and keyselect then sap=(sap+1)%2 endif
+gosub"fnkchk"
+gc()
+gosub"l"
+while(second=oldmiss)
+none()
+wend
+oldmiss=second
+goto"tmer"
+
+label anw
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+mil=1 mir=1 mim=1
+goto"bi"
+label st
+
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+a=hour*30+minute/2 b=3 c=2  line((width/2),(height/2),(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*mim*c/b)
+a=second*6 b=1 c=1 abc=10 line((width/2)'-sin(a)/abc',(height/2)'+cos(a)/abc',(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*c*mim/b)
+a=minute*6+second/10 b=10 c=9 line((width/2),(height/2),(width/2)+sin(a)*mir*c/b,(height/2)-cos(a)*c/b*mim)
+if sap then
+text(hour+":"+minute+":"+second+" "+ap[ampm],width/4*1,height/4*3)
+else
+text(hourofday+":"+minute+":"+second,width/4*1,height/4*3)
+endif
+q=month+1
+text(year+"/"+q+"/"+date,width/3*1,height/4*3+12)
+unlock(1)
+lock()
+while(second=oldmiss)
+none()
+wend
+oldmiss=second
+sleep(50)
+i=input(0)
+if i and keysoft1 then end endif
+if i and keyup then mir=-mir endif
+if i and keydown then mim=-mim mir=-mir endif
+if i and keysoft2 then mil=1 mir=1 mim=1 endif
+if i and keyselect then sap=(sap+1)%2 endif
+
+gosub"fnkchk"
+if minute=0' and second=0' then goto "bi" endif
+goto"st"
+
+label bi
+if second=0 and minute=0 then unlock(1) else goto "st" endif
+for j=0 to 20
+
+color(abs(rand%255),abs(rand%255),abs(rand%255))
+frect(abs(rand%width),abs(rand%height),abs(rand%width),abs(rand%height))
+sleep(100)
+next
+'endif
+goto"st"
+
+label fnkcng
+gc()
+if fnk=1  then goto"cntrst" endif
+if fnk=2  then goto"tmer" endif
+if fnk=3  then goto"cal" endif
+if fnk=4  then goto"ada" endif
+if fnk=5  then goto"wcc" endif
+if fnk=6  then goto"swt" endif
+if fnk=7  then goto"anw" endif
+if fnk=8  then goto"boxwc" endif
+'if fnk=9  then goto"" endif
+if fnk=0  then fnk=8 goto"fnkcng"endif
+fnk=1 goto"fnkcng"
+return
+goto fnkcng
+
+label fnkchk
+if i=key1  then fnk=1 goto"fnkcng" endif
+if i=key2  then fnk=2 goto"fnkcng"  endif
+if i=key3  then fnk=3 goto"fnkcng"  endif
+if i=key4  then fnk=4 goto"fnkcng"  endif
+if i=key5  then fnk=5 goto"fnkcng"  endif
+if i=key6  then fnk=6 goto"fnkcng"  endif
+if i=key7  then fnk=7 goto"fnkcng"  endif
+if i=key8  then fnk=8 goto"fnkcng"  endif
+'if i=key9  then fnk=9 goto"fnkcng"  endif
+if i and keypound then fnk=fnk+1 gosub"fnkcng" endif
+if i and keyast then fnk=fnk-1 gosub"fnkcng" endif
+if i and keysoft1 then end endif
+return
+label cl
+color(0,0,0) frect(0,0,width,height) color(255,255,255)
+return
+
+label cal
+unlock(1)
+gosub "cl"
+S=(date-dayofweek+1)%7
+color(255,255,255)
+W=0
+text("Calendar",0,0)
+text("ŒŽ",0,12)
+text("‰Î",15,12)
+text("…",30,12)
+text("–Ø",45,12)
+text("‹à",60,12)
+text("“y",75,12)
+text("“ú",90,12)
+
+label mdja
+for W=0 to 4
+for tmj=0 to 6
+if (31+S-6+tmj+W*7-1)/31=1 then color(255,255,255) else color(128,128,128) endif
+if tmj=6 then if (31+S-6+tmj+W*7-1)/31=1 then color(255,0,0) else color(128,0,0) endif endif
+
+text(""+(31+S-6+tmj+W*7-1)%31+1+"",tmj*15,24+W*strheight)
+next
+color(0,0,0)
+next
+gc()
+goto"CH"
+
+label CH
+i=input(1)
+gosub "fnkchk"
+sleep(100)
+goto "CH"
+
+
+label ada
+gosub"cl"
+text("OTHER",0,0)
+text(freememory+"/"+totalmemory,0,strheight*2)
+text(tick,0,strheight)
+text(srcfile,0,strheight*4)
+text(scan,0,strheight*5)
+
+gosub"l"
+i=input(1)
+if i and keysoft1 then end endif
+gosub"fnkchk"
+sleep(1)
+gc()
+goto"ada"
+
+label l
+unlock(1)lock()
+return
+
+label wcc
+gosub"cl"
+text("WORLD CLOCK",0,12*0)
+no=0
+if sap then divno=12 aop[0]=ap[0]+" " aop[1]=ap[1]+" " else divno=24 aop[0]="" aop[1]="" endif
+for i=0 to 28
+if excp[i] and 1 then no=no+1
+showhour=((hourofday+15+i-no+(minute+30)/60)%24)
+tmp=255-abs(12-showhour)*darkness/12
+color(tmp,tmp,tmp)
+text(city[i]+" "+aop[showhour/12]+(showhour%divno)+":"+((minute+30)%60),height/2*(i/20),12*((i+1)%21)) else
+showhour=((hourofday+15+i-no)%24)
+tmp=255-abs(12-showhour)*darkness/12
+color(tmp,tmp,tmp)
+text(city[i]+" "+aop[showhour/12]+(showhour%divno)+":"+((minute+0)%60),height/2*(i/20),12*((i+1)%21))
+endif
+next
+gc()
+label blackj
+i=input(1)
+gosub"l"
+if i and keyselect then sap=(sap+1)%2 goto"wcc" endif
+if i and keysoft1 then end endif
+if second=0 then goto"wcc" endif
+gosub"fnkchk"
+sleep(50)
+setfont("L")
+color(0,0,0)
+frect(width-strwidth("@@"),height-strheight,strwidth("@@"),strheight)
+color(255,255,255)
+text(second,width-strwidth(second),height-strheight)
+setfont("T")
+goto"blackj"
+
+label swt
+cntb=0
+gosub"cl"
+text("STOPWATCH",0,0)
+text("0.0",0,12)
+oldhll=0
+label cheaj
+i=input(1)
+gosub"l"
+if i and keysoft1 then end endif
+if i and keyselect then 
+ntm=tick
+'nms=tick%1000
+'ntm=((date*24*60+hourofday*60)+minute)*60+second nms=millisecond 
+'goto"jjjjj"
+hll=0 hlm=0
+goto"rgj"
+endif
+gosub"fnkchk"
+sleep(1)
+goto"cheaj"
+
+label jjjjj
+millisec=millisecond
+'hll=(((hourofday+date*24)*60)+minute)*60+second+(millisec-nms+1000+10)/1000-1-ntm
+'hlm=(millisec-nms+1000)%1000
+hll=(tick-ntm)
+hlm=hll%1000
+hll=hll/1000
+color(0,0,0)
+frect(0,12,width,12)
+color(255,255,255)
+if oldhll>hll then hll=hll+1 endif
+oldhll=hll
+text(""+hll+"."+hlm,0,12)
+'unlock(1)lock()
+i=input(1)
+gosub"l"
+gosub"fnkchk"
+if i and keysoft1 then end endif
+if i and keyselect then goto"rgj" endif
+if i and keysoft2 then goto"swt" endif
+if i and keyup then st=0 goto"splst" endif
+goto"jjjjj"
+
+label rgj
+color(0,0,0)
+frect(0,24,width,height)
+color(255,255,255)
+zero="."
+if strlen(hlm)=2 then zero=".0" endif
+clochis[cntb]=""+hll+zero+hlm
+timehis[cntb]=""+hourofday+":"+minute+":"+second
+clochis[cntb+1]=0
+st=cntb-17
+cntb=cntb+1
+if cntb<18 then st=0 endif
+for cnta=st to cntb-1
+text(clochis[cnta],0,(cnta-st)*12+36)
+text(timehis[cnta],width/2,(cnta-st)*12+36)
+'text(""+cnta+","+cntb,0,(cnta-st)*12+60)
+next
+gc()
+goto"jjjjj"
+
+label splst
+color(0,0,0)
+frect(0,0,width,height)
+color(255,255,255)
+if cntb<20 then st=0 endif
+for cnta=st to st+20
+if clochis[cnta]=0 then goto"jadj" endif
+text(cnta,0,(cnta-st)*12)
+text(clochis[cnta],width/8,(cnta-st)*12)
+text(timehis[cnta],width/2,(cnta-st)*12)
+next
+label jadj
+i=input(1)
+gosub"l"
+gosub"fnkchk"
+if i and keysoft1 then end endif
+if i and keydown then st=st+20 goto"tmpcjm" endif
+if i and keyup then st=st-20 goto"tmpcjm" endif
+goto "jadj"
+
+label tmpcjm
+if st>cntb-20 then st=cntb-20 endif
+if st<0 then st=0 endif
+goto"splst"
+
+label exitd
+end
+
+label boxwc
+j=0 no=0
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+for arg[0]=0 to 2
+gosub"mkframe"
+next
+lhour=hour lhourofday=hourofday lminute=minute lsecond=second
+gosub"mncng"
+reptone=1
+while(reptone)
+lhour=hour lhourofday=hourofday lminute=minute lsecond=second
+arg[0]=abs((june+0)%3*(-(june/3)*2+1)+((june/3)*2))
+arg[1]="LOCAL TIME"arg[2]=1arg[3]=1arg[4]=0gosub"cldisp"
+if not(lminute=oldm) then gosub"mncng"
+endif
+i=input(1)
+if i and keysoft1 then reptone=0 endif
+if i and keyselect then sap=(sap+1)%2 gosub"mncng" endif
+if i and keysoft2 then june=(june+1)%6 gosub"mncng" endif
+gosub"l"
+gosub"fnkchk"
+gosub"udchj"
+wend
+end
+
+label mncng
+oldm=minute
+lhourofday=(hourofday+15)%24 arg[0]=abs((june+1)%3*(-(june/3)*2+1)+((june/3)*2))
+arg[1]="GMT  [-9:00]"arg[2]=0arg[3]=0arg[4]=0gosub"cldisp"
+gosub"worldclc"
+gc()
+return
+
+label mkframe
+rect(2,2+(height*arg[0]/3),width-4,(height/3)-4)
+return
+
+label refresh
+color(0,0,0) frect(3,3+(height*arg[0]/3),width-5,(height/3)-5) color(255,255,255)
+return
+
+label cldisp
+gosub"refresh"
+lhour=lhourofday%12
+mil=1 mir=1
+a=lhour*30+lminute/2 b=7 c=2  line((height/6),(height/6*(2*arg[0]+1)),(height/6)+sin(a)*mir*c/b,(height/6*(2*arg[0]+1))-cos(a)*c/b)
+a=lminute*6+lsecond/10 b=22 c=9 line((height/6),(height/6*(2*arg[0]+1)),(height/6)+sin(a)*mir*c/b,(height/6*(2*arg[0]+1))-cos(a)*c/b)
+if arg[4] then
+color(255,0,0)
+a=lsecond*6 b=22 c=9 abc=10 line((height/6),(height/6*(2*arg[0]+1)),(height/6)+sin(a)*mir*c/b,(height/6*(2*arg[0]+1))-cos(a)*c/b)
+color(255,255,255)
+endif
+text(arg[1],height/3+2,4+strheight*0+height*arg[0]/3)
+if sap then show=""+lhour+":"+lminute else show=""+lhourofday+":"+lminute endif
+if arg[2] then show=show+":"+lsecond endif
+if sap then show=show+" "+ap[lhourofday/12] endif
+setfont("L")
+text(show,height/3+2,4+strheight*1+height*arg[0]/3)
+if arg[3] then
+show=year+"/"+(month+1)+"/"+date
+text(show,height/3+2,4+strheight*2+height*arg[0]/3)
+endif
+setfont("T")
+coday=255-abs(lhourofday-12)*255/12
+color(coday,coday,coday)
+frect(width-8,(height*(arg[0]+1)/3)-8,4,4) color(255,255,255)
+unlock(1)lock()
+if arg[2] then
+while(second=oldmiss)
+none()
+wend
+oldmiss=second
+endif
+return
+
+label worldclc
+if j = 0 then no=0 endif
+if j = 28 then no=5 endif
+if excp[j] and 1 then
+show=((j-no+11)%24-20)
+if show<0 then show=show+1 endif
+arg[1]=city[j]+"  ["+show+":"+"30]"
+lhourofday=((hourofday+15+j-no+(minute+30)/60)%24)
+lminute=((minute+30)%60)
+else
+show=((j-no+11)%24-20)
+arg[1]=city[j]+"  ["+show+":"+"00]"
+lhourofday=((hourofday+15+j-no)%24)
+lminute=((minute+0)%60)
+endif
+arg[0]=abs((june+2)%3*(-(june/3)*2+1)+((june/3)*2))
+arg[2]=0arg[3]=0arg[4]=0gosub"cldisp"
+
+return
+
+label udchj
+if i and keydown then
+j=(j+1)%29
+if excp[j] and 1 then
+no=no+1
+endif
+gosub"worldclc"
+endif
+if i and keyup then
+j=(j+28)%29
+if excp[j+1] and 1 then
+no=no-1
+endif
+gosub"worldclc"
+endif
+return

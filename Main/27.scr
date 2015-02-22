@@ -1,0 +1,649 @@
+lock()
+label main
+gosub"stdInit"
+gosub"toolDialog"
+gosub"colorPalette"
+gosub"clsPaper"
+unlock(1)lock()
+' gosub"matTest"
+while 1
+gosub"stdChkKey"
+wend
+end
+
+label stdInit
+shiftLen=10
+paperX=width paperY=height
+paintR=0 paintG=0 paintB=0
+bgR=255 bgG=255 bgB=255
+x=width/2 y=height/2
+currentLayer=0
+maxLayer=0
+gosub"newLayer"
+clipBoardLayer=""
+'outLineLayer=""
+return
+
+label execPaint
+len=0
+tmp=paintList
+color(0,0,0)
+while not(tmp="")
+cap=strat(tmp,0)
+if cap="a" then
+ arc(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="b" then
+ farc(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="l" then
+ line(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="r" then
+ rect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="s" then
+ frect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="d" then
+ clear(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="c" then
+ color(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3))
+len=14
+elseif cap="t" then
+ text(substr(tmp,10,stridx(tmp,";")-10),substr(tmp,2,3),substr(tmp,6,3))
+len=stridx(tmp,";")+1
+endif
+if strlen(tmp)>len then
+tmp=substr(tmp,len,strlen(tmp)-len)
+else
+tmp=""
+endif
+wend
+lastLen=len
+return
+
+label toolDialog
+soft1("メニュー")
+soft2("終了")
+color(255,255,255)
+frect(0,height-40,width,40)
+color(0,0,0)
+rect(0,height-40,width-1,40-1)
+line(0,height-20,width,height-20)
+for i=0 to 4
+line(width*i/4,height-40,width*i/4,height)
+next
+text("1",2,height-40+2)
+text("2",width*1/4+2,height-40+2)
+text("3",width*2/4+2,height-40+2)
+text("4",width*3/4+2,height-40+2)
+
+text("5",2,height-20+2)
+text("6",width*1/4+2,height-20+2)
+text("0",width*2/4+2,height-20+2)
+text("*",width*3/4+2,height-20+2)
+
+arc(strwidth("ab")+2,height-40+2,16,16)
+farc(width/4+strwidth("ab")+2,height-40+2,16,16)
+rect(width*2/4+strwidth("ab")+2,height-40+2,16,16)
+frect(width*3/4+strwidth("ab")+2,height-40+2,16,16)
+line(strwidth("ab")+2,height-20+2,strwidth("ab")+2+16,height-2)
+text("文字",width/4+strwidth("ab")+2,height-20+2)
+text("色",width*2/4+strwidth("ab")+2,height-20+2)
+text("戻す",width*3/4+strwidth("ab")+2,height-20+2)
+paperY=height-40
+return
+
+label colorPalette
+color(255,255,255)
+frect(0,height-60,width,20-1)
+color(paintR,paintG,paintB)
+frect(width/4+2,height-60+2,width/4-4,14)
+color(bgR,bgG,bgB)
+frect(width*3/4+2,height-60+2,width/4-4,14)
+color(0,0,0)
+rect(0,height-60,width-1,20-1)
+line(width/2,height-60,width/2,height-40)
+text("指定色",2,height-60+2)
+text("背景色",width/2+2,height-60+2)
+rect(width/4+2,height-60+2,width/4-5,14)
+rect(width*3/4+2,height-60+2,width/4-5,14)
+paperY=height-60
+return
+
+label clsPaper
+color(bgR,bgG,bgB)
+frect(0,0,width,height-60)
+return
+
+label stdChkKey
+key=0
+while key=0
+key=scan
+wend
+if key and key1 then editType=1 gosub"editMode"
+elseif key and key2 then editType=2 gosub"editMode"
+elseif key and key3 then editType=3 gosub"editMode"
+elseif key and key4 then editType=4 gosub"editMode"
+elseif key and key5 then editType=5 gosub"editMode"
+elseif key and key6 then editType=6 gosub"textMode"
+elseif key and key7 then editType=7 gosub"layerBack"
+elseif key and key8 then editType=8 gosub"showAnimationLayer"
+elseif key and key9 then editType=9 gosub"layerNext"
+elseif key and keyast then gosub"cancelEdit"
+elseif key and keysoft1 then gosub"stdMenu"
+elseif key and keysoft2 then goto"over"
+endif
+return
+
+label cursorChkKey
+key=0
+while key=0
+key=scan
+wend
+if key and keyleft then x=x-1
+elseif key and keyright then x=x+1
+elseif key and key4 then x=x-shiftLen
+elseif key and key6 then x=x+shiftLen
+endif
+if key and keyup then y=y-1
+elseif key and keydown then y=y+1
+elseif key and key2 then y=y-shiftLen
+elseif key and key8 then y=y+shiftLen
+endif
+if (key and key5) or (key and keyselect) then editStatus=0
+endif
+if key and keypound then paintList=layer[currentLayer] gosub"execPaint" gosub"showXY" unlock(1)lock()clearinput()input()gosub"clsPaper"
+endif
+x=max(min(x,paperX),0)
+y=max(min(y,paperY),0)
+return
+
+label editMode
+gosub"waitKeyRelease"
+gosub"paperLock"
+gosub"setStartPoint"
+gosub"setEndPointEditMode"
+gosub"releaseLock"
+gosub"closeEdit"
+return
+
+label setStartPoint
+gosub"clsPaper"
+gosub"showPointer"
+unlock(1)lock()
+editStatus=1
+while editStatus=1
+gosub"cursorChkKey"
+gosub"clsPaper"
+gosub"showXY"
+gosub"showPointer"
+unlock(1)lock()
+wend
+gosub"waitKeyRelease"
+startX=x startY=y
+return
+
+label setEndPointEditMode
+editStatus=1
+while editStatus=1
+gosub"cursorChkKey"
+gosub"clsPaper"
+gosub"showXY"
+gosub"preview"
+unlock(1)lock()
+wend
+gosub"waitKeyRelease"
+endX=x endY=y
+return
+
+label textMode
+gosub"waitKeyRelease"
+x=width/2 y=height/2
+editStatus=1
+while editStatus=1
+gosub"cursorChkKey"
+gosub"clsPaper"
+y=min(paperY-strheight,y)
+color(paintR,paintG,paintB)
+gosub"showXY"
+text("文字列",x,y)
+unlock(1)lock()
+wend
+gosub"waitKeyRelease"
+startX=x startY=y
+gosub"closeEdit"
+return
+
+label preview
+color(paintR,paintG,paintB)
+if editType=1 then
+ arc(min(startX,x),min(startY,y),abs(x-startX),abs(y-startY))
+elseif editType=2 then
+ farc(min(startX,x),min(startY,y),abs(x-startX),abs(y-startY))
+elseif editType=3 then
+ rect(min(startX,x),min(startY,y),abs(x-startX),abs(y-startY))
+elseif editType=4 then
+ frect(min(startX,x),min(startY,y),abs(x-startX),abs(y-startY))
+elseif editType=5 then
+ line(startX,startY,x,y)
+endif
+return
+
+label showPointer
+color(paintR,paintG,paintB)
+line(x-2,y,x+2,y)
+line(x,y-2,x,y+2)
+return
+
+label waitKeyRelease
+while not(scan = 0)
+none()
+wend
+return
+
+label waitKeyPush
+while scan = 0
+none()
+wend
+return
+
+label newLayer
+layer[maxLayer]=""
+return
+
+label paperLock
+drawarea(0,0,paperX,paperY)
+return
+
+label releaseLock
+drawarea(0,0,width,height)
+return
+
+label setNumLen
+tmpSNL=arg1
+if tmpSNL < 0 then arg1 = abs(tmpSNL) arg2 = arg2 - 1 gosub"setNumLen" tmpSNL="-" + ret arg2 = arg2 + 1 endif
+if strlen(tmpSNL) = arg2 then ret = tmpSNL endif
+if strlen(tmpSNL) > arg2 then ret = substr(tmpSNL,0,arg2) endif
+tmpSNL = tmpSNL +" "
+for i = strlen(tmpSNL) to arg2
+tmpSNL = "0" + tmpSNL
+next
+ret = substr(tmpSNL,0,arg2)
+return
+
+label addPaint
+if editType>=1 and editType<=4 then
+arg1=min(startX,endX) arg2=3 gosub"setNumLen" tmpSX=ret
+arg1=min(startY,endY) arg2=3 gosub"setNumLen" tmpSY=ret
+arg1=abs(startX-endX) arg2=3 gosub"setNumLen" tmpEX=ret
+arg1=abs(startY-endY) arg2=3 gosub"setNumLen" tmpEY=ret
+
+layer[currentLayer]=layer[currentLayer]+strat("abrs",editType-1)+","+tmpSX+","+tmpSY+","+tmpEX+","+tmpEY+";"
+
+elseif editType=5 then
+arg1=startX arg2=3 gosub"setNumLen" tmpSX=ret
+arg1=startY arg2=3 gosub"setNumLen" tmpSY=ret
+arg1=endX arg2=3 gosub"setNumLen" tmpEX=ret
+arg1=endY arg2=3 gosub"setNumLen" tmpEY=ret
+
+layer[currentLayer]=layer[currentLayer]+"l,"+tmpSX+","+tmpSY+","+tmpEX+","+tmpEY+";"
+
+elseif editType=6 then
+arg1=startX arg2=3 gosub"setNumLen" tmpSX=ret
+arg1=startY arg2=3 gosub"setNumLen" tmpSY=ret
+
+layer[currentLayer]=layer[currentLayer]+"t,"+tmpSX+","+tmpSY+",文字列;"
+endif
+return
+
+label closeEdit
+gosub"addPaint"
+gosub"showCLayer"
+return
+
+label over
+end
+
+label cancelEdit
+if strlen(layer[currentLayer])<=lastLen then layer[currentLayer]="" gosub"showCLayer"
+else
+if not(strat(layer[currentLayer],strlen(layer[currentLayer])-lastLen-1)=";") then gosub"showCLayer" endif
+layer[currentLayer]=substr(layer[currentLayer],0,strlen(layer[currentLayer])-lastLen)
+gosub"showCLayer"
+endif
+gosub"waitKeyRelease"
+return
+
+label showCLayer
+gosub"clsPaper"
+paintList=layer[currentLayer] gosub"execPaint"
+unlock(1)lock()
+return
+
+label simpleMessage
+color(paintR,paintG,paintB)
+text(mes,width-strwidth(mes),0)
+return
+
+label showXY
+color(paintR,paintG,paintB)
+mes=x+" , "+y
+text(mes,width-strwidth(mes),0) 
+return
+
+label pullDownMenu
+gosub"PDMenuShow"
+PDMenuStatus=1
+gosub"PDMenuShowSelect"
+while PDMenuStatus=1
+gosub"PDMenuKeyChk"
+gosub"PDMenuShowSelect"
+wend
+gosub"PDMenuTerminate"
+return
+
+label PDMenuShow
+'arg1:コンマ句切メニューリスト arg2,arg3:始点x,y
+selectedMenu=0
+i=0
+margin=1
+yMargin=10
+maxLen=0
+tmp=arg1
+splitLetter=","
+while not(stridx(tmp,splitLetter)=-1)
+menuList[i]=substr(tmp,0,stridx(tmp,splitLetter))
+tmp=substr(tmp,stridx(tmp,splitLetter)+1,strlen(tmp)-(stridx(tmp,splitLetter)+1))
+maxLen=max(maxLen,strwidth(menuList[i]))
+i=i+1
+wend
+menuList[i]=tmp
+maxLen=max(maxLen,strwidth(menuList[i]))
+menuListLength=i
+
+color(255,255,255)
+frect(arg2,arg3,maxLen+yMargin+1,(menuListLength+1)*(strheight+margin)+1)
+color(0,0,0)
+rect(arg2,arg3,maxLen+yMargin+1,(menuListLength+1)*(strheight+margin)+1)
+
+color(0,0,0)
+for i=0 to menuListLength
+text(menuList[i],arg2,arg3+i*(strheight+margin)+1)
+next
+return
+
+label PDMenuKeyChk
+key=0
+while key=0
+key=scan
+wend
+if key and keydown then selectedMenu=(selectedMenu+1)%(menuListLength+1)
+elseif key and keyup then selectedMenu=(selectedMenu+menuListLength)%(menuListLength+1)
+elseif (key and keyselect)or(key and keyright) then PDMenuStatus=2
+elseif key and keyleft then PDMenuStatus=3
+elseif (key and keysoft1)and(arg4 and 1) then PDMenuStatus=4
+endif
+return
+
+label PDMenuShowSelect
+color(0,0,0)
+frect(arg2+1,arg3+selectedMenu*(strheight+margin)+1,maxLen+yMargin,strheight+margin)
+color(255,255,255)
+text(menuList[selectedMenu],arg2,arg3+selectedMenu*(strheight+margin)+1)
+unlock(1)lock()
+color(255,255,255)
+frect(arg2+1,arg3+selectedMenu*(strheight+margin)+1,maxLen+yMargin,strheight+margin)
+color(0,0,0)
+text(menuList[selectedMenu],arg2,arg3+selectedMenu*(strheight+margin)+1)
+return
+
+label PDMenuTerminate
+ret2=0
+if PDMenuStatus=2 then ret=selectedMenu
+elseif PDMenuStatus=3 then ret=-1
+elseif PDMenuStatus=4 then ret=selectedMenu ret2=1
+endif
+return
+
+label stdMenu
+arg1="アニメーション再生,レイヤーメニュー,終了" arg2=1 arg3=1 arg4=0 gosub"pullDownMenu"
+if ret=-1 then gosub"showCLayer"
+elseif ret=0 then gosub"showAnimationLayer"
+elseif ret=1 then gosub"layerMenu"
+elseif ret=2 then goto"over"
+endif
+return
+
+label layerMenu
+tmp=""
+for i=0 to maxLayer
+ tmp=tmp+"レイヤー #"+i+","
+next
+arg1=tmp+"新規レイヤー"
+arg2=1+strwidth("a") arg3=1+strheight*1 arg4=1 gosub"pullDownMenu"
+if ret=-1 then gosub"stdMenu"
+elseif ret=maxLayer+1 then
+ if ret2=1 then
+  gosub"LMNewLayerOpt"
+ else
+  gosub"layerAdd"
+ endif
+else
+ if ret2=1 then
+  arg=ret gosub"layerMenuOpt"
+ else
+  currentLayer=ret gosub"showCLayer"
+ endif
+endif
+return
+
+label showAnimationLayer
+for i=0 to maxLayer
+gosub"clsPaper"
+paintList=layer[i] gosub"execPaint"
+unlock(1)lock()
+next
+gosub"showCLayer"
+return
+
+label layerAdd
+currentLayer=maxLayer+1
+maxLayer=maxLayer+1
+gosub"newLayer"
+gosub"showCLayer"
+color(0,0,0)
+text("新規レイヤー",0,0)
+return
+
+label layerBack
+if currentLayer=0 then none()
+else currentLayer=currentLayer-1 gosub"showCLayer" color(0,0,0) text("レイヤー #"+currentLayer,0,0) endif
+unlock(1)lock()
+return
+
+label layerNext
+if currentLayer=maxLayer then gosub"layerAdd" gosub"waitKeyRelease"
+else currentLayer=currentLayer+1 gosub"showCLayer" color(0,0,0) text("レイヤー #"+currentLayer,0,0)
+endif
+unlock(1)lock()
+return
+
+label layerMenuOpt
+targetLayerNum=arg
+arg1="コピー,カット,ペースト(上書),ペースト(追加),消去"  arg2=2+2*strwidth("a") arg3=2+strheight*(2+arg) arg4=0 gosub"pullDownMenu"
+if ret=-1 then none()
+elseif ret=0 then gosub"layerCopy"
+elseif ret=1 then gosub"layerCut"
+elseif ret=2 then gosub"layerPaste"
+elseif ret=3 then gosub"layerPasteAdd"
+elseif ret=4 then gosub"layerErase"
+endif
+gosub"layerMenu"
+return
+
+label layerCopy
+clipBoardLayer=layer[targetLayerNum]
+return
+
+label layerCut
+clipBoardLayer=layer[targetLayerNum]
+layer[targetLayerNum]=""
+return
+
+label layerPasteAdd
+layer[targetLayerNum]=layer[targetLayerNum]+clipBoardLayer
+return
+
+label layerPaste
+layer[targetLayerNum]=clipBoardLayer
+return
+
+label layerErase
+layer[targetLayerNum]=""
+return
+
+label layerDelete
+layer[maxLayer]=""
+maxLayer=max(maxLayer-1,0)
+currentLayer=min(currentLayer,maxLayer)
+return
+
+label layerNewPaste
+currentLayer=maxLayer+1
+maxLayer=maxLayer+1
+layer[maxLayer]=clipBoardLayer
+return
+
+label layerInit
+layer[0]=""
+maxLayer=0
+currentLayer=0
+return
+
+label LMNewLayerOpt
+arg1="ペースト,レイヤー削除,レイヤー初期化,戻る"
+arg2=2+2*strwidth("a")
+arg3=2+strheight*(maxLayer+3)
+arg4=0 gosub"pullDownMenu"
+if ret=0 then gosub"layerNewPaste"
+elseif ret=1 then gosub"layerDelete"
+elseif ret=2 then gosub"layerInit"
+endif
+gosub"layerMenu"
+return
+
+label transformPaint
+len=0
+tmp=paintList
+tmpOut=""
+color(0,0,0)
+while not(tmp="")
+cap=strat(tmp,0)
+if not(stridx("absd",cap)=-1)then
+argX=substr(tmp,2,3)
+argY=substr(tmp,6,3)
+gosub"editXY"
+tmpX=retX
+tmpY=retY
+argX=substr(tmp,10,3)
+argY=substr(tmp,14,3)
+gosub"editXYNoshift"
+arg1=min(tmpX+retX,tmpX) arg2=3 gosub"setNumLen" tmpOut=tmpOut+cap+","+ret+","
+arg1=min(tmpY+retY,tmpY) arg2=3 gosub"setNumLen" tmpOut=tmpOut+ret+","
+arg1=abs(retX) arg2=3 gosub"setNumLen" tmpOut=tmpOut+ret+","
+arg1=abs(retY) arg2=3 gosub"setNumLen" tmpOut=tmpOut+ret+";"
+len=18
+elseif not(stridx("absd",cap)=-1)then
+tmpX=substr(tmp,2,3)
+tmpY=substr(tmp,6,3)
+argX=tmpX
+argY=tmpY
+gosub"editXY"
+tmpOut=tmpOut+cap+","+retX+","+retY+","
+tmpX=retX
+tmpY=retY
+argX=substr(tmp,10,3)+tmpX
+argY=substr(tmp,14,3)+tmpY
+gosub"editXY"
+arg1=(retX-tmpX) arg2=3 gosub"setNumLen" tmpOut=tmpOut+ret+","
+arg1=(retY-tmpY) arg2=3 gosub"setNumLen" tmpOut=tmpOut+ret+";"
+len=18
+elseif cap="r"then
+tmpA=substr(tmp,2,3)
+tmpB=substr(tmp,6,3)
+arg1=substr(tmp,10,3)+substr(tmp,2,3) arg2=3 gosub"setNumLen" tmpC=ret
+arg1=substr(tmp,14,3)+substr(tmp,6,3) arg2=3 gosub"setNumLen" tmpD=ret
+tmp=substr(tmp,18,strlen(tmp)-18)
+tmp=tmp+"l,"+tmpA+","+tmpB+","+tmpA+","+tmpD+";l,"+tmpA+","+tmpB+","+tmpC+","+tmpB+";l,"+tmpA+","+tmpD+","+tmpC+","+tmpD+";l,"+tmpC+","+tmpB+","+tmpC+","+tmpD+";"
+len=0
+elseif cap="l"then
+argX=substr(tmp,2,3)
+argY=substr(tmp,6,3)
+gosub"editXY"
+tmpOut=tmpOut+cap+","+retX+","+retY+","
+argX=substr(tmp,10,3)
+argY=substr(tmp,14,3)
+gosub"editXY"
+tmpOut=tmpOut+retX+","+retY+";"
+len=18
+elseif cap="c"then
+tmpOut=tmpOut+substr(tmp,0,14)
+len=14
+elseif cap="t"then
+argX=substr(tmp,2,3)
+argY=substr(tmp,6,3)
+gosub"editXY"
+tmpOut=tmpOut+"t,"+retX+","+retY+","+substr(tmp,10,stridx(tmp,";")-10)+";"
+len=stridx(tmp,";")+1
+endif
+if strlen(tmp)>len then
+tmp=substr(tmp,len,strlen(tmp)-len)
+else
+tmp=""
+endif
+'clear(0,0,width,30)
+'text(tmp,0,0)
+'text(tmpOut,width-strwidth(tmpOut),15)
+'unlock(1)
+'input()
+wend
+ret=tmpOut
+return
+
+label editXY
+argX=argX-centerX
+argY=argY-centerY
+arg1=(matA*argX+matB*argY)/1000+centerX+shiftX arg2=3 gosub"setNumLen" retX=ret
+arg1=(matC*argX+matD*argY)/1000+centerY+shiftY arg2=3 gosub"setNumLen" retY=ret
+return
+
+label editXYNoshift
+arg1=(matA*argX+matB*argY)/1000 arg2=3 gosub"setNumLen" retX=ret
+arg1=(matC*argX+matD*argY)/1000 arg2=3 gosub"setNumLen" retY=ret
+return
+
+label makeMatrixRevo
+matA=cos(deg)*10 matB=-sin(deg)*10
+matC=sin(deg)*10 matD=cos(deg)*10
+return
+
+label matTest
+centerX=width/2
+centerY=height/2
+shiftX=50
+shiftY=100
+for t=0 to 180
+paintList="c,255,255,255;b,000,000,050,030;s,010,015,030,030;s,005,060,020,030;c,000,000,000;l,025,035,025,045;b,010,010,003,003;b,040,010,003,003;t,005,060,茶;"
+paintList="r,050,050,050,050;l,050,050,100,100;"
+deg=4*t
+gosub"makeMatrixRevo"
+gosub"transformPaint"
+color(0,0,255)
+frect(0,0,width,height)
+paintList=ret gosub"execPaint"
+unlock(1)
+next
+return

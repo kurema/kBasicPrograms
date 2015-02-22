@@ -1,0 +1,32 @@
+'‚Æ‚±‚Æ‚ñ”z—ñ‚ð‚Â‚­‚é ‚»‚Ì‚¤‚¿‘Â‚¿‚Ü‚·
+soft1("escape")
+soft2("-")
+f=6
+g[0]="a"g[1]="X"g[2]="Å"g[3]="#"g[4]="¡"g[5]="\"
+a=0
+c="a"
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+text("wait...",0,0)
+for g=0 to 1022
+c=c+g[abs(rand%f)]
+'text(c,0,24)unlock(1)lock()
+next
+'d=((hourofday*60)+minute)*60+second
+d=tick
+label me
+color(0,0,0)frect(0,0,width,strheight*7'height‚Í24‚É')color(255,255,255)
+'e=((hourofday*60)+minute)*60+second-d
+e=(tick-d)/1000
+a=a+1
+Testmem[a]=c
+text("memtest ver.1.05",0,0)
+text("now "+a,0,strheight*1)
+text("sec "+e,0,strheight*2)
+text("memory "+freememory+"/"+totalmemory,0,strheight*3)
+text("length "+strlen(Testmem[a]),0,strheight*4)
+'line(a/20,49,a/20,72)
+gc()
+unlock(1)lock()
+b=input(1)
+if b=keysoft1 then end endif
+if Testmem[abs(rand)%a+1]=Testmem[a] then goto"me" else text("error",0,6*strheight) unlock(1) input() end endif

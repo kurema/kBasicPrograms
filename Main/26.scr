@@ -1,0 +1,647 @@
+'setfont("L")
+gc()
+label init
+gosub"setStdSoft"
+heroMaxHP=200
+heroMaxMP=100
+ heroMaxHP=1000
+heroHP=heroMaxHP
+heroMP=heroMaxMP
+heroEXP=0
+heroMoney=10
+heroLV=1
+ heroLV=100
+eventName="abcdefghijklmnopqrstuvwxyz"
+heroChar=""
+battleField=
+"/nextStage/100.ab/end:nextStage/"
+eventList=
+"/defaultStage/a:t:外は危ないぜ。;タワーで死人もでたしな。:end:a/b:s:0010.e.御宿泊ですか。:end:b/c:t:やっぱり、この村はいいのう。:end:c/d:m:secondFloor:end:d/e:r:9999.9999.0000:end:e/o:m:nextStage:end:o/f:t:あんた、ここいらにゃ見掛けないな。:end:f/g:n:008.002.secondFloor:end:g/end:defaultStage/"+
+"/nextStage/o:n:015.001.defaultStage:end:o/a:b:0100.0000.0001.鋙.0020.c:end:a/b:b:0200.0010.0002.鈊.0080.d:end:b/c:c:008.001. :end:c/d:c:009.000.e:end:d/e:m:tower:end:e/f:n:022.002.defaultStage:end:f/end:nextStage/"+
+"/secondFloor/h:n:030.002.defaultStage:end:h/a:b:0100.0000.0001.鄕.0030.i:end:a/f:b:0150.0010.0002.釮.0050.0:end:f/b:t:お前何やってんだ？ひとんちで。:end:b/c:t:親父に追い出されんな。:end:c/d:t:きゃー。くさーい。きもーい。:end:d/e:t:お前、あの隣町のホームレスだろ。:end:e/i:t:わしに勝つとは。さすがだな。:end:i/g:s:0020.h.今日は警察に突き出さないでやる。:end:g/z:s:0000.j.ニャー！:end:z/j:b:0300.0050.0003..0000.0:end:j/k:n:022.005.defaultStage:end:k/l:t:都市開発計画;地下に於ける大規模な開発が急が…:end:l/m:t:2028年12月8日;タワー開発反対の住民決起大会が都…:end:m/n:t:ポーションを見つけた;だが、開発不足で扱えない:end:n/o:t:極秘 タワーの軍事的性能;二枚目以降は紛失している:end:o/p:s:0000.q.お茶と骸骨の美しい絵だ:end:p/q:p:080.100.000.000.000.c,255,255,255;b,000,000,050,030;s,010,015,030,030;s,005,060,020,030;c,000,000,000;l,025,035,025,045;b,010,010,003,003;b,040,010,003,003;t,005,060,茶;:end:q/end:secondFloor/"+
+"/tower/i:t:すみません。まだできてません。:end:i/d:t:知ってい#*すか、ik$08の環境破:end:d/o:n:008.002.nextStage:end:o/k:t:定礎.2029年4月.IK208タワー:end:k/e:t:鼻をつくような匂いだ。:end:e/f:b:1000.0000.0005.釗.0100.g:end:f/g:n:014.002.nextStage:end:g/end:tower/"
+
+map=
+"***************ooooo***************"+
+"*  /   `      |    a||----||-----|*"+
+"* _______  `  |     ||   g||    d|*"+
+"* |-inn-|     |     ||    ||     |*"+
+"* |__b__|`   `|     ||____||_   _|*"+
+"* |     |     |     |             *"+
+"* --   --     |     |             *"+
+"*           --+     +-----        *"+
+"*                             f   *"+
+"*       c                         *"+
+"*               H                 *"+
+"***********************************"+
+"/defaultStage/035/012/"+
+" . . | .   .|. . . "+
+". . .|. . .   . . ."+
+"     |      |      "+
+"     |      |      "+
+"     |      !#     "+
+"   # |      |      "+
+"     |      |      "+
+"     !        #    "+
+"       #    |      "+
+"     |      |      "+
+"     |      |      "+
+" #   |      |      "+
+"     |   H  | # fff"+
+"*****oooooooo******"+
+"/nextStage/019/014/"+
+"|__________||__________|"+
+"| l        ||    g   H |"+
+"| m        ||  a[ ]d   |"+
+"| n        ||  b[ ]e   |"+
+"| o        ||  c[_]f   |"+
+"| p        ||          |"+
+"|________k_||_________z|"+
+"/secondFloor/024/007/"+
+"                       "+
+"      /-==--|          "+
+"     /      ||         "+
+"     |--=__/ |         "+
+"     |     | |         "+
+"     | ~   | ||        "+
+"    |!   ^ | |         "+
+"    |!     | |         "+
+"    |      | |         "+
+"    $    ' | $         "+
+"    $      ! |         "+
+"   --==__  $/ --_      "+
+"  /   ___   )    ;     "+
+"  |  |   |  /   -|     "+
+"#  ---iii--k-//   . . ､"+
+"             H         "+
+"e      oooooo      d ff"+
+"/tower/023/017/"
+
+label main
+mapName="defaultStage"
+gosub"changeMap"
+goto"heroMode"
+end
+
+label heroMode
+while 1
+gosub"moveHero"
+gosub"showHero"
+wend
+end
+
+label changeMap
+gosub"cls"
+gosub"loadMap"
+gosub"findHero"
+gosub"loadEvent"
+gosub"loadBField"
+gosub"showMap"
+return
+
+label findHero
+tmp=stridx(currentMap,"H")
+currentMap=substr(currentMap,0,tmp)+" "+substr(currentMap,tmp+1,strlen(currentMap)-(tmp+1))
+heroX=tmp%mapX
+heroY=tmp/mapX
+return
+
+label loadMap
+tmp=stridx(map,mapName)
+mapX=substr(map,tmp+strlen(mapName)+1,3)
+mapY=substr(map,tmp+strlen(mapName)+5,3)
+currentMap=substr(map,tmp-(mapX*mapY)-1,mapX*mapY)
+return
+
+label loadEvent
+tmp=stridx(eventList,"/"+mapName+"/")
+tmpA=stridx(eventList,"end:"+mapName)
+currentEventList=substr(eventList,tmp+1+strlen(mapName),tmpA-tmp-1-strlen(mapName))
+return
+
+label loadBField
+tmp=stridx(battleField,"/"+mapName+"/")
+tmpA=stridx(battleField,"end:"+mapName)
+if tmp=-1 then
+probabilityBField=000
+else
+tmpB=substr(battleField,tmp+1+strlen(mapName),tmpA-tmp-1-strlen(mapName))
+probabilityBField=substr(tmpB,1,3)
+eventBField=substr(tmpB,5,strlen(tmpB)-6)
+endif
+return
+
+label showMap
+gosub"setColorMap"
+for i=0 to mapY-1
+text(substr(currentMap,i*mapX,mapX),0,i*strheight)
+next
+return
+
+label setColorMap
+color(255,255,255)
+return
+
+label setColorText
+color(255,255,255)
+return
+
+label setColorBack
+color(0,0,0)
+return
+
+label cls
+gosub"setColorBack"
+frect(0,0,width,height)
+return
+
+label moveHero
+inkey=scan
+oHeroX=heroX
+oHeroY=heroY
+if     inkey=keyup    then heroY=heroY-1
+elseif inkey=keydown  then heroY=heroY+1
+elseif inkey=keyleft  then heroX=heroX-1
+elseif inkey=keyright then heroX=heroX+1
+elseif inkey=keysoft1 then gosub"menu"
+elseif inkey=keysoft2 then gosub"dialogOver"
+endif
+
+heroX=max(0,heroX)
+heroX=min(mapX-2,heroX)
+heroY=max(0,heroY)
+heroY=min(mapY-1,heroY)
+
+eventCode=strat(currentMap,heroY*mapX+heroX)
+if not(stridx(eventName,eventCode)=-1) then gosub"checkEvent"
+else
+eventCode=strat(currentMap,heroY*mapX+heroX+1)
+if not(stridx(eventName,eventCode)=-1) then gosub"checkEvent" endif
+if probabilityBField>abs(rand)%999
+then gosub"execBField"endif
+endif
+if not(substr(currentMap,heroY*mapX+heroX,2)="  ") then heroX=oHeroX heroY=oHeroY endif
+return
+
+label showHero
+gosub"setColorMap"
+text(heroChar,heroX*strwidth(" "),heroY*strheight)
+unlock(1)lock()
+gosub"setColorBack"
+frect(heroX*strwidth(" "),heroY*strheight,strwidth(heroChar),strheight)
+return
+
+label dialog
+gosub"showDialog"
+unlock(1)lock()
+clearinput()input()
+gosub"cls"
+gosub"showMap"
+return
+
+label showDialog
+gosub"setColorBack"
+frect((width-(strwidth(message)+30))/2,(height-strheight*2)/2,strwidth(message)+30,strheight*2)
+gosub"setColorText"
+rect((width-(strwidth(message)+30))/2,(height-strheight*2)/2,strwidth(message)+30,strheight*2)
+text(message,(width-strwidth(message))/2,(height-strheight)/2)
+return
+
+label checkEvent
+tmp=stridx(currentEventList,"/"+eventCode+":")
+if tmp><-1 then
+tmpA=stridx(currentEventList,"end:"+eventCode)
+tmpEventList=substr(currentEventList,tmp+3,tmpA-tmp-3)
+arg=substr(tmpEventList,2,strlen(tmpEventList)-3)
+if strat(tmpEventList,0)="t" then
+message=arg gosub"showText"
+elseif strat(tmpEventList,0)="b" then
+message="モンスターに遭遇した" gosub"dialog"
+gosub"battle"
+elseif strat(tmpEventList,0)="m" then
+mapName=arg
+gosub"changeMap"
+elseif strat(tmpEventList,0)="w" then
+gosub"warpHero"
+elseif strat(tmpEventList,0)="r" then
+gosub"recoverHero"
+elseif strat(tmpEventList,0)="s" then
+gosub"eventSwitch"
+elseif strat(tmpEventList,0)="l" then
+gosub"eventStream"
+elseif strat(tmpEventList,0)="c" then
+gosub"editMap"
+elseif strat(tmpEventList,0)="n" then
+mapName=substr(arg,8,strlen(arg)-8)
+gosub"changeMap"
+heroX=substr(arg,0,3)
+heroY=substr(arg,4,3)
+elseif strat(tmpEventList,0)="p" then
+paintList=substr(arg,20,strlen(arg)-20)
+paintX=substr(arg,0,3)
+paintY=substr(arg,4,3)
+gosub"paintDialog"
+endif
+endif
+return
+
+label setColorArg
+color(substr(arg,8,3),substr(arg,12,3),substr(arg,16,3))
+return
+
+label eventSwitch
+cost=substr(arg,0,4)
+if cost>0 then gosub"showStatus" endif
+message=substr(arg,7,strlen(arg)-7)
+gosub"showText"
+if heroMoney>=cost then
+if cost>0 then
+gosub"showStatus"
+message=(cost+0)+"G いただきます。" gosub"dialogYN"
+if ret=0 then
+heroMoney=heroMoney-cost
+gosub"showStatus"
+message="ありがとうございます。" gosub"dialog"
+eventCode=substr(arg,5,1) gosub"checkEvent"
+endif
+else
+eventCode=substr(arg,5,1) gosub"checkEvent"
+endif
+else
+message="お金が足りません。" gosub"dialog"
+endif
+return
+
+label eventStream
+tmpEStream=arg
+for iEStream=0 to strlen(tmpEStream)-1
+eventCode=strat(tmpEStream,iEStream)
+gosub"checkEvent"
+next
+return
+
+
+label editMap
+tmpX=substr(arg,0,3)
+tmpY=substr(arg,4,3)
+tmp=tmpY*mapX+tmpX
+tmpa=strat(arg,8)
+currentMap=substr(currentMap,0,tmp)+tmpa+substr(currentMap,tmp+1,strlen(currentMap)-(tmp+1))
+gosub"renewMap"
+return
+
+label warpHero
+heroX=substr(arg,0,3)
+heroY=substr(arg,4,3)
+return
+
+label execBField
+if not(oHeroX*1000+oHeroY=heroX*1000+heroY) then
+eventCode=strat(eventBField,abs(rand)%strlen(eventBField))
+gosub"checkEvent"
+endif
+return
+
+label recoverHero
+oHeroHP=heroHP
+oHeroMP=heroMP
+oHeroMoney=heroMoney
+heroHP=max(min(heroHP+substr(arg,0,4),heroMaxHP),0)
+heroMP=max(min(heroMP+substr(arg,5,4),heroMaxMP),0)
+heroMoney=max(heroMoney+substr(arg,10,4),0)
+gosub"showStatus"
+if oHeroHP<heroHP then
+message="HP "+(heroHP-oHeroHP)+" 回復" gosub"dialog"
+elseif oHeroHP>heroHP then
+message="HP "+(oHeroHP-heroHP)+" ダメージ" gosub"dialog"
+endif
+if oHeroMP<heroMP then
+message="MP "+(heroMP-oHeroMP)+" 回復" gosub"dialog"
+elseif oHeroMP>heroMP then
+message="MP "+(oHeroMP-heroMP)+" 消費" gosub"dialog"
+endif
+if oHeroMoney<heroMoney then
+message=(heroMoney-oHeroMoney)+"G 見つけた" gosub"dialog"
+elseif oHeroMoney>heroMoney then
+message=(oHeroMoney-heroMoney)+"G なくした" gosub"dialog"
+endif
+gosub"cls"
+gosub"showMap"
+return
+
+label battle
+enemyMaxHP=substr(arg,0,4)
+enemyMaxMP=substr(arg,5,4)
+enemyHP=enemyMaxHP
+enemyMP=enemyMaxMP
+enemyLV=substr(arg,10,4)
+enemyPIC=substr(arg,15,1)
+gosub"setBattleSoft"
+
+battleStatus=1
+while battleStatus=1
+gosub"cls"
+gosub"showBattleStatusDialog"
+text(enemyPIC,width/4,(height-strheight*5-3)/2)
+text(heroChar,width*3/4,(height-strheight*5-3)/2)
+unlock(1)lock()
+clearinput()input()
+message="ジャイロ" gosub"battleDialog"
+enemyDamage=abs(rand)%(heroLV*10)+1
+gosub"battleEffectEnemyDamage"
+message="貪欲な壷" gosub"battleDialog"
+heroDamage=abs(rand)%(enemyLV*10)+1
+gosub"battleEffectHeroDamage"
+ inkey=scan
+ if inkey=keysoft2 then gosub"escapeBattle"endif
+if heroHP<=0 then battleStatus=3
+elseif enemyHP<=0 then battleStatus=2
+endif
+wend
+gosub"showBattleStatusDialog"
+gosub"chkBattleStatus"
+gosub"setStdSoft"
+gosub"renewMap"
+return
+
+label chkBattleStatus
+if battleStatus=2 then
+message="あなたの勝ちです" gosub"battleDialog"
+heroMoney=heroMoney+substr(arg,17,4)
+if substr(arg,17,4)>0 then
+message=(0+substr(arg,17,4))+"G 手に入れた"gosub"battleDialog"
+endif
+heroEXP=heroEXP+enemyLV
+gosub"levelCheck"
+eventCode=substr(arg,22,1)
+if not(stridx(eventName,eventCode)=-1) then gosub"checkEvent" endif
+elseif battleStatus=3 then
+goto"loseBattle"
+elseif battleStatus=4 then
+endif
+return
+
+label battleDialog
+gosub"setColorBack"
+frect((width-(strwidth(message)+30))/2,10,strwidth(message)+30,strheight*2)
+gosub"setColorText"
+rect((width-(strwidth(message)+30))/2,10,strwidth(message)+30,strheight*2)
+text(message,(width-strwidth(message))/2,10+strheight/2)
+unlock(1)lock()
+clearinput()input()
+return
+
+label showBattleStatusDialog
+gosub"setColorBack"
+frect(3,height-strheight*5-3,width-6,strheight*5)
+gosub"setColorText"
+rect(3,height-strheight*5-3,width-6,strheight*5)
+text("モンスター",5,height-strheight/2*9-3)
+text("LV "+(0+enemyLV),5,height-strheight/2*7-3)
+text("HP "+(0+enemyHP)+"/"+(0+enemyMaxHP),5,height-strheight/2*5-3)
+text("MP "+(0+enemyMP)+"/"+(0+enemyMaxMP),5,height-strheight/2*3-3)
+
+text("あなた",width/2,height-strheight/2*9-3)
+text("LV "+(0+heroLV),width/2,height-strheight/2*7-3)
+text("HP "+(0+heroHP)+"/"+(0+heroMaxHP),width/2,height-strheight/2*5-3)
+text("MP "+(0+heroMP)+"/"+(0+heroMaxMP),width/2,height-strheight/2*3-3)
+return
+
+label battleEffectEnemyDamage
+gosub"setColorText"
+text(enemyDamage,width/4,(height-strheight*5-3)/2+strheight)
+unlock(1)lock()
+gosub"setColorBack"
+frect(width/4,(height-strheight*5-3)/2+strheight,strwidth(enemyDamage),strheight)
+enemyHP=max(enemyHP-enemyDamage,0)
+return
+
+label battleEffectHeroDamage
+gosub"setColorText"
+text(heroDamage,width*3/4,(height-strheight*5-3)/2+strheight)
+unlock(1)lock()
+gosub"setColorBack"
+frect(width*3/4,(height-strheight*5-3)/2+strheight,strwidth(heroDamage),strheight)
+heroHP=max(heroHP-heroDamage,0)
+return
+
+label battleEffectHeroEscape
+for i=width*3/4 to width
+gosub"setColorBack"
+frect(i,(height-strheight*5-3)/2,strwidth(heroChar),strheight)
+gosub"setColorText"
+text(heroChar,i,(height-strheight*5-3)/2)
+unlock(1)lock()
+next
+return
+
+label levelCheck
+if heroEXP>pow(2,heroLV)then
+heroLV=heroLV+1
+heroMaxHP=heroMaxHP+heroLV*25
+heroMaxMP=heroMaxMP+heroLV*25
+gosub"showStatus"
+message="レベルが上がりました" gosub"dialog"
+endif
+return
+
+
+label escapeBattle
+if abs(rand)%(max(enemyLV-heroLV+6,3))=1 then
+message="あなたは逃げました" gosub"battleDialog"
+battleStatus=4
+gosub"battleEffectHeroEscape"
+else
+message="逃げられない" gosub"battleDialog"
+endif
+return
+
+label loseBattle
+message="あなたは死にました" gosub"battleDialog"
+goto"init"
+
+label dialogOver
+message="終了します。" gosub"dialog"
+message="データはセーブされません。" gosub"dialog"
+message="よろしいですか。" gosub"dialogYN"
+if ret=0 then goto"over" endif
+return
+
+label over
+end
+
+label showStatus
+tmp=max(strwidth("G  "+heroMoney),strwidth("HP 9999/9999"))
+x=width-tmp-20-30
+w=tmp+40
+gosub"setColorBack"
+frect(x,strheight/2,w,strheight*6)
+gosub"setColorText"
+rect(x,strheight/2,w,strheight*6)
+text("あなた",width-tmp-30,strheight)
+text("LV "+heroLV,width-tmp-30,strheight*2)
+text("HP "+heroHP+"/"+heroMaxHP,width-tmp-30,strheight*3)
+text("MP "+heroMP+"/"+heroMaxMP,width-tmp-30,strheight*4)
+text("G  "+heroMoney,width-tmp-30,strheight*5)
+return
+
+label menu
+gosub"showStatus"
+arg1="アイテム,魔法,調べる,戻る,終了" arg2=10 arg3=strheight/2 arg4=0 gosub"pullDownMenu"
+if ret=-1 then none()
+elseif ret=3 then none()
+elseif ret=4 then gosub"dialogOver"
+endif
+gosub"renewMap"
+return
+
+label renewMap
+gosub"cls"
+gosub"showMap"
+return
+
+label setStdSoft
+soft1("メニュー")
+soft2("やめる")
+return
+
+label setBattleSoft
+soft1("")
+soft2("逃げる")
+return
+
+label showText
+tmp=message
+splitLetter=";"
+while not(stridx(tmp,splitLetter)=-1)
+message=substr(tmp,0,stridx(tmp,splitLetter)) gosub"dialog"
+tmp=substr(tmp,stridx(tmp,splitLetter)+1,strlen(tmp)-(stridx(tmp,splitLetter)+1))
+i=i+1
+wend
+message=tmp gosub"dialog"
+return
+
+label execPaint
+tmp=paintList
+color(0,0,0)
+while not(tmp="")
+cap=strat(tmp,0)
+if cap="a" then
+ arc(substr(paintList,2,3),substr(paintList,6,3),substr(paintList,10,3),substr(paintList,14,3))
+len=18
+elseif cap="b" then
+ farc(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="l" then
+ line(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="r" then
+ rect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="s" then
+ frect(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="d" then
+ clear(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3),substr(tmp,14,3))
+len=18
+elseif cap="c" then
+ color(substr(tmp,2,3),substr(tmp,6,3),substr(tmp,10,3))
+len=14
+elseif cap="t" then
+ text(substr(tmp,10,stridx(tmp,";")-10),substr(tmp,2,3),substr(tmp,6,3))
+len=stridx(tmp,";")+1
+endif
+if strlen(tmp)>len then
+tmp=substr(tmp,len,strlen(tmp)-len)
+else
+tmp=""
+endif
+wend
+return
+
+label paintDialog
+tmpX=(width-paintX)/2
+tmpY=(height-paintY)/2
+gosub"setColorArg"
+frect(tmpX-15,tmpY-15,paintX+30,paintY+30)
+gosub"setColorText"
+rect(tmpX-15,tmpY-15,paintX+30,paintY+30)
+drawarea(tmpX,tmpY,paintX,paintY)
+origin(tmpX,tmpY)
+gosub"execPaint"
+origin(0,0)
+drawarea(0,0,width,height)
+unlock(1)lock()
+clearinput()input()
+gosub"renewMap"
+return
+
+label pullDownMenu
+gosub"PDMenuShow"
+PDMenuStatus=1
+gosub"PDMenuShowSelect"
+while PDMenuStatus=1
+gosub"PDMenuKeyChk"
+gosub"PDMenuShowSelect"
+wend
+gosub"PDMenuTerminate"
+return
+
+label PDMenuShow
+'arg1:コンマ句切メニューリスト arg2,arg3:始点x,y
+selectedMenu=0
+i=0
+margin=1
+yMargin=10
+maxLen=0
+tmp=arg1
+splitLetter=","
+while not(stridx(tmp,splitLetter)=-1)
+menuList[i]=substr(tmp,0,stridx(tmp,splitLetter))
+tmp=substr(tmp,stridx(tmp,splitLetter)+1,strlen(tmp)-(stridx(tmp,splitLetter)+1))
+maxLen=max(maxLen,strwidth(menuList[i]))
+i=i+1
+wend
+menuList[i]=tmp
+maxLen=max(maxLen,strwidth(menuList[i]))
+menuListLength=i
+
+gosub"setColorBack"
+frect(arg2,arg3,maxLen+yMargin+1+strwidth("->"),(menuListLength+1)*(strheight+margin)+1)
+gosub"setColorText"
+rect(arg2,arg3,maxLen+yMargin+1+strwidth("->"),(menuListLength+1)*(strheight+margin)+1)
+
+gosub"setColorText"
+for i=0 to menuListLength
+text(menuList[i],arg2+strwidth("->"),arg3+i*(strheight+margin)+1)
+next
+return
+
+label PDMenuKeyChk
+clearinput() key=input()
+if key and keydown then selectedMenu=(selectedMenu+1)%(menuListLength+1)
+elseif key and keyup then selectedMenu=(selectedMenu+menuListLength)%(menuListLength+1)
+elseif key and keyselect then PDMenuStatus=2
+elseif key and keyleft then PDMenuStatus=3
+endif
+return
+
+label PDMenuShowSelect
+gosub"setColorText"
+text("",arg2,arg3+selectedMenu*(strheight+margin)+1)
+unlock(1)lock()
+gosub"setColorBack"
+frect(arg2+1,arg3+selectedMenu*(strheight+margin)+1,strwidth("->"),strheight+margin)
+return
+
+label PDMenuTerminate
+if PDMenuStatus=2 then ret=selectedMenu
+elseif PDMenuStatus=3 then ret=-1
+endif
+return
+
+label dialogYN
+gosub"showDialog"
+arg1="はい,いいえ" arg2=width/4 arg3=(height+strheight*4)/2 arg4=0 gosub"pullDownMenu"
+gosub"renewMap"
+return

@@ -1,0 +1,168 @@
+gosub"firstInit"
+
+label main0
+gosub"init"
+gosub"cls"
+gosub"setFrame"
+gosub"setExp"
+
+label main1
+step=step+1
+if setR then gosub"addRand"endif
+mbX=xLine/2 mbY=0
+tX=mbX tY=mbY otX=mbX otY=mbY
+gosub"infobox"
+
+label main2
+color(255,0,0)
+gosub"putBuyo"
+gosub"refresh"
+mbY=mbY+1
+gosub"keyMan"
+tX=mbX tY=mbY
+gosub"checkBuyo"
+if onBuyo then gosub"regBuyo" goto"main1"endif
+gosub"delBuyo"
+otX=tX otY=tY
+goto"main2"
+
+label firstInit
+bX=2 bY=2 sX=9 sY=6
+bgr=0 bgg=0 bgb=0
+frr=255 frg=255 frb=255
+setR=0
+return
+
+label init
+gosub"setSoft"
+step=0
+yLine=41 xLine=17
+pX=0 pY=0
+mbX=0 mbY=0
+for i=0 to yLine+1
+map[i]=0
+next
+return
+
+label addRand
+tmpX=abs(rand)%(xLine-1)+1
+tmpY=abs(rand)%(yLine-1)+1
+if 1-(map[tmpY]/pow(2,tmpX))%2 then
+map[tmpY]=map[tmpY]+pow(2,tmpX)
+color(0,255,0)
+tX=tmpX tY=tmpY-1 gosub"putBuyo"endif
+return
+
+label putBuyo
+farc(bX+sX*tX,bY+sY*tY,sX,sY)
+return
+
+label delBuyo
+color(bgr,bgg,bgb)
+farc(bX+sX*otX,bY+sY*otY,sX,sY)
+return
+
+label setFrame
+color(frr,frg,frb)
+rect(bX-1,bY-1,sX*(xLine+1)+2,sY*(yLine+1)+2)
+return
+
+label setExp
+color(frr,frg,frb)
+stdX=bX+sX*(xLine+1)+3
+rect(stdX,1,strwidth("abcdefghijkl"),strheight*2)
+text("BUYO GE",stdX,2)
+rect(stdX,3+strheight*2,strwidth("abcdefghijkl"),strheight*4)
+text("1: RANDOM",stdX,4+strheight*2)
+text("PAUSE + 0",stdX,4+strheight*3)
+text("   :RESET",stdX,4+strheight*4)
+mes=""
+gosub"infobox"
+gosub"skeleton"
+return
+
+label skeleton
+stdX=bX+sX*(xLine+1)+3
+stdY=7+strheight*10
+
+color(frr,frg,frb)
+rect(stdX,stdY,strwidth("abcdefghijkl"),max(sY*(yLine+1)+bY+1-stdY,100))
+origin(stdX,stdY)
+
+color(255,255,255)
+farc(0,0,50,30)
+frect(10,15,30,30)
+frect(5,60,20,30)
+color(0,0,0)
+line(25,35,25,45)
+farc(10,10,3,3)
+farc(40,10,3,3)
+text("’ƒ",5,60)
+
+origin(0,0)
+return
+
+label infobox
+stdX=bX+sX*(xLine+1)+3
+stdY=5+strheight*6
+color(bgr,bgg,bgb)
+frect(stdX,stdY,strwidth("abcdefghijkl"),strheight*4)
+color(frr,frg,frb)
+rect(stdX,stdY,strwidth("abcdefghijkl"),strheight*4)
+
+text("RANDOM "+setR,stdX,stdY)
+text("SIZE "+xLine+" * "+yLine,stdX,stdY+strheight)
+text("STEP "+step,stdX,stdY+strheight*2)
+text(mes,stdX,stdY+strheight*3)
+return
+
+label checkBuyo
+onBuyo=min((map[tY+1]/pow(2,tX))%2+(tY>yLine),1)
+return
+
+label refresh
+unlock(1)lock()
+return
+
+label cls
+color(bgr,bgg,bgb)
+frect(0,0,width,height)
+return
+
+label keyMan
+ipt=scan
+if ipt and keysoft2 then gosub"pause"endif
+'setR=(setR+(ipt and key1))%2
+if ipt and key1 then setR=(setR+1)%2 gosub"infobox"endif
+ombX=mbX
+mbX=max(0,min(xLine,mbX+(ipt and keyright)-(ipt and keyleft)))
+tY=mbY tX=mbX gosub"checkBuyo"
+if onBuyo then mbX=ombX endif
+return
+
+label regBuyo
+map[tY]=map[tY]+pow(2,tX)
+return
+
+label pause
+mes="pause"
+gosub"infobox"
+gosub"refresh"
+soft1("exit")
+soft2("start")
+while scan=0
+sleep(10)
+wend
+if scan=keysoft1 then end endif
+if scan=key0 then goto"main0" endif
+gosub"setSoft"
+mes=""
+gosub"infobox"
+clearinput()
+return
+
+label setSoft
+soft1("")
+soft2("pause")
+return
+

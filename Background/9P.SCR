@@ -1,0 +1,16 @@
+setfont("L")
+color(255,255,255)
+show=hourofday+":"+minute
+text(show,(width-strwidth(show))/2,(height-strheight)/2)
+while 1
+oldh=minute
+while oldh=minute
+sleep(100)
+wend
+color(0,0,0)
+text(show,(width-strwidth(show))/2,(height-strheight)/2)
+color(255,255,255)
+show=hourofday+":"+minute
+text(show,(width-strwidth(show))/2,(height-strheight)/2)
+sleep(59000)
+wend

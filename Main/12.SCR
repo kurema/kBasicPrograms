@@ -1,0 +1,149 @@
+gosub"setkey"
+gosub"settype"
+gosub"sethino"
+'setfont("M")
+gosub"cls"
+arg[0]="AUTO LOOK"
+gosub"prctr"
+unlock(1)lock()
+sleep(1000)
+gosub"help"
+gosub"cls"
+label main
+if ppy+strheight*2>height then ppy=0 gosub"cls" endif
+tmp[0]=0tmp[1]=0tmp[2]=0
+tmp[1]=abs(rand)%10+1
+tmp[0]=abs(rand)%hinoa[tmp[1]]+1-m[tmp[1]]
+tmp[2]=abs(rand)%hinob[tmp[1]]+1-m[tmp[1]]
+posx=0 posy=ppy
+arg[0]=type[tmp[1]]+" "+tmp[0]+" "+tmp[2]
+gosub"show"
+arg[0]=0
+posx=width/2 posy=ppy
+gosub"gets"
+gosub"calc"
+gosub"clrbtm"
+if ipts*mino=ans then color(255,255,255) x=x+1 o=o+1 arg[0]="ê≥â  ( "+o+" / "+x+" )" gosub"prbtmctr" else x=x+1 color(255,0,0) arg[0]="é∏îs  ( "+o+" / "+x+" )" gosub"prbtmctr" c=1 arg[0]=(ipts*mino)+"  (A "+ans+")" gosub"show" c=0 endif
+color(255,255,255) 
+ppy=ppy+strheight
+arg[0]=0
+goto"main"
+
+label clrbtm
+color(64,64,64)frect(0,height-strheight,width,height)color(255,255,255)
+return
+
+label prctr
+text(arg[0],width/2-(strwidth(arg[0])/2),height/2-(strheight/2))
+return
+
+label prbtmctr
+text(arg[0],width/2-(strwidth(arg[0])/2),(height-strheight))
+return
+
+label cls
+color(0,0,0)frect(0,0,width,height)color(255,255,255)
+return
+
+label setkey
+key[0]=key0 key[1]=key1 key[2]=key2 key[3]=key3 key[4]=key4 key[5]=key5 key[6]=key6 key[7]=key7 key[8]=key8 key[9]=key9
+return
+
+label settype
+type[9]="max"type[10]="min"type[1]="+"type[2]="-"type[3]="*"type[6]="and"type[7]="or"type[8]="xor"type[4]="/"type[5]="mod"m[7]=1m[8]=1m[6]=1
+return
+
+label sethino
+hinoa[1]=100hinoa[2]=100hinoa[3]=10hinoa[4]=100hinoa[5]=1000hinoa[6]=3hinoa[7]=3hinoa[8]=3hinoa[9]=100000hinoa[10]=100000
+hinob[1]=100hinob[2]=100hinob[3]=10hinob[4]=10hinob[5]=10hinob[6]=3hinob[7]=3hinob[8]=3hinob[9]=100000hinob[10]=100000
+return
+
+label getno
+iptc=-1
+for i=0 to 9
+if key[i]=ipt then iptc=i ipts=(ipts*10+iptc) endif
+next
+return
+
+label gets
+ipts=0
+gosub"show"
+stopper=1
+mino=1
+while(stopper)
+ipt=input(1)
+if keysoft1 and ipt then stopper=0 endif
+if keysoft2 and ipt then ipts=0 mino=1 endif
+if keyright and ipt then mino=-mino endif
+if keyleft and ipt then ipts=ipts/10 endif
+if keyup and ipt then ipts=ipts+1 endif
+if keydown and ipt then ipts=ipts-1 endif
+
+if keyselect and ipt then stopper=0 endif
+if abs(ipts)<107374182 then gosub"getno" endif
+if not(ipt=0) then arg[0]=ipts*mino gosub"show" endif
+wend
+if keysoft1 and ipt then end endif
+return
+
+label show
+color(0,0,0)
+frect(posx,posy,width,strheight)
+color(255,255,255)
+if c=1 then color(255,0,0) endif
+text(arg[0],posx,posy)
+unlock(1)lock()
+return
+
+label otherkey
+if ipt and keyup then ipts=10 endif
+if ipt and keydown then ipts=11 endif
+if ipt and keyleft then ipts=12 endif
+if ipt and keyright then ipts=13 endif
+if ipt and keyselect then ipts=14 endif
+return
+
+label calc
+if tmp[1] = 1 then ans=(tmp[0]+tmp[2]) endif
+if tmp[1] = 2 then ans=(tmp[0]-tmp[2]) endif
+if tmp[1] = 3 then ans=(tmp[0]*tmp[2]) endif
+if tmp[1] = 4 then ans=(tmp[0]/tmp[2]) endif
+if tmp[1] = 5 then ans=(tmp[0]%tmp[2]) endif
+if tmp[1] = 6 then ans=(tmp[0] and tmp[2]) endif
+if tmp[1] = 7 then ans=(tmp[0] or tmp[2]) endif
+if tmp[1] = 8 then ans=(tmp[0] xor tmp[2]) endif
+if tmp[1] = 9 then ans=max(tmp[0],tmp[2]) endif
+if tmp[1] = 10 then ans=min(tmp[0],tmp[2]) endif
+endif
+
+if tmp[1] = 0 then endif
+return
+
+label help
+gosub"cls"
+posx=0posy=0
+arg[0]="HELP"
+gosub"show"
+posy=posy+strheight
+arg[0]="åvéZÉhÉäÉãÇ≈Ç∑"
+gosub"show"
+posy=posy+strheight
+arg[0]=""
+gosub"show"
+posy=posy+strheight
+arg[0]="î]ÇíbÇ¶Ç‹ÇµÇÂÇ§"
+gosub"show"
+posy=posy+strheight
+arg[0]="ìöÇ¶ÇÇ«ÇÒÇ«ÇÒì¸óÕ"
+gosub"show"
+posy=posy+strheight
+arg[0]="äÊí£Ç¡ÇƒÇ≠ÇæÇ≥Ç¢"
+gosub"show"
+posy=posy+strheight
+posy=posy+strheight
+arg[0]="PRESS ANY KEY"
+gosub"show"
+arg[0]=0
+input()
+return
+

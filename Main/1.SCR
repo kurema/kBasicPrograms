@@ -1,0 +1,299 @@
+'ユーモア機能たっぷりプログラム集 色編
+
+'thread(basedir+"9q.scr",th)
+R=abs(rand)%256B=abs(rand)%256G=abs(rand)%256
+rpt[1]=512
+BD=0
+afn=15
+fn=14
+bail=170
+goto"fcg"
+label la
+color(255,0,0)frect(0,0,width,height)
+sleep(15)
+color(0,0,255)frect(0,0,width,height)
+sleep(5)
+gosub"ch"
+goto"la"
+
+label ch
+in=input(1)
+if in=keysoft1 then end endif
+if in=keysoft2 then fn=(fn+1)%afn gosub"fcg" endif
+return
+
+label fcg
+unlock(1)
+cnt=0
+if fn=cnt then goto"la" endif
+cnt=cnt+1
+if fn=cnt then goto"gdt" endif
+cnt=cnt+1
+if fn=cnt then goto"flc" endif
+cnt=cnt+1
+if fn=cnt then goto"nsm" endif
+cnt=cnt+1
+if fn=cnt then goto"clf" endif
+cnt=cnt+1
+if fn=cnt then goto"trf" endif
+cnt=cnt+1
+if fn=cnt then goto"fns" endif
+cnt=cnt+1
+if fn=cnt then goto"dgl" endif
+cnt=cnt+1
+if fn=cnt then goto"starst" endif
+cnt=cnt+1
+if fn=cnt then goto"fulnsm" endif
+cnt=cnt+1
+if fn=cnt then goto"rndline" endif
+cnt=cnt+1
+if fn=cnt then goto"rndlinea" endif
+cnt=cnt+1
+if fn=cnt then goto"rndlineab" endif
+cnt=cnt+1
+if fn=cnt then goto"phstar" endif
+cnt=cnt+1
+if fn=cnt then goto"thrd" endif
+cnt=cnt+1
+
+
+
+
+
+
+
+
+
+return
+
+label gdt
+for cnt=0 to height
+color(R*cnt/height,G*cnt/height,B*cnt/height)
+line(0,cnt,width,cnt)
+next
+label dadm
+gosub"ch"
+goto"dadm"
+
+label flc
+color(0,0,0)frect(0,0,width,height)
+for cnt=0 to 255' step 4'
+for cnta=0 to 255' step 4'
+color(cnt,cnta,BD)
+frect(cnt'/4',cnta'/4',1,1)
+next
+gosub"ch"
+next
+goto"dadm"
+
+label clf
+color(0,0,0)frect(0,0,width,height)
+for cnt=0 to 255
+for cnta=0 to 255
+tempb=(255-cnt-cnta)
+tempn=max(max(cnt,cnta),tempb)
+color(cnt*255/tempn,cnta*255/tempn,tempb*255/tempn)
+frect(cnt,cnta,1,1)
+if cnt+cnta=255 then cnta=255 endif
+next
+gosub"ch"
+next
+goto"dadm"
+
+label trf
+cnt=abs(rand)%255
+cnta=abs(rand)%(255-cnt)
+tempb=(255-cnt-cnta)
+tempn=max(max(cnt,cnta),tempb)
+color(cnt*255/tempn,cnta*255/tempn,tempb*255/tempn)
+frect(cnt,cnta,1,1)
+if cnt+cnta>254 then cnta=255 endif
+gosub"ch"
+goto"trf"
+
+
+
+label nsm
+for cnt=0 to width
+for cnta=0 to height
+color(abs(rand)%255,abs(rand)%255,abs(rand)%255)
+frect(cnt,cnta,1,1)
+next
+gosub"ch"
+next
+goto"nsm"
+
+label fns
+color(abs(rand)%255,abs(rand)%255,abs(rand)%255)
+frect(0,0,width,height)
+gosub"ch"
+goto"fns"
+
+label dgl
+oy=height/2
+ox=width/2
+ney=height/2
+nex=width/2
+sp=2
+lmr=abs(rand)%10+1 lmg=abs(rand)%10+1 lmb=abs(rand)%10+2
+ner=0 neg=0 neb=0
+color(0,0,0)frect(0,0,width,height)
+label rpt
+'rama=abs(rand)%3
+'if rama=0 then' ner=abs(ner+abs(rand%lmr))%256' endif
+'if rama=1 then neg=abs(ner+abs(rand%lmg))%256 endif
+'if rama=2 then neb=abs(ner+abs(rand%lmb))%256 endif
+color(ner,ner,ner)
+'ramd=(abs(rand)%2+1)*(abs(rand)%2*2-1)
+rama=abs(rand)%4
+if rama=0 then nex=ox-sp endif
+if rama=1 then nex=ox+sp endif
+if rama=2 then ney=oy+sp endif
+if rama=3 then ney=oy-sp endif
+if nex<0 then ox=nex+width nex=nex+width endif
+if ney<0 then oy=ney+height ney=ney+height endif
+if nex>width then ox=nex-width nex=nex-width endif
+if ney>height then oy=ney-height ney=ney-height endif
+'nex=abs(ox+(ramx)*sp)%width
+'ney=abs(ox+(ramy)*sp)%height
+line(nex,ney,ox,oy)
+ox=nex oy=ney
+ramx=0 ramy=0
+gosub"ch"
+goto"rpt"
+
+label starst
+'soft1(""+hour+":"+minute)
+color(0,0,0)frect(0,0,width,height)
+for i=1 to abs(rand%512)
+r=abs(rand%255)color(r,r,r)frect(abs(rand%width),abs(rand%height),1,1)
+next
+label bh
+if in=keysoft1 then end endif
+if in=keyselect or second=0 then goto"starst" endif
+gosub"ch"
+sleep(200)
+goto"bh"
+
+label fulnsm
+cnt=abs(rand)%256
+BDA=abs(rand)%256
+'for cnt=0 to 255 step 4
+for cnta=0 to 255' step 4'
+color(cnt,cnta,BDA)
+frect(0,0,width,height)
+next
+gosub"ch"
+'if in=keyselect then goto"fulnsm" endif
+'next
+goto"fulnsm"
+
+label rndline
+color(0,0,0)frect(0,0,width,height)
+color(abs(rand)%255,abs(rand)%255,abs(rand)%255)
+
+omx=width/2 omy=height/2
+for cnt=0 to abs(rand)%64
+mmx=abs(rand)%width
+mmy=abs(rand)%height
+line(omx,omy,mmx,mmy)
+next
+gosub"ch"
+goto"rndline"
+
+label rndlinea
+color(0,0,0)frect(0,0,width,height)
+color(abs(rand)%255,abs(rand)%255,abs(rand)%255)
+
+omx=width/2 omy=height/2
+for cnt=0 to abs(rand)%64
+mmx=abs(rand)%width
+mmy=abs(rand)%height
+line(omx,omy,mmx,mmy)
+omx=mmx omy=mmy
+next
+gosub"ch"
+goto"rndlinea"
+
+label rndlineab
+for ijm=0 to 6
+randnum[ijm]=abs(rand)%255
+next
+color(randnum[0],randnum[1],randnum[2])
+frect(0,0,width,height)
+color(randnum[3],randnum[4],randnum[5])
+omx=width/2 omy=height/2
+for cnt=0 to 32+abs(rand)%32
+mmx=abs(rand)%width
+mmy=abs(rand)%height
+line(omx,omy,mmx,mmy)
+omx=mmx omy=mmy
+next
+gosub"ch"
+if in=keyselect then color((randnum[0]+128)%255,(randnum[1]+128)%255,(randnum[2]+128)%255)text("BG RGB: "+randnum[0]+" "+randnum[1]+" "+randnum[2],0,0)text("LT RGB: "+randnum[3]+" "+randnum[4]+" "+randnum[5],0,strheight) goto"rtwm" endif
+goto"rndlineab"
+
+label rtwm
+gosub"ch"
+if in=keyselect then goto"rndlineab" endif
+goto"rtwm"
+
+label phstar
+con[0]=0 con[1]=0 p=0
+mode=abs(rand)%2
+stasm=1
+color(0,0,0)frect(0,0,width,height)
+lock()
+stars=abs(rand)%512
+for cnt=0 to stars
+colors[cnt]=abs(rand)%256
+'dist[cnt]=(bail*100)/(abs(rand)%(bail*100)+1)
+if mode=0 then dist[cnt]=abs(rand)%bail else
+gosub"dich" endif
+place[cnt]=abs(rand)%360
+next
+clr=0
+
+for cnta=0 to abs(rand)%360
+if clr=1 then color(0,0,0)frect(0,0,width,height) endif
+for cnt=0 to stars
+a=place[cnt] b=(100) c=dist[cnt]
+color(colors[cnt],colors[cnt],colors[cnt]) place[cnt]=place[cnt]+1
+line((width/2)-sin(a)*c/b,(height/2)-cos(a)*c/b,(width/2)-sin(a+clr-1+stasm)*c/b,(height/2)-cos(a+clr-1+stasm)*c/b)
+next
+stasm=stasm%1
+gosub"ch"
+if keyselect=in then goto"phstar" endif
+if keyup=in then clr=(clr+1)%2 endif
+unlock(1)lock()
+next
+goto"phstar"
+
+label dich
+con[1]=con[1]+abs(rand)%10000
+while con[1]>p
+'p=con[0]*(con[0]+1)*(2*con[0]+1)/6
+p=con[0]*(con[0]+1)/2
+con[0]=con[0]+1
+wend
+if con[0]>bail then con[0]=con[0]%bail con[1]=0 endif
+dist[cnt]=(con[0])%bail
+return
+
+
+label thrd
+color(0,0,0)frect(0,0,width,height)
+for cnt=0 to abs(rand)%rpt[1]
+x=abs(rand)%(width/2-16)'+(width/2)
+y=abs(rand)%(height)
+color(abs(rand)%256,abs(rand)%256,abs(rand)%256)
+if mono=1 then cjmd=abs(rand)%256 color(cjmd,cjmd,cjmd) endif
+frect(x,y,1,1)
+frect(x+(width/2)+abs(rand)%16,y,1,1)
+next
+
+label jmdagjm
+gosub"ch"
+if keyselect=in then goto"thrd" endif
+if keyup=in then mono=(mono+1)%2 endif
+goto "jmdagjm"

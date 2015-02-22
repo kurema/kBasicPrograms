@@ -1,0 +1,66 @@
+'頭が良くなる計算ソフト
+
+m[0]="+"m[1]="+"m[2]="*"m[3]="/"m[4]="-"m[5]="%"m[6]=""m[7]=""m[8]=""m[9]=""
+fnk=2
+color(0,0,0)frect(0,0,width,height)
+color(255,255,255)
+text("1:+ plural addition",0,13)
+text("2:+ single addition",0,26)
+text("3:* single multyply",0,39)
+text("4:/ single division",0,52)
+text("5:- single subtraction",0,65)
+text("6:% single remainder",0,78)
+cha[0]=1cha[1]=1cha[2]=0cha[3]=0cha[4]=0cha[5]=0
+chb[0]=0chb[1]=1chb[2]=1chb[3]=1chb[4]=1chb[5]=1
+chc[0]=0chc[1]=0chc[2]=1chc[3]=2chc[4]=3chc[5]=4
+goto"Jbh"
+label st
+if (cha[fnk]=1) then s=0 else s=1 endif
+soft1("end")
+soft2("start")
+color(0,0,0)frect(0,0,width,height)
+j=abs(rand%1024)
+if chb[fnk]=1 then lm=2 else lm=abs(rand%25) endif
+for i=1 to lm
+r=abs(rand%255)
+if chc[fnk]=0 then s=s+r endif
+if chc[fnk]=1 then s=s*r endif
+if chc[fnk]=2 and i=2 then r=r%9+1 endif
+if chc[fnk]=2 then s=oldr/r endif
+if chc[fnk]=3 then s=oldr-r endif
+if chc[fnk]=4 and i=2 then r=r%10+1 endif
+if chc[fnk]=4 then s=oldr%r endif
+color(0,0,0)frect(0,0,width,height)
+color(255,255,255)
+text(m[fnk],fnk*6,0)
+text(""+r,0,height/2)
+oldr=r
+sleep(j)
+next
+label bh
+a=input(1)
+if a=keysoft1 then end endif
+if a=keysoft2 then goto"mn" endif
+sleep(200)
+goto"bh"
+label mn
+color(0,0,0)frect(0,0,width,height)
+color(255,255,255)
+text("A:"+s,0,height/2)
+label Jbh
+a=input(1)
+if a=keysoft1 then end endif
+if a=key1 then fnk=0 endif
+if a=key2 then fnk=1 endif
+if a=key3 then fnk=2 endif
+if a=key4 then fnk=3 endif
+if a=key5 then fnk=4 endif
+if a=key6 then fnk=5 endif
+if a=key7 then fnk=6 endif
+if a=key8 then fnk=7 endif
+if a=key9 then fnk=8 endif
+if fnk>5 then fnk=0 endif
+if a=keysoft2 then goto"st" endif
+text(m[fnk],fnk*6,0)
+sleep(200)
+goto"Jbh"
