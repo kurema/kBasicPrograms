@@ -1,3 +1,3 @@
-*.SCR linguist-language=KeitaiBasic
-Main_Satoo/*.txt linguist-language=KeitaiBasic
-*.DTP linguist-language=KeitaiBasic
+*.SCR linguist-language=Basic
+Main_Satoo/*.txt linguist-language=Basic
+*.DTP linguist-language=Basic
