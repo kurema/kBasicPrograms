@@ -156,7 +156,7 @@ freememory|空ヒープサイズを得る
 
 変数名|キー
 ---|---
-key(key0等)(数字
+key(key0等)|数字
 keyup|上
 keydown|下
 keyleft|左
