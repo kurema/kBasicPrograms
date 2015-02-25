@@ -44,8 +44,8 @@ arg="13 set color char" gosub"print"
 return
 
 label fnk1
-arg="AutoLook CUI System" gosub"print"
-arg="(c)2006 by AutoLook" gosub"print"
+arg="kBasic CUI System" gosub"print"
+arg="(c)2006, kurema" gosub"print"
 arg="ver 1.00" gosub"print"
 return
 
@@ -111,7 +111,7 @@ for k=0 to 7
 r=(((k+1)/2+1)%2)*255
 g=(k%2)*255
 b=(((k+8)%9%8+(k/5)+1)%2)*255
-arg=""+k+" ¡¡¡¡" gosub"print"
+arg=""+k+" ÂÂ¡ÂÂ¡ÂÂ¡ÂÂ¡" gosub"print"
 next
 return
 
@@ -147,17 +147,17 @@ label askcolor
 prp="Red? "
 lnum=1000 gosub"prompt"
 gosub"ccp" tmpr=(ipts)%256 r=tmpr
-arg="¡¡¡¡" gosub"print"
+arg="ÂÂ¡ÂÂ¡ÂÂ¡ÂÂ¡" gosub"print"
 prp="Green? "
 lnum=1000 gosub"prompt"
 gosub"ccp" tmpg=(ipts)%256 g=tmpg
-arg="¡¡¡¡" gosub"print"
+arg="ÂÂ¡ÂÂ¡ÂÂ¡ÂÂ¡" gosub"print"
 prp="Blue? "
 lnum=1000 gosub"prompt"
 gosub"ccp" tmpb=(ipts)%256 b=tmpb
-arg="¡¡¡¡" gosub"print"
+arg="ÂÂ¡ÂÂ¡ÂÂ¡ÂÂ¡" gosub"print"
 r=tmpr g=tmpg b=tmpb
-arg="¡¡¡¡" gosub"print"
+arg="ÂÂ¡ÂÂ¡ÂÂ¡ÂÂ¡" gosub"print"
 return
 
 label enc
