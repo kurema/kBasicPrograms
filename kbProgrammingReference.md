@@ -218,6 +218,11 @@ if a>=b then maxnum=a else maxnum=b endif
 ````
 上の方が簡潔です。
 特に複数組み合わせると大きな差が生じます。
+一般に三項演算子は
+````
+result=(条件)*a+not(条件)*b
+````
+で書けます。
 ###while内でのend
 携帯Basicではなぜか``while``内では``end``が出来ませんでした。その時は一度gotoで抜けてから``end``をすれば問題ありません。
 ````
@@ -300,3 +305,44 @@ lastLen=len
 return
 ````
 他にもHTMLブラウザやスクリプトの実行なども出来ます。
+###任意精度演算
+文字列演算との組み合わせによって任意精度演算も可能です。
+数値は32ビット符号付き整数で、-2,147,483,648～2,147,483,647まで扱えるので9桁ごとに区切って処理をします。
+乗算は4桁ごとに区切って処理をします。
+除算は割られる側の値に上限は有りませんが、割る側は5桁程度までしか対応できません。  
+以下は除算の例です。
+````
+label mathBasicMul
+tmp=arg1
+i=0
+while strlen(tmp)>precMul
+arg1[i]=substr(tmp,strlen(tmp)-precMul,precMul)
+tmp=substr(tmp,0,strlen(tmp)-precMul)
+i=i+1
+wend
+arg1[i]=tmp
+arg1Len=i
+
+tmp=arg2
+i=0
+while strlen(tmp)>precMul
+arg2[i]=substr(tmp,strlen(tmp)-precMul,precMul)
+tmp=substr(tmp,0,strlen(tmp)-precMul)
+i=i+1
+wend
+arg2[i]=tmp
+arg2Len=i
+
+tmp0=";"
+tmp1=0
+for i=0 to arg1Len+arg2Len-1
+ for j=max(0,i-arg2Len) to min(i,arg1Len)
+  tmp1=tmp1+arg1[j]*arg2[i-j]
+  next
+ tmp0=substr(tmp1%pow(10,precMul)+pow(10,precMul),1,precMul)+tmp0
+ tmp1=tmp1/pow(10,precMul)
+next
+tmp0=(arg1[arg1Len]*arg2[arg2Len]+tmp1)+tmp0
+ret=substr(tmp0,0,strlen(tmp0)-1)
+return
+````
