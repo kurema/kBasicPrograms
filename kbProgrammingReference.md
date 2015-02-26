@@ -202,6 +202,7 @@ tmp="Command_"+CommandName
 gosub tmp
 
 label Command_help
+...
 ````
 文字入力と組み合わせれば、簡単にCUIが作れます。
 もちろん、同じことはIF文でもできますがこちらの方が圧倒的に簡潔で早いのです。
@@ -235,13 +236,29 @@ end
 その為、携帯Basic上で処理を行うのに比べて文字列処理は異様に早く実行できます。
 簡単な例は連想配列です。
 ````
-stridx(dict,word)
+dict=":key1.content1:key2.content2:"
+...
 
+label dictLookup
+myIndex=stridx(arg1,arg2)
+myDict=substr(arg1,myIndex,strwidth(arg1)-myIndex)
+myWidth=stridx(myDict,":")
+myIndex=strwidth(arg2)+1
+result=substr(myDict,myIndex,myWidth-myIndex)
+return
+
+label dictAdd
+result=arg1+arg2+"."+arg3+":"
+return
 ````
-
-###文字列処理の応用
-
+他にも、素数判定を文字列検索を使って実行する、関数ポインタの実在性をチェックする等文字列処理の応用性はかなり高いです。
+###ベクター画像
+文字列処理を応用してベクター画像を描画する事もできます。以下に例を示します。
 ````
+paintList="c,255,255,255;b,000,000,050,030;s,010,015,030,030;s,005,060,020,030;c,000,000,000;l,025,035,025,045;b,010,010,003,003;b,040,010,003,003;t,005,060,茶;"
+gosub "execPaint"
+...
+
 label execPaint
 len=0
 tmp=paintList
