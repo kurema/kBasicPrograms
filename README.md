@@ -3,13 +3,7 @@
 これは、その当時私が携帯電話実機上で作成したプログラムです。  
 現在、動作環境が存在するかどうかは疑わしいですが、歴史的資料の一環として公開しています。
 
-## 目次
-* [概説](README.md)
-* [携帯Basic プログラミングリファレンス](kbProgrammingReference.md)
-* [主要プログラム説明](Main/README.md)
-* [ゲームについて](Main/README_GAME.md)
-* [携帯デスクトップ](Desktop/README.md)
-* [startup.scr](startup/README.md)
+なおこのドキュメントは[gitbook](https://www.gitbook.com/book/kurema/kbasicprograms)で公開しています。
 
 ## オリジナルとの違い
 * 説明書の一部を修正しました。
