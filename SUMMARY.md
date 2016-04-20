@@ -3,5 +3,5 @@
 * [携帯Basic プログラム集](README.md)
 * [携帯Basic プログラミングリファレンス](kbProgrammingReference.md)
 * [主要プログラム説明](Main/README.md)
-* ゲームについて
+* [ゲームについて](Main/README_GAME.md)
 
